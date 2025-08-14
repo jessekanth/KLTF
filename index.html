@@ -4,83 +4,194 @@
   <title>Church Offerings Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* Previous styles remain the same */
-    .view-toggle {
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 10px;
+      background-color: #f5f7fa;
+      color: #333;
+      font-size: 13px;
+    }
+    .dashboard {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+    .header {
+      margin-bottom: 12px;
+    }
+    .input-group {
       display: flex;
-      margin-bottom: 15px;
-      border-bottom: 1px solid #ddd;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
     }
-    .view-tab {
-      padding: 8px 15px;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-    }
-    .view-tab.active {
-      border-bottom-color: #3498db;
-      font-weight: bold;
-    }
-    .year-selector {
-      margin-left: auto;
-      padding: 8px 12px;
+    input, select, button {
+      padding: 6px 10px;
       border: 1px solid #ddd;
       border-radius: 4px;
+      font-size: 13px;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+    .month-container {
+      margin-bottom: 15px;
+      background: white;
+      border-radius: 5px;
+      padding: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .month-title {
+      font-size: 1rem;
+      color: #2c3e50;
+      border-bottom: 1px solid #3498db;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .card {
+      background: white;
+      border-radius: 4px;
+      padding: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      border-left: 2px solid #3498db;
+    }
+    .type-card {
+      background: #f8f9fa;
+    }
+    .card h3 {
+      margin: 0 0 4px 0;
+      color: #2c3e50;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .card .value {
+      font-size: 1rem;
+      font-weight: bold;
+      margin: 2px 0;
+      color: #3498db;
+    }
+    .card .subtext {
+      font-size: 0.7rem;
+      color: #7f8c8d;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border-radius: 5px;
+      overflow: hidden;
+      font-size: 0.75rem;
+    }
+    th, td {
+      padding: 6px 8px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    th {
+      background-color: #3498db;
+      color: white;
+      font-weight: 500;
+      font-size: 0.8rem;
+    }
+    .page {
+      display: none;
+      margin-bottom: 20px;
+    }
+    .page.active {
+      display: block;
+    }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .page-btn {
+      padding: 6px 12px;
+      background: #e0e0e0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .page-btn.active {
+      background: #3498db;
+      color: white;
+    }
+    @media (max-width: 600px) {
+      .card-container {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      }
+      input, select, button {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
   <div class="dashboard">
     <div class="header">
-      <h1>Church Offerings</h1>
+      <h1 style="font-size:1.3rem">Church Offerings</h1>
       <div class="input-group">
-        <input type="date" id="startDate" placeholder="Start date">
-        <input type="date" id="endDate" placeholder="End date">
+        <select id="yearSelect">
+          <!-- Years populated dynamically -->
+        </select>
+        <select id="monthSelect">
+          <option value="">All Months</option>
+          <option value="01">January</option>
+          <option value="02">February</option>
+          <!-- ... other months ... -->
+        </select>
         <select id="donationType">
           <option value="">All Types</option>
           <option value="Offering">Offering</option>
           <option value="Tithe">Tithe</option>
-          <option value="Building Fund">Building Fund</option>
         </select>
-        <button onclick="applyFilters()">Apply Filters</button>
-      </div>
-      <div class="view-toggle">
-        <div class="view-tab active" data-view="monthly">Monthly View</div>
-        <div class="view-tab" data-view="annual">Annual Summary</div>
-        <select id="yearSelect" class="year-selector">
-          <!-- Years will be populated dynamically -->
-        </select>
+        <button onclick="applyFilters()">Apply</button>
       </div>
       <div class="updated" id="lastUpdated"></div>
     </div>
 
-    <div id="monthlyView">
-      <!-- Monthly sections will be inserted here -->
-    </div>
-    
-    <div id="annualView" style="display:none;">
-      <div class="month-container">
-        <h2 class="month-title" id="annualTitle">Annual Summary</h2>
-        <div class="card-container" id="annualCards">
-          <!-- Annual cards will be inserted here -->
-        </div>
+    <div class="page active" id="page1">
+      <div id="monthlyView">
+        <!-- Monthly sections will be inserted here -->
       </div>
     </div>
     
-    <div class="month-container">
-      <h2 class="month-title">Recent Donations</h2>
-      <table id="donationsTable">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Amount</th>
-            <th>Type</th>
-            <th>Envelope</th>
-            <th>Counters</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Data will be inserted here -->
-        </tbody>
-      </table>
+    <div class="page" id="page2">
+      <div class="month-container">
+        <h2 class="month-title">Recent Donations</h2>
+        <table id="donationsTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Type</th>
+              <th>Envelope</th>
+              <th>Counters</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Data will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pagination">
+      <button class="page-btn active" onclick="showPage(1)">Summary</button>
+      <button class="page-btn" onclick="showPage(2)">Transactions</button>
     </div>
   </div>
 
@@ -88,7 +199,6 @@
     // Configuration
     const API_URL = "https://script.google.com/macros/s/AKfycbyXVG_LdMJlexPz29jEFXTgOYjffgfJO8GbPjtMfFUMOOagFheVsCWAwp5kfueRbhtl/exec";
     let allDonations = [];
-    let currentView = "monthly";
 
     // Main data loader
     async function loadData() {
@@ -121,7 +231,7 @@
       });
       
       const yearSelect = document.getElementById('yearSelect');
-      yearSelect.innerHTML = '';
+      yearSelect.innerHTML = '<option value="">All Years</option>';
       
       Array.from(years).sort((a,b) => b - a).forEach(year => {
         const option = document.createElement('option');
@@ -129,61 +239,45 @@
         option.textContent = year;
         yearSelect.appendChild(option);
       });
-      
-      // Set default to current year
-      const currentYear = new Date().getFullYear();
-      if (years.has(currentYear)) {
-        yearSelect.value = currentYear;
-      }
     }
 
-    // Apply filters from input fields
+    // Apply filters
     function applyFilters() {
-      const startDate = document.getElementById('startDate').value;
-      const endDate = document.getElementById('endDate').value;
+      const year = document.getElementById('yearSelect').value;
+      const month = document.getElementById('monthSelect').value;
       const typeFilter = document.getElementById('donationType').value;
-      const selectedYear = document.getElementById('yearSelect').value;
       
       let filtered = [...allDonations];
       
-      if (startDate) {
-        const start = new Date(startDate);
-        filtered = filtered.filter(d => new Date(d.date) >= start);
+      if (year) {
+        filtered = filtered.filter(d => new Date(d.date).getFullYear() == year);
       }
       
-      if (endDate) {
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59);
-        filtered = filtered.filter(d => new Date(d.date) <= end);
+      if (month) {
+        filtered = filtered.filter(d => 
+          (new Date(d.date).getMonth() + 1).toString().padStart(2, '0') === month
+        );
       }
       
       if (typeFilter) {
         filtered = filtered.filter(d => d.type === typeFilter);
       }
       
-      if (currentView === "annual" && selectedYear) {
-        filtered = filtered.filter(d => new Date(d.date).getFullYear() == selectedYear);
-      }
-      
-      if (currentView === "monthly") {
-        showMonthlyView(filtered);
-      } else {
-        showAnnualView(filtered);
-      }
-      
+      updateMonthlyView(filtered);
       updateRecentDonations(filtered);
     }
 
-    // Show monthly breakdown
-    function showMonthlyView(donations) {
+    // Update monthly view
+    function updateMonthlyView(donations) {
       const monthlyData = {};
       
+      // Group by month
       donations.forEach(d => {
         const date = new Date(d.date);
         if (isNaN(date.getTime())) return;
         
         const monthYear = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}`;
-        const monthName = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        const monthName = date.toLocaleDateString('en-US', { month: 'long' });
         
         if (!monthlyData[monthYear]) {
           monthlyData[monthYear] = {
@@ -205,12 +299,14 @@
       const monthlyContainer = document.getElementById('monthlyView');
       monthlyContainer.innerHTML = '';
       
+      // Sort months chronologically
       Object.entries(monthlyData)
         .sort((a, b) => b[1].timestamp - a[1].timestamp)
         .forEach(([key, month]) => {
           const monthSection = document.createElement('div');
           monthSection.className = 'month-container';
           
+          // Sort types alphabetically
           const sortedTypes = Object.entries(month.types)
             .sort((a, b) => a[0].localeCompare(b[0]));
           
@@ -231,50 +327,17 @@
           `;
           monthlyContainer.appendChild(monthSection);
         });
-    }
-
-    // Show annual summary
-    function showAnnualView(donations) {
-      const annualData = {};
-      let yearTotal = 0;
       
-      donations.forEach(d => {
-        const date = new Date(d.date);
-        if (isNaN(date.getTime())) return;
-        
-        if (!annualData[d.type]) {
-          annualData[d.type] = 0;
-        }
-        
-        annualData[d.type] += d.amount;
-        yearTotal += d.amount;
-      });
-      
-      const annualContainer = document.getElementById('annualCards');
-      annualContainer.innerHTML = '';
-      
-      document.getElementById('annualTitle').textContent = 
-        `Annual Summary ${document.getElementById('yearSelect').value} (RM${yearTotal.toFixed(2)} Total)`;
-      
-      Object.entries(annualData)
-        .sort((a, b) => a[0].localeCompare(b[0]))
-        .forEach(([type, amount]) => {
-          const card = document.createElement('div');
-          card.className = 'card type-card';
-          card.innerHTML = `
-            <h3>${type}</h3>
-            <div class="value">RM${amount.toFixed(2)}</div>
-            <div class="subtext">${((amount / yearTotal) * 100).toFixed(1)}% of year</div>
-          `;
-          annualContainer.appendChild(card);
-        });
+      document.getElementById('lastUpdated').textContent = 
+        `Updated ${new Date().toLocaleTimeString()} | ${donations.length} records`;
     }
 
     // Update recent donations table
     function updateRecentDonations(donations) {
       const tbody = document.querySelector('#donationsTable tbody');
       tbody.innerHTML = donations
-        .slice(0, 10)
+        .sort((a,b) => new Date(b.date) - new Date(a.date)) // Newest first
+        .slice(0, 50) // Show last 50
         .map(d => `
           <tr>
             <td>${formatDate(d.date)}</td>
@@ -287,9 +350,6 @@
             <td>${d.staff1} & ${d.staff2}</td>
           </tr>
         `).join('');
-      
-      document.getElementById('lastUpdated').textContent = 
-        `Showing ${donations.length} records | Updated ${new Date().toLocaleTimeString()}`;
     }
 
     // Format date for display
@@ -299,30 +359,42 @@
         date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
     }
 
-    // Set up view toggle
-    document.querySelectorAll('.view-tab').forEach(tab => {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-        currentView = this.dataset.view;
-        
-        document.getElementById('monthlyView').style.display = 
-          currentView === 'monthly' ? 'block' : 'none';
-        document.getElementById('annualView').style.display = 
-          currentView === 'annual' ? 'block' : 'none';
-        
-        applyFilters();
+    // Pagination functions
+    function showPage(pageNum) {
+      document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
       });
-    });
+      document.getElementById(`page${pageNum}`).classList.add('active');
+      
+      document.querySelectorAll('.page-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`.page-btn:nth-child(${pageNum})`).classList.add('active');
+    }
 
     // Initialize
     window.onload = function() {
-      const end = new Date();
-      const start = new Date();
-      start.setMonth(start.getMonth() - 3);
+      // Populate month dropdown
+      const months = [
+        {value: '01', name: 'January'}, {value: '02', name: 'February'},
+        {value: '03', name: 'March'}, {value: '04', name: 'April'},
+        {value: '05', name: 'May'}, {value: '06', name: 'June'},
+        {value: '07', name: 'July'}, {value: '08', name: 'August'},
+        {value: '09', name: 'September'}, {value: '10', name: 'October'},
+        {value: '11', name: 'November'}, {value: '12', name: 'December'}
+      ];
       
-      document.getElementById('startDate').valueAsDate = start;
-      document.getElementById('endDate').valueAsDate = end;
+      const monthSelect = document.getElementById('monthSelect');
+      months.forEach(month => {
+        const option = document.createElement('option');
+        option.value = month.value;
+        option.textContent = month.name;
+        monthSelect.appendChild(option);
+      });
+      
+      // Set current month as default
+      const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
+      monthSelect.value = currentMonth;
       
       loadData();
     };
