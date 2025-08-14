@@ -3,146 +3,359 @@
 <head>
   <title>Church Offerings Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
+    :root {
+      --deep-blue: #0a2463;
+      --gold: #d4af37;
+      --light-blue: #3e92cc;
+      --white: #fff;
+      --light-gray: #f5f7fa;
+      --dark-gray: #333;
+    }
+    
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      padding: 10px;
-      background-color: #f5f7fa;
-      color: #333;
-      font-size: 13px;
+      padding: 0;
+      background-color: var(--light-gray);
+      color: var(--dark-gray);
+      font-size: 14px;
+      transition: margin-left 0.3s;
     }
-    .dashboard {
-      max-width: 100%;
-      margin: 0 auto;
+    
+    /* Sidebar Styles */
+    .sidebar {
+      height: 100%;
+      width: 250px;
+      position: fixed;
+      top: 0;
+      left: -250px;
+      background-color: var(--deep-blue);
+      overflow-x: hidden;
+      transition: 0.3s;
+      z-index: 1000;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.2);
     }
-    .header {
-      margin-bottom: 12px;
+    
+    .sidebar.active {
+      left: 0;
     }
-    .input-group {
+    
+    .sidebar-header {
+      padding: 20px;
+      background-color: rgba(0,0,0,0.1);
+      color: var(--gold);
+      text-align: center;
+      font-size: 1.2rem;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+    }
+    
+    .sidebar-menu {
+      padding: 0;
+      list-style: none;
+    }
+    
+    .sidebar-menu li {
+      padding: 12px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: 0.2s;
+    }
+    
+    .sidebar-menu li:hover {
+      background-color: rgba(212, 175, 55, 0.1);
+    }
+    
+    .sidebar-menu a {
+      color: var(--white);
+      text-decoration: none;
       display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
+      align-items: center;
     }
-    input, select, button {
-      padding: 6px 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 13px;
+    
+    .sidebar-menu i {
+      margin-right: 10px;
+      color: var(--gold);
     }
-    button {
-      background-color: #3498db;
+    
+    .backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 999;
+      display: none;
+    }
+    
+    /* Main Content */
+    .main-content {
+      transition: margin-left 0.3s;
+      padding: 15px;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      background-color: var(--deep-blue);
       color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+    }
+    
+    .menu-btn {
+      background: none;
       border: none;
+      color: var(--gold);
+      font-size: 1.2rem;
       cursor: pointer;
     }
+    
+    .view-toggle {
+      display: flex;
+      background-color: var(--deep-blue);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+    
+    .view-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background-color: var(--deep-blue);
+      color: var(--white);
+      cursor: pointer;
+      transition: 0.2s;
+      font-weight: 500;
+    }
+    
+    .view-btn.active {
+      background-color: var(--gold);
+      color: var(--deep-blue);
+    }
+    
+    .view-btn:not(.active):hover {
+      background-color: var(--light-blue);
+    }
+    
     .card-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
       margin-bottom: 15px;
     }
-    .month-container {
-      margin-bottom: 15px;
-      background: white;
+    
+    .card {
+      background: var(--white);
       border-radius: 5px;
       padding: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      border-left: 3px solid var(--gold);
     }
+    
+    .card.envelope-card {
+      border-left-color: var(--light-blue);
+    }
+    
+    .card h3 {
+      margin: 0 0 5px 0;
+      color: var(--deep-blue);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    
+    .card .value {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin: 5px 0;
+      color: var(--deep-blue);
+    }
+    
+    .card.envelope-card .value {
+      color: var(--light-blue);
+    }
+    
+    .card .subtext {
+      font-size: 0.75rem;
+      color: #666;
+    }
+    
+    .month-container {
+      margin-bottom: 20px;
+      background: var(--white);
+      border-radius: 5px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
     .month-title {
-      font-size: 1rem;
-      color: #2c3e50;
-      border-bottom: 1px solid #3498db;
-      padding-bottom: 5px;
-      margin-bottom: 10px;
+      font-size: 1.1rem;
+      color: var(--deep-blue);
+      border-bottom: 1px solid var(--gold);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
       display: flex;
       justify-content: space-between;
     }
-    .card {
-      background: white;
-      border-radius: 4px;
-      padding: 8px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-      border-left: 2px solid #3498db;
-    }
-    .type-card {
-      background: #f8f9fa;
-    }
-    .card h3 {
-      margin: 0 0 4px 0;
-      color: #2c3e50;
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-    .card .value {
-      font-size: 1rem;
-      font-weight: bold;
-      margin: 2px 0;
-      color: #3498db;
-    }
-    .card .subtext {
-      font-size: 0.7rem;
-      color: #7f8c8d;
-    }
+    
     table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      background: var(--white);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
       border-radius: 5px;
       overflow: hidden;
-      font-size: 0.75rem;
-    }
-    th, td {
-      padding: 6px 8px;
-      text-align: left;
-      border-bottom: 1px solid #e0e0e0;
-    }
-    th {
-      background-color: #3498db;
-      color: white;
-      font-weight: 500;
       font-size: 0.8rem;
     }
-    .page {
-      display: none;
-      margin-bottom: 20px;
+    
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
     }
-    .page.active {
-      display: block;
+    
+    th {
+      background-color: var(--deep-blue);
+      color: var(--white);
+      font-weight: 500;
     }
-    .pagination {
+    
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+    
+    .envelope-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--light-blue);
+      margin-right: 5px;
+    }
+    
+    .no-envelope {
+      background-color: #e74c3c;
+    }
+    
+    .input-group {
       display: flex;
-      justify-content: center;
       gap: 10px;
-      margin: 15px 0;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
     }
-    .page-btn {
-      padding: 6px 12px;
-      background: #e0e0e0;
+    
+    input, select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      flex: 1;
+      min-width: 120px;
+    }
+    
+    button {
+      padding: 8px 15px;
+      background-color: var(--gold);
+      color: var(--deep-blue);
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
     }
-    .page-btn.active {
-      background: #3498db;
-      color: white;
+    
+    button:hover {
+      background-color: #e6c52e;
     }
-    @media (max-width: 600px) {
-      .card-container {
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    
+    .updated {
+      text-align: right;
+      color: #666;
+      font-size: 0.75rem;
+      margin-top: 10px;
+    }
+    
+    /* Mobile Styles */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 200px;
+        left: -200px;
       }
-      input, select, button {
+      
+      .card-container {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      }
+      
+      input, select {
         width: 100%;
+      }
+      
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .menu-btn {
+        margin-bottom: 10px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .card-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .card {
+        padding: 10px;
+      }
+      
+      .card .value {
+        font-size: 1.1rem;
       }
     }
   </style>
 </head>
 <body>
-  <div class="dashboard">
+  <!-- Sidebar Navigation -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <i class="fas fa-church"></i> Church Dashboard
+    </div>
+    <ul class="sidebar-menu">
+      <li><a href="#"><i class="fas fa-home"></i> Overview</a></li>
+      <li><a href="#"><i class="fas fa-hand-holding-usd"></i> Offerings</a></li>
+      <li><a href="#"><i class="fas fa-users"></i> Members</a></li>
+      <li><a href="#"><i class="fas fa-calendar-alt"></i> Events</a></li>
+      <li><a href="#"><i class="fas fa-file-invoice-dollar"></i> Reports</a></li>
+      <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+    </ul>
+  </div>
+  
+  <div class="backdrop" id="backdrop"></div>
+  
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
     <div class="header">
-      <h1 style="font-size:1.3rem">Church Offerings</h1>
+      <button class="menu-btn" id="menuBtn">
+        <i class="fas fa-bars"></i>
+      </button>
+      <h1 style="margin:0;font-size:1.2rem;color:var(--gold)">Church Offerings Dashboard</h1>
+    </div>
+    
+    <div class="view-toggle">
+      <button class="view-btn active" id="summaryBtn">
+        <i class="fas fa-chart-pie"></i> Summary
+      </button>
+      <button class="view-btn" id="transactionsBtn">
+        <i class="fas fa-list"></i> Transactions
+      </button>
+    </div>
+    
+    <div class="page active" id="summaryPage">
       <div class="input-group">
         <select id="yearSelect">
           <!-- Years populated dynamically -->
@@ -151,25 +364,30 @@
           <option value="">All Months</option>
           <option value="01">January</option>
           <option value="02">February</option>
-          <!-- ... other months ... -->
-        </select>
-        <select id="donationType">
-          <option value="">All Types</option>
-          <option value="Offering">Offering</option>
-          <option value="Tithe">Tithe</option>
+          <!-- Other months... -->
         </select>
         <button onclick="applyFilters()">Apply</button>
       </div>
-      <div class="updated" id="lastUpdated"></div>
-    </div>
-
-    <div class="page active" id="page1">
+      
+      <div class="card-container">
+        <div class="card envelope-card">
+          <h3>Envelopes Used</h3>
+          <div class="value" id="envelopeCount">0</div>
+          <div class="subtext" id="envelopePercent">0% of total</div>
+        </div>
+        <div class="card">
+          <h3>Total Offerings</h3>
+          <div class="value" id="totalOfferings">RM0.00</div>
+          <div class="subtext" id="offeringPeriod">All Time</div>
+        </div>
+      </div>
+      
       <div id="monthlyView">
         <!-- Monthly sections will be inserted here -->
       </div>
     </div>
     
-    <div class="page" id="page2">
+    <div class="page" id="transactionsPage">
       <div class="month-container">
         <h2 class="month-title">Recent Donations</h2>
         <table id="donationsTable">
@@ -188,17 +406,53 @@
         </table>
       </div>
     </div>
-
-    <div class="pagination">
-      <button class="page-btn active" onclick="showPage(1)">Summary</button>
-      <button class="page-btn" onclick="showPage(2)">Transactions</button>
-    </div>
+    
+    <div class="updated" id="lastUpdated"></div>
   </div>
 
   <script>
     // Configuration
     const API_URL = "https://script.google.com/macros/s/AKfycbyXVG_LdMJlexPz29jEFXTgOYjffgfJO8GbPjtMfFUMOOagFheVsCWAwp5kfueRbhtl/exec";
     let allDonations = [];
+    let currentView = "summary";
+
+    // DOM Elements
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('backdrop');
+    const menuBtn = document.getElementById('menuBtn');
+    const summaryBtn = document.getElementById('summaryBtn');
+    const transactionsBtn = document.getElementById('transactionsBtn');
+    const summaryPage = document.getElementById('summaryPage');
+    const transactionsPage = document.getElementById('transactionsPage');
+
+    // Toggle sidebar
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+      backdrop.style.display = backdrop.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Close sidebar when clicking backdrop
+    backdrop.addEventListener('click', () => {
+      sidebar.classList.remove('active');
+      backdrop.style.display = 'none';
+    });
+
+    // View toggle functionality
+    summaryBtn.addEventListener('click', () => {
+      currentView = "summary";
+      summaryBtn.classList.add('active');
+      transactionsBtn.classList.remove('active');
+      summaryPage.classList.add('active');
+      transactionsPage.classList.remove('active');
+    });
+
+    transactionsBtn.addEventListener('click', () => {
+      currentView = "transactions";
+      transactionsBtn.classList.add('active');
+      summaryBtn.classList.remove('active');
+      transactionsPage.classList.add('active');
+      summaryPage.classList.remove('active');
+    });
 
     // Main data loader
     async function loadData() {
@@ -239,13 +493,18 @@
         option.textContent = year;
         yearSelect.appendChild(option);
       });
+      
+      // Set default to current year
+      const currentYear = new Date().getFullYear();
+      if (years.has(currentYear)) {
+        yearSelect.value = currentYear;
+      }
     }
 
     // Apply filters
     function applyFilters() {
       const year = document.getElementById('yearSelect').value;
       const month = document.getElementById('monthSelect').value;
-      const typeFilter = document.getElementById('donationType').value;
       
       let filtered = [...allDonations];
       
@@ -259,19 +518,47 @@
         );
       }
       
-      if (typeFilter) {
-        filtered = filtered.filter(d => d.type === typeFilter);
-      }
-      
+      updateSummaryCards(filtered);
       updateMonthlyView(filtered);
       updateRecentDonations(filtered);
+    }
+
+    // Update summary cards
+    function updateSummaryCards(donations) {
+      // Envelope statistics
+      const withEnvelope = donations.filter(d => d.envelope && d.envelope.trim() !== '').length;
+      const envelopePercent = donations.length > 0 
+        ? Math.round((withEnvelope / donations.length) * 100)
+        : 0;
+      
+      document.getElementById('envelopeCount').textContent = withEnvelope;
+      document.getElementById('envelopePercent').textContent = 
+        `${envelopePercent}% of ${donations.length} donations`;
+      
+      // Total offerings
+      const total = donations.reduce((sum, d) => sum + d.amount, 0);
+      document.getElementById('totalOfferings').textContent = `RM${total.toFixed(2)}`;
+      
+      // Period text
+      let periodText = "All Time";
+      const yearSelect = document.getElementById('yearSelect');
+      const monthSelect = document.getElementById('monthSelect');
+      
+      if (yearSelect.value && monthSelect.value) {
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"];
+        periodText = `${monthNames[parseInt(monthSelect.value) - 1]} ${yearSelect.value}`;
+      } else if (yearSelect.value) {
+        periodText = `Year ${yearSelect.value}`;
+      }
+      
+      document.getElementById('offeringPeriod').textContent = periodText;
     }
 
     // Update monthly view
     function updateMonthlyView(donations) {
       const monthlyData = {};
       
-      // Group by month
       donations.forEach(d => {
         const date = new Date(d.date);
         if (isNaN(date.getTime())) return;
@@ -299,14 +586,12 @@
       const monthlyContainer = document.getElementById('monthlyView');
       monthlyContainer.innerHTML = '';
       
-      // Sort months chronologically
       Object.entries(monthlyData)
         .sort((a, b) => b[1].timestamp - a[1].timestamp)
         .forEach(([key, month]) => {
           const monthSection = document.createElement('div');
           monthSection.className = 'month-container';
           
-          // Sort types alphabetically
           const sortedTypes = Object.entries(month.types)
             .sort((a, b) => a[0].localeCompare(b[0]));
           
@@ -327,9 +612,6 @@
           `;
           monthlyContainer.appendChild(monthSection);
         });
-      
-      document.getElementById('lastUpdated').textContent = 
-        `Updated ${new Date().toLocaleTimeString()} | ${donations.length} records`;
     }
 
     // Update recent donations table
@@ -350,6 +632,9 @@
             <td>${d.staff1} & ${d.staff2}</td>
           </tr>
         `).join('');
+      
+      document.getElementById('lastUpdated').textContent = 
+        `Updated ${new Date().toLocaleTimeString()} | ${donations.length} records`;
     }
 
     // Format date for display
@@ -357,19 +642,6 @@
       const date = new Date(dateString);
       return isNaN(date) ? dateString : 
         date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-    }
-
-    // Pagination functions
-    function showPage(pageNum) {
-      document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-      });
-      document.getElementById(`page${pageNum}`).classList.add('active');
-      
-      document.querySelectorAll('.page-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      document.querySelector(`.page-btn:nth-child(${pageNum})`).classList.add('active');
     }
 
     // Initialize
