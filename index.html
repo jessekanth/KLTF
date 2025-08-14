@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Church Offerings Dashboard</title>
+  <title>Church Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --deep-blue: #0a2463;
@@ -21,97 +22,16 @@
       background-color: var(--light-gray);
       color: var(--dark-gray);
       font-size: 14px;
-      transition: margin-left 0.3s;
     }
     
-    /* Sidebar Styles */
-    .sidebar {
-      height: 100%;
-      width: 250px;
-      position: fixed;
-      top: 0;
-      left: -250px;
-      background-color: var(--deep-blue);
-      overflow-x: hidden;
-      transition: 0.3s;
-      z-index: 1000;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.2);
-    }
-    
-    .sidebar.active {
-      left: 0;
-    }
-    
-    .sidebar-header {
-      padding: 20px;
-      background-color: rgba(0,0,0,0.1);
-      color: var(--gold);
-      text-align: center;
-      font-size: 1.2rem;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
-    }
-    
-    .sidebar-menu {
-      padding: 0;
-      list-style: none;
-    }
-    
-    .sidebar-menu li {
-      padding: 12px 20px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      transition: 0.2s;
-    }
-    
-    .sidebar-menu li:hover {
-      background-color: rgba(212, 175, 55, 0.1);
-    }
-    
-    .sidebar-menu a {
-      color: var(--white);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-    }
-    
-    .sidebar-menu i {
-      margin-right: 10px;
-      color: var(--gold);
-    }
-    
-    .backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.5);
-      z-index: 999;
-      display: none;
-    }
-    
-    /* Main Content */
-    .main-content {
-      transition: margin-left 0.3s;
-      padding: 15px;
-    }
-    
+    /* Header and Navigation */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 15px;
+      padding: 10px 15px;
       background-color: var(--deep-blue);
       color: white;
-      padding: 10px 15px;
-      border-radius: 5px;
-    }
-    
-    .menu-btn {
-      background: none;
-      border: none;
-      color: var(--gold);
-      font-size: 1.2rem;
-      cursor: pointer;
     }
     
     .view-toggle {
@@ -119,7 +39,7 @@
       background-color: var(--deep-blue);
       border-radius: 5px;
       overflow: hidden;
-      margin-bottom: 15px;
+      margin: 15px;
     }
     
     .view-btn {
@@ -130,7 +50,6 @@
       color: var(--white);
       cursor: pointer;
       transition: 0.2s;
-      font-weight: 500;
     }
     
     .view-btn.active {
@@ -138,15 +57,12 @@
       color: var(--deep-blue);
     }
     
-    .view-btn:not(.active):hover {
-      background-color: var(--light-blue);
-    }
-    
+    /* Card Styles */
     .card-container {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 10px;
-      margin-bottom: 15px;
+      margin: 15px;
     }
     
     .card {
@@ -157,7 +73,7 @@
       border-left: 3px solid var(--gold);
     }
     
-    .card.envelope-card {
+    .card.attendance-card {
       border-left-color: var(--light-blue);
     }
     
@@ -165,7 +81,6 @@
       margin: 0 0 5px 0;
       color: var(--deep-blue);
       font-size: 0.9rem;
-      font-weight: 600;
     }
     
     .card .value {
@@ -175,41 +90,28 @@
       color: var(--deep-blue);
     }
     
-    .card.envelope-card .value {
+    .card.attendance-card .value {
       color: var(--light-blue);
     }
     
-    .card .subtext {
-      font-size: 0.75rem;
-      color: #666;
-    }
-    
-    .month-container {
-      margin-bottom: 20px;
+    /* Chart Container */
+    .chart-container {
       background: var(--white);
       border-radius: 5px;
       padding: 15px;
+      margin: 15px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
     
-    .month-title {
-      font-size: 1.1rem;
-      color: var(--deep-blue);
-      border-bottom: 1px solid var(--gold);
-      padding-bottom: 8px;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-    }
-    
+    /* Table Styles */
     table {
-      width: 100%;
+      width: calc(100% - 30px);
+      margin: 15px;
       border-collapse: collapse;
       background: var(--white);
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
       border-radius: 5px;
       overflow: hidden;
-      font-size: 0.8rem;
     }
     
     th, td {
@@ -221,86 +123,12 @@
     th {
       background-color: var(--deep-blue);
       color: var(--white);
-      font-weight: 500;
     }
     
-    tr:hover {
-      background-color: #f5f5f5;
-    }
-    
-    .envelope-indicator {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background-color: var(--light-blue);
-      margin-right: 5px;
-    }
-    
-    .no-envelope {
-      background-color: #e74c3c;
-    }
-    
-    .input-group {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-      flex-wrap: wrap;
-    }
-    
-    input, select {
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 14px;
-      flex: 1;
-      min-width: 120px;
-    }
-    
-    button {
-      padding: 8px 15px;
-      background-color: var(--gold);
-      color: var(--deep-blue);
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: 0.2s;
-    }
-    
-    button:hover {
-      background-color: #e6c52e;
-    }
-    
-    .updated {
-      text-align: right;
-      color: #666;
-      font-size: 0.75rem;
-      margin-top: 10px;
-    }
-    
-    /* Mobile Styles */
+    /* Responsive Design */
     @media (max-width: 768px) {
-      .sidebar {
-        width: 200px;
-        left: -200px;
-      }
-      
       .card-container {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      }
-      
-      input, select {
-        width: 100%;
-      }
-      
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      
-      .menu-btn {
-        margin-bottom: 10px;
+        grid-template-columns: 1fr 1fr;
       }
     }
     
@@ -308,150 +136,109 @@
       .card-container {
         grid-template-columns: 1fr;
       }
-      
-      .card {
-        padding: 10px;
-      }
-      
-      .card .value {
-        font-size: 1.1rem;
-      }
     }
   </style>
 </head>
 <body>
-  <!-- Sidebar Navigation -->
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
+  <div class="header">
+    <h1 style="margin:0;font-size:1.2rem;color:var(--gold)">
       <i class="fas fa-church"></i> Church Dashboard
-    </div>
-    <ul class="sidebar-menu">
-      <li><a href="#"><i class="fas fa-home"></i> Overview</a></li>
-      <li><a href="#"><i class="fas fa-hand-holding-usd"></i> Offerings</a></li>
-      <li><a href="#"><i class="fas fa-users"></i> Members</a></li>
-      <li><a href="#"><i class="fas fa-calendar-alt"></i> Events</a></li>
-      <li><a href="#"><i class="fas fa-file-invoice-dollar"></i> Reports</a></li>
-      <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
-    </ul>
+    </h1>
   </div>
   
-  <div class="backdrop" id="backdrop"></div>
+  <div class="view-toggle">
+    <button class="view-btn active" id="summaryBtn">
+      <i class="fas fa-chart-pie"></i> Summary
+    </button>
+    <button class="view-btn" id="transactionsBtn">
+      <i class="fas fa-list"></i> Transactions
+    </button>
+  </div>
   
-  <!-- Main Content -->
-  <div class="main-content" id="mainContent">
-    <div class="header">
-      <button class="menu-btn" id="menuBtn">
-        <i class="fas fa-bars"></i>
-      </button>
-      <h1 style="margin:0;font-size:1.2rem;color:var(--gold)">Church Offerings Dashboard</h1>
-    </div>
-    
-    <div class="view-toggle">
-      <button class="view-btn active" id="summaryBtn">
-        <i class="fas fa-chart-pie"></i> Summary
-      </button>
-      <button class="view-btn" id="transactionsBtn">
-        <i class="fas fa-list"></i> Transactions
+  <div id="summaryPage">
+    <div class="input-group" style="margin:15px;display:flex;gap:10px;">
+      <select id="yearSelect" style="flex:1;padding:8px;border-radius:4px;border:1px solid #ddd;">
+        <!-- Years populated dynamically -->
+      </select>
+      <select id="monthSelect" style="flex:1;padding:8px;border-radius:4px;border:1px solid #ddd;">
+        <option value="">All Months</option>
+        <option value="01">January</option>
+        <option value="02">February</option>
+        <!-- Other months... -->
+      </select>
+      <button onclick="applyFilters()" style="padding:8px 15px;background:var(--gold);color:var(--deep-blue);border:none;border-radius:4px;">
+        Apply
       </button>
     </div>
     
-    <div class="page active" id="summaryPage">
-      <div class="input-group">
-        <select id="yearSelect">
-          <!-- Years populated dynamically -->
-        </select>
-        <select id="monthSelect">
-          <option value="">All Months</option>
-          <option value="01">January</option>
-          <option value="02">February</option>
-          <!-- Other months... -->
-        </select>
-        <button onclick="applyFilters()">Apply</button>
+    <div class="card-container">
+      <div class="card attendance-card">
+        <h3>Members Attended</h3>
+        <div class="value" id="attendanceCount">0</div>
+        <div class="subtext" id="attendancePercent">0% of services</div>
       </div>
-      
-      <div class="card-container">
-        <div class="card envelope-card">
-          <h3>Envelopes Used</h3>
-          <div class="value" id="envelopeCount">0</div>
-          <div class="subtext" id="envelopePercent">0% of total</div>
-        </div>
-        <div class="card">
-          <h3>Total Offerings</h3>
-          <div class="value" id="totalOfferings">RM0.00</div>
-          <div class="subtext" id="offeringPeriod">All Time</div>
-        </div>
-      </div>
-      
-      <div id="monthlyView">
-        <!-- Monthly sections will be inserted here -->
+      <div class="card">
+        <h3>Total Offerings</h3>
+        <div class="value" id="totalOfferings">RM0.00</div>
+        <div class="subtext" id="offeringPeriod">All Time</div>
       </div>
     </div>
     
-    <div class="page" id="transactionsPage">
-      <div class="month-container">
-        <h2 class="month-title">Recent Donations</h2>
-        <table id="donationsTable">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Type</th>
-              <th>Envelope</th>
-              <th>Counters</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Data will be inserted here -->
-          </tbody>
-        </table>
-      </div>
+    <div class="chart-container">
+      <h3 style="margin-top:0;color:var(--deep-blue)">Donation Type Breakdown</h3>
+      <canvas id="pieChart" height="200"></canvas>
     </div>
     
-    <div class="updated" id="lastUpdated"></div>
+    <div id="monthlyView" style="margin:15px;">
+      <!-- Monthly sections will be inserted here -->
+    </div>
+  </div>
+  
+  <div id="transactionsPage" style="display:none;">
+    <div class="chart-container">
+      <h3 style="margin-top:0;color:var(--deep-blue)">Recent Donations</h3>
+      <table id="donationsTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Type</th>
+            <th>Attended</th>
+            <th>Counters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data will be inserted here -->
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
     // Configuration
     const API_URL = "https://script.google.com/macros/s/AKfycbyXVG_LdMJlexPz29jEFXTgOYjffgfJO8GbPjtMfFUMOOagFheVsCWAwp5kfueRbhtl/exec";
     let allDonations = [];
-    let currentView = "summary";
+    let pieChart = null;
 
     // DOM Elements
-    const sidebar = document.getElementById('sidebar');
-    const backdrop = document.getElementById('backdrop');
-    const menuBtn = document.getElementById('menuBtn');
     const summaryBtn = document.getElementById('summaryBtn');
     const transactionsBtn = document.getElementById('transactionsBtn');
     const summaryPage = document.getElementById('summaryPage');
     const transactionsPage = document.getElementById('transactionsPage');
 
-    // Toggle sidebar
-    menuBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('active');
-      backdrop.style.display = backdrop.style.display === 'block' ? 'none' : 'block';
-    });
-
-    // Close sidebar when clicking backdrop
-    backdrop.addEventListener('click', () => {
-      sidebar.classList.remove('active');
-      backdrop.style.display = 'none';
-    });
-
     // View toggle functionality
     summaryBtn.addEventListener('click', () => {
-      currentView = "summary";
       summaryBtn.classList.add('active');
       transactionsBtn.classList.remove('active');
-      summaryPage.classList.add('active');
-      transactionsPage.classList.remove('active');
+      summaryPage.style.display = 'block';
+      transactionsPage.style.display = 'none';
     });
 
     transactionsBtn.addEventListener('click', () => {
-      currentView = "transactions";
       transactionsBtn.classList.add('active');
       summaryBtn.classList.remove('active');
-      transactionsPage.classList.add('active');
-      summaryPage.classList.remove('active');
+      transactionsPage.style.display = 'block';
+      summaryPage.style.display = 'none';
     });
 
     // Main data loader
@@ -470,7 +257,6 @@
         
       } catch (error) {
         console.error("Error:", error);
-        document.getElementById("lastUpdated").textContent = `Error: ${error.message}`;
       }
     }
 
@@ -519,21 +305,22 @@
       }
       
       updateSummaryCards(filtered);
+      updatePieChart(filtered);
       updateMonthlyView(filtered);
       updateRecentDonations(filtered);
     }
 
     // Update summary cards
     function updateSummaryCards(donations) {
-      // Envelope statistics
-      const withEnvelope = donations.filter(d => d.envelope && d.envelope.trim() !== '').length;
-      const envelopePercent = donations.length > 0 
-        ? Math.round((withEnvelope / donations.length) * 100)
+      // Attendance statistics (assuming 'envelope' field now tracks attendance)
+      const attended = donations.filter(d => d.envelope && d.envelope.toString().toLowerCase() === 'yes').length;
+      const attendancePercent = donations.length > 0 
+        ? Math.round((attended / donations.length) * 100)
         : 0;
       
-      document.getElementById('envelopeCount').textContent = withEnvelope;
-      document.getElementById('envelopePercent').textContent = 
-        `${envelopePercent}% of ${donations.length} donations`;
+      document.getElementById('attendanceCount').textContent = attended;
+      document.getElementById('attendancePercent').textContent = 
+        `${attendancePercent}% of ${donations.length} services`;
       
       // Total offerings
       const total = donations.reduce((sum, d) => sum + d.amount, 0);
@@ -553,6 +340,55 @@
       }
       
       document.getElementById('offeringPeriod').textContent = periodText;
+    }
+
+    // Update pie chart
+    function updatePieChart(donations) {
+      const typeData = {};
+      
+      donations.forEach(d => {
+        if (!typeData[d.type]) {
+          typeData[d.type] = 0;
+        }
+        typeData[d.type] += d.amount;
+      });
+      
+      const ctx = document.getElementById('pieChart').getContext('2d');
+      
+      // Destroy previous chart if exists
+      if (pieChart) {
+        pieChart.destroy();
+      }
+      
+      pieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: Object.keys(typeData),
+          datasets: [{
+            data: Object.values(typeData),
+            backgroundColor: [
+              '#0a2463', '#3e92cc', '#d4af37', '#2ecc71', '#e74c3c', '#9b59b6'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: RM${value.toFixed(2)} (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
     }
 
     // Update monthly view
@@ -590,19 +426,17 @@
         .sort((a, b) => b[1].timestamp - a[1].timestamp)
         .forEach(([key, month]) => {
           const monthSection = document.createElement('div');
-          monthSection.className = 'month-container';
+          monthSection.className = 'chart-container';
+          monthSection.style.marginBottom = '15px';
           
           const sortedTypes = Object.entries(month.types)
             .sort((a, b) => a[0].localeCompare(b[0]));
           
           monthSection.innerHTML = `
-            <div class="month-title">
-              <span>${month.name}</span>
-              <span>RM${month.total.toFixed(2)}</span>
-            </div>
+            <h3 style="margin-top:0;color:var(--deep-blue)">${month.name} Breakdown</h3>
             <div class="card-container">
               ${sortedTypes.map(([type, amount]) => `
-                <div class="card type-card">
+                <div class="card">
                   <h3>${type}</h3>
                   <div class="value">RM${amount.toFixed(2)}</div>
                   <div class="subtext">${((amount / month.total) * 100).toFixed(1)}%</div>
@@ -625,16 +459,10 @@
             <td>${formatDate(d.date)}</td>
             <td>RM${d.amount.toFixed(2)}</td>
             <td>${d.type}</td>
-            <td>
-              <span class="envelope-indicator ${d.envelope ? '' : 'no-envelope'}"></span>
-              ${d.envelope || '--'}
-            </td>
+            <td>${d.envelope === 'Yes' ? '✓' : '✗'}</td>
             <td>${d.staff1} & ${d.staff2}</td>
           </tr>
         `).join('');
-      
-      document.getElementById('lastUpdated').textContent = 
-        `Updated ${new Date().toLocaleTimeString()} | ${donations.length} records`;
     }
 
     // Format date for display
