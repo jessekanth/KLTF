@@ -2,8 +2,6 @@
 <html>
 <head>
   <title>Church Offerings Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -27,6 +25,16 @@
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 20px;
       margin-bottom: 30px;
+    }
+    .month-container {
+      margin-bottom: 40px;
+    }
+    .month-title {
+      font-size: 1.5rem;
+      color: #2c3e50;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 5px;
+      margin-bottom: 15px;
     }
     .card {
       background: white;
@@ -66,32 +74,11 @@
     tr:hover {
       background-color: #f1f9ff;
     }
-    .chart-container {
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    }
     .updated {
       text-align: right;
       color: #7f8c8d;
       font-size: 0.9rem;
       margin-top: 10px;
-    }
-    .type-tabs {
-      display: flex;
-      margin-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .type-tab {
-      padding: 10px 20px;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-    }
-    .type-tab.active {
-      border-bottom-color: #3498db;
-      font-weight: bold;
     }
     .envelope-indicator {
       display: inline-block;
@@ -104,6 +91,10 @@
     .no-envelope {
       background-color: #e74c3c;
     }
+    .type-card {
+      background: #f8f9fa;
+      border-left: 4px solid #3498db;
+    }
   </style>
 </head>
 <body>
@@ -112,33 +103,9 @@
       <h1>Church Offerings Dashboard</h1>
       <div class="updated" id="lastUpdated">Loading data...</div>
     </div>
-    
-    <div class="card-container">
-      <div class="card">
-        <h3>Current Month Total</h3>
-        <div class="value" id="monthTotal">RM--.--</div>
-        <div id="monthCompare"></div>
-      </div>
-      
-      <div class="card">
-        <h3>Average Weekly Offering</h3>
-        <div class="value" id="avgWeekly">RM--.--</div>
-        <div>Based on <span id="weekCount">--</span> weeks</div>
-      </div>
-      
-      <div class="card">
-        <h3>Envelope Tracking</h3>
-        <div class="value" id="envelopePercent">--%</div>
-        <div><span id="envelopeCount">--</span> of <span id="totalDonations">--</span> tracked</div>
-      </div>
-    </div>
-    
-    <div class="chart-container">
-      <h2>Donation Type Analysis</h2>
-      <div class="type-tabs" id="typeTabs">
-        <!-- Tabs will be generated dynamically -->
-      </div>
-      <canvas id="typeChart" height="300"></canvas>
+
+    <div id="monthlyCards">
+      <!-- Monthly cards will be inserted here -->
     </div>
     
     <div class="chart-container">
@@ -165,59 +132,82 @@
   <script>
     // Configuration
     const API_URL = "https://script.google.com/macros/s/AKfycbyXVG_LdMJlexPz29jEFXTgOYjffgfJO8GbPjtMfFUMOOagFheVsCWAwp5kfueRbhtl/exec";
-    let typeChart; // To store the chart instance
 
     // Main data loader
     async function loadData() {
       try {
-        const response = await axios.get(API_URL);
-        const data = response.data;
+        const response = await fetch(API_URL);
+        const result = await response.json();
         
-        if (data.status !== 'success') {
-          throw new Error(data.message || 'Invalid data format');
+        if (result.status !== "success") {
+          throw new Error(result.message || "Data loading failed");
         }
         
-        processData(data.donations);
+        processData(result.donations);
         
       } catch (error) {
-        console.error("Error loading data:", error);
-        document.getElementById('lastUpdated').textContent = `Error: ${error.message}`;
+        console.error("Error:", error);
+        document.getElementById("lastUpdated").textContent = `Error: ${error.message}`;
       }
     }
 
     // Process and display data
     function processData(donations) {
-      // 1. Calculate totals
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
+      // 1. Group by month and type
+      const monthlyData = {};
       
-      const monthTotal = donations
-        .filter(d => new Date(d.date).getMonth() === currentMonth && 
-              new Date(d.date).getFullYear() === currentYear)
-        .reduce((sum, d) => sum + d.amount, 0);
+      donations.forEach(d => {
+        const date = new Date(d.date);
+        if (isNaN(date.getTime())) return;
+        
+        const monthYear = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}`;
+        const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        
+        if (!monthlyData[monthYear]) {
+          monthlyData[monthYear] = {
+            name: monthName,
+            types: {},
+            total: 0
+          };
+        }
+        
+        if (!monthlyData[monthYear].types[d.type]) {
+          monthlyData[monthYear].types[d.type] = 0;
+        }
+        
+        monthlyData[monthYear].types[d.type] += d.amount;
+        monthlyData[monthYear].total += d.amount;
+      });
       
-      const avgWeekly = donations.length > 0 
-        ? donations.reduce((sum, d) => sum + d.amount, 0) / donations.length
-        : 0;
+      // 2. Generate monthly cards
+      const monthlyContainer = document.getElementById('monthlyCards');
+      monthlyContainer.innerHTML = '';
       
-      // 2. Update cards
-      document.getElementById('monthTotal').textContent = `RM${monthTotal.toFixed(2)}`;
-      document.getElementById('avgWeekly').textContent = `RM${avgWeekly.toFixed(2)}`;
-      document.getElementById('weekCount').textContent = donations.length;
+      Object.entries(monthlyData).sort().reverse().forEach(([key, month]) => {
+        const monthSection = document.createElement('div');
+        monthSection.className = 'month-container';
+        monthSection.innerHTML = `
+          <div class="month-title">${month.name}</div>
+          <div class="card-container">
+            <div class="card">
+              <h3>Total for ${month.name}</h3>
+              <div class="value">RM${month.total.toFixed(2)}</div>
+            </div>
+            ${Object.entries(month.types).map(([type, amount]) => `
+              <div class="card type-card">
+                <h3>${type}</h3>
+                <div class="value">RM${amount.toFixed(2)}</div>
+                <div>${((amount / month.total) * 100).toFixed(1)}% of total</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        monthlyContainer.appendChild(monthSection);
+      });
       
-      // 3. Envelope tracking
-      const withEnvelope = donations.filter(d => d.envelope && d.envelope.trim() !== '').length;
-      const envelopePercent = donations.length > 0 
-        ? Math.round(withEnvelope / donations.length * 100) 
-        : 0;
-      
-      document.getElementById('envelopePercent').textContent = `${envelopePercent}%`;
-      document.getElementById('envelopeCount').textContent = withEnvelope;
-      document.getElementById('totalDonations').textContent = donations.length;
-      
-      // 4. Populate table
+      // 3. Populate recent donations table
       const tbody = document.querySelector('#donationsTable tbody');
-      tbody.innerHTML = donations.map(d => `
+      tbody.innerHTML = donations.slice(0, 15).map(d => `
         <tr>
           <td>${formatDate(d.date)}</td>
           <td>RM${d.amount.toFixed(2)}</td>
@@ -232,106 +222,15 @@
         </tr>
       `).join('');
       
-      // 5. Update timestamp
+      // 4. Update timestamp
       document.getElementById('lastUpdated').textContent = 
         `Last updated: ${new Date().toLocaleString()}`;
-      
-      // 6. Generate type tabs and chart
-      generateTypeTabs(donations);
-      renderTypeChart(donations);
     }
 
     // Format date for display
     function formatDate(dateString) {
       const date = new Date(dateString);
       return isNaN(date) ? dateString : date.toLocaleDateString('en-GB');
-    }
-
-    // Generate type tabs dynamically
-    function generateTypeTabs(donations) {
-      const types = [...new Set(donations.map(d => d.type))];
-      const tabsContainer = document.getElementById('typeTabs');
-      
-      tabsContainer.innerHTML = `
-        <div class="type-tab active" data-type="all">All Types</div>
-        ${types.map(type => `
-          <div class="type-tab" data-type="${type}">${type}</div>
-        `).join('')}
-      `;
-      
-      // Add click handlers
-      document.querySelectorAll('.type-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-          document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
-          this.classList.add('active');
-          renderTypeChart(donations, this.dataset.type === 'all' ? null : this.dataset.type);
-        });
-      });
-    }
-
-    // Render donation type chart
-    function renderTypeChart(donations, selectedType = null) {
-      const ctx = document.getElementById('typeChart').getContext('2d');
-      
-      // Destroy previous chart if exists
-      if (typeChart) typeChart.destroy();
-      
-      // Prepare data based on selection
-      let labels, chartData;
-      
-      if (selectedType) {
-        // Filter data for selected type
-        const filtered = donations.filter(d => d.type === selectedType);
-        labels = filtered.map(d => formatDate(d.date));
-        chartData = filtered.map(d => d.amount);
-      } else {
-        // Group by type for aggregate view
-        const typeGroups = {};
-        donations.forEach(d => {
-          typeGroups[d.type] = (typeGroups[d.type] || 0) + d.amount;
-        });
-        labels = Object.keys(typeGroups);
-        chartData = Object.values(typeGroups);
-      }
-      
-      typeChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: selectedType || 'All Donation Types',
-            data: chartData,
-            backgroundColor: selectedType ? '#3498db' : [
-              '#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6'
-            ],
-            borderColor: '#2980b9',
-            borderWidth: 1,
-            borderRadius: 4
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: (context) => {
-                  return `RM${context.raw.toFixed(2)}`;
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: (value) => {
-                  return `RM${value}`;
-                }
-              }
-            }
-          }
-        }
-      });
     }
 
     // Initial load
