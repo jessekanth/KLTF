@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>Church Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +13,8 @@
       --white: #fff;
       --light-gray: #f5f7fa;
       --dark-gray: #333;
+      --error-red: #e74c3c;
+      --success-green: #2ecc71;
     }
     
     body {
@@ -22,6 +24,7 @@
       background-color: var(--light-gray);
       color: var(--dark-gray);
       font-size: 14px;
+      line-height: 1.5;
     }
     
     /* Header and Navigation */
@@ -55,6 +58,11 @@
     .view-btn.active {
       background-color: var(--gold);
       color: var(--deep-blue);
+    }
+    
+    .view-btn:focus {
+      outline: 2px solid var(--gold);
+      outline-offset: -2px;
     }
     
     /* Card Styles */
@@ -123,6 +131,98 @@
     th {
       background-color: var(--deep-blue);
       color: var(--white);
+      position: sticky;
+      top: 0;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    
+    /* Loading and Error States */
+    .loading-container, .error-container {
+      text-align: center;
+      padding: 40px 20px;
+      margin: 15px;
+      background: var(--white);
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .loading-spinner {
+      font-size: 24px;
+      color: var(--gold);
+      margin-bottom: 10px;
+      animation: spin 1s linear infinite;
+    }
+    
+    .error-message {
+      color: var(--error-red);
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Input and Button Styles */
+    select, button {
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      font-family: inherit;
+      font-size: inherit;
+    }
+    
+    button {
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    button.primary {
+      background-color: var(--gold);
+      color: var(--deep-blue);
+      border: none;
+      font-weight: bold;
+    }
+    
+    button.primary:hover {
+      background-color: #e6c44d;
+    }
+    
+    button.secondary {
+      background-color: var(--light-blue);
+      color: white;
+      border: none;
+    }
+    
+    button.secondary:hover {
+      background-color: #4a9fd6;
+    }
+    
+    .input-group {
+      margin: 15px;
+      display: flex;
+      gap: 10px;
+    }
+    
+    /* Toolbar Styles */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    /* Search Input */
+    .search-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
     }
     
     /* Responsive Design */
@@ -130,11 +230,45 @@
       .card-container {
         grid-template-columns: 1fr 1fr;
       }
+      
+      .input-group {
+        flex-direction: column;
+      }
     }
     
     @media (max-width: 480px) {
       .card-container {
         grid-template-columns: 1fr;
+      }
+      
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+    
+    /* Print Styles */
+    @media print {
+      body {
+        background-color: white;
+        color: black;
+        font-size: 12px;
+      }
+      
+      .header, .view-toggle, .input-group, button {
+        display: none;
+      }
+      
+      .chart-container, .card-container, table {
+        box-shadow: none;
+        margin: 5px 0;
+        page-break-inside: avoid;
       }
     }
   </style>
@@ -142,131 +276,313 @@
 <body>
   <div class="header">
     <h1 style="margin:0;font-size:1.2rem;color:var(--gold)">
-      <i class="fas fa-church"></i> Church Dashboard
+      <i class="fas fa-church" aria-hidden="true"></i> Church Dashboard
     </h1>
+    <button id="printBtn" class="secondary" aria-label="Print dashboard">
+      <i class="fas fa-print"></i> Print
+    </button>
   </div>
   
   <div class="view-toggle">
-    <button class="view-btn active" id="summaryBtn">
-      <i class="fas fa-chart-pie"></i> Summary
+    <button class="view-btn active" id="summaryBtn" aria-pressed="true">
+      <i class="fas fa-chart-pie" aria-hidden="true"></i> Summary
     </button>
-    <button class="view-btn" id="transactionsBtn">
-      <i class="fas fa-list"></i> Transactions
+    <button class="view-btn" id="transactionsBtn" aria-pressed="false">
+      <i class="fas fa-list" aria-hidden="true"></i> Transactions
     </button>
   </div>
   
-  <div id="summaryPage">
-    <div class="input-group" style="margin:15px;display:flex;gap:10px;">
-      <select id="yearSelect" style="flex:1;padding:8px;border-radius:4px;border:1px solid #ddd;">
-        <!-- Years populated dynamically -->
-      </select>
-      <select id="monthSelect" style="flex:1;padding:8px;border-radius:4px;border:1px solid #ddd;">
-        <option value="">All Months</option>
-        <option value="01">January</option>
-        <option value="02">February</option>
-        <!-- Other months... -->
-      </select>
-      <button onclick="applyFilters()" style="padding:8px 15px;background:var(--gold);color:var(--deep-blue);border:none;border-radius:4px;">
-        Apply
-      </button>
+  <!-- Loading State -->
+  <div id="loading" class="loading-container" style="display:none;">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner"></i>
     </div>
-    
-    <div class="card-container">
-      <div class="card attendance-card">
-        <h3>Members Attended</h3>
-        <div class="value" id="attendanceCount">0</div>
-        <div class="subtext" id="attendancePercent">0% of services</div>
-      </div>
-      <div class="card">
-        <h3>Total Offerings</h3>
-        <div class="value" id="totalOfferings">RM0.00</div>
-        <div class="subtext" id="offeringPeriod">All Time</div>
-      </div>
-    </div>
-    
-    <div class="chart-container">
-      <h3 style="margin-top:0;color:var(--deep-blue)">Donation Type Breakdown</h3>
-      <canvas id="pieChart" height="200"></canvas>
-    </div>
-    
-    <div id="monthlyView" style="margin:15px;">
-      <!-- Monthly sections will be inserted here -->
-    </div>
+    <p>Loading church data...</p>
   </div>
   
-  <div id="transactionsPage" style="display:none;">
-    <div class="chart-container">
-      <h3 style="margin-top:0;color:var(--deep-blue)">Recent Donations</h3>
-      <table id="donationsTable">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Amount</th>
-            <th>Type</th>
-            <th>Attended</th>
-            <th>Counters</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Data will be inserted here -->
-        </tbody>
-      </table>
+  <!-- Error State -->
+  <div id="error" class="error-container" style="display:none;">
+    <div class="error-message">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p id="errorText">Failed to load data. Please try again later.</p>
+    </div>
+    <button onclick="loadData()" class="primary" style="margin-top:10px;">
+      <i class="fas fa-sync-alt"></i> Retry
+    </button>
+  </div>
+  
+  <!-- Main Content -->
+  <div id="content" style="display:none;">
+    <div id="summaryPage">
+      <div class="toolbar">
+        <div class="input-group">
+          <select id="yearSelect" aria-label="Select year">
+            <!-- Years populated dynamically -->
+          </select>
+          <select id="monthSelect" aria-label="Select month">
+            <option value="">All Months</option>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+          <button onclick="applyFilters()" class="primary">
+            <i class="fas fa-filter"></i> Apply
+          </button>
+        </div>
+        <button onclick="exportToCSV()" class="secondary">
+          <i class="fas fa-file-csv"></i> Export CSV
+        </button>
+      </div>
+      
+      <div class="card-container">
+        <div class="card attendance-card">
+          <h3>Members Attended</h3>
+          <div class="value" id="attendanceCount">0</div>
+          <div class="subtext" id="attendancePercent">0% of services</div>
+        </div>
+        <div class="card">
+          <h3>Total Offerings</h3>
+          <div class="value" id="totalOfferings">RM0.00</div>
+          <div class="subtext" id="offeringPeriod">All Time</div>
+        </div>
+        <div class="card">
+          <h3>Average Offering</h3>
+          <div class="value" id="avgOffering">RM0.00</div>
+          <div class="subtext" id="avgPeriod">Per service</div>
+        </div>
+        <div class="card">
+          <h3>Services Recorded</h3>
+          <div class="value" id="serviceCount">0</div>
+          <div class="subtext" id="servicePeriod">All Time</div>
+        </div>
+      </div>
+      
+      <div class="chart-container">
+        <h3 style="margin-top:0;color:var(--deep-blue)">Donation Type Breakdown</h3>
+        <canvas id="pieChart" height="200" aria-label="Donation type breakdown chart"></canvas>
+      </div>
+      
+      <div id="monthlyView" style="margin:15px;">
+        <!-- Monthly sections will be inserted here -->
+      </div>
+    </div>
+    
+    <div id="transactionsPage" style="display:none;">
+      <div class="toolbar">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search transactions..." aria-label="Search transactions">
+        <button onclick="exportToCSV()" class="secondary">
+          <i class="fas fa-file-csv"></i> Export CSV
+        </button>
+      </div>
+      
+      <div class="chart-container">
+        <h3 style="margin-top:0;color:var(--deep-blue)">Recent Donations</h3>
+        <div style="overflow-x:auto;">
+          <table id="donationsTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Amount (RM)</th>
+                <th>Type</th>
+                <th>Attended</th>
+                <th>Counters</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Data will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+        <div style="text-align:center;margin-top:10px;">
+          <button id="loadMoreBtn" onclick="loadMoreTransactions()" class="secondary" style="display:none;">
+            <i class="fas fa-plus"></i> Load More
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
     // Configuration
     const API_URL = "https://script.google.com/macros/s/AKfycbyXVG_LdMJlexPz29jEFXTgOYjffgfJO8GbPjtMfFUMOOagFheVsCWAwp5kfueRbhtl/exec";
+    const TRANSACTIONS_PER_PAGE = 20;
+    
+    // State Management
     let allDonations = [];
+    let filteredDonations = [];
     let pieChart = null;
-
+    let currentTransactionPage = 1;
+    let currentSearchTerm = '';
+    
     // DOM Elements
     const summaryBtn = document.getElementById('summaryBtn');
     const transactionsBtn = document.getElementById('transactionsBtn');
     const summaryPage = document.getElementById('summaryPage');
     const transactionsPage = document.getElementById('transactionsPage');
+    const loadingElement = document.getElementById('loading');
+    const errorElement = document.getElementById('error');
+    const contentElement = document.getElementById('content');
+    const searchInput = document.getElementById('searchInput');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const printBtn = document.getElementById('printBtn');
 
-    // View toggle functionality
-    summaryBtn.addEventListener('click', () => {
-      summaryBtn.classList.add('active');
-      transactionsBtn.classList.remove('active');
-      summaryPage.style.display = 'block';
-      transactionsPage.style.display = 'none';
-    });
-
-    transactionsBtn.addEventListener('click', () => {
-      transactionsBtn.classList.add('active');
-      summaryBtn.classList.remove('active');
-      transactionsPage.style.display = 'block';
-      summaryPage.style.display = 'none';
-    });
-
+    // Initialize the dashboard
+    window.onload = function() {
+      setupEventListeners();
+      setDefaultDateFilters();
+      loadData();
+    };
+    
+    function setupEventListeners() {
+      // View toggle functionality
+      summaryBtn.addEventListener('click', () => {
+        summaryBtn.classList.add('active');
+        summaryBtn.setAttribute('aria-pressed', 'true');
+        transactionsBtn.classList.remove('active');
+        transactionsBtn.setAttribute('aria-pressed', 'false');
+        summaryPage.style.display = 'block';
+        transactionsPage.style.display = 'none';
+      });
+      
+      transactionsBtn.addEventListener('click', () => {
+        transactionsBtn.classList.add('active');
+        transactionsBtn.setAttribute('aria-pressed', 'true');
+        summaryBtn.classList.remove('active');
+        summaryBtn.setAttribute('aria-pressed', 'false');
+        transactionsPage.style.display = 'block';
+        summaryPage.style.display = 'none';
+      });
+      
+      // Search functionality
+      searchInput.addEventListener('input', debounce(() => {
+        currentSearchTerm = searchInput.value.toLowerCase();
+        currentTransactionPage = 1;
+        updateRecentDonations(filteredDonations);
+      }, 300));
+      
+      // Print functionality
+      printBtn.addEventListener('click', () => {
+        window.print();
+      });
+    }
+    
+    function setDefaultDateFilters() {
+      // Set current month as default
+      const currentDate = new Date();
+      const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+      const currentYear = currentDate.getFullYear();
+      
+      const monthSelect = document.getElementById('monthSelect');
+      monthSelect.value = currentMonth;
+      
+      // Year will be set after data loads if available
+    }
+    
     // Main data loader
     async function loadData() {
+      showLoading();
+      hideError();
+      hideContent();
+      
       try {
         const response = await fetch(API_URL);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const result = await response.json();
         
         if (result.status !== "success") {
           throw new Error(result.message || "Data loading failed");
         }
         
-        allDonations = result.donations;
+        allDonations = result.donations.map(d => ({
+          ...d,
+          // Normalize data
+          amount: parseFloat(d.amount) || 0,
+          envelope: d.envelope ? 'Yes' : 'No',
+          date: parseDate(d.date),
+          type: d.type || 'Unknown',
+          staff1: d.staff1 || '',
+          staff2: d.staff2 || '',
+          notes: d.notes || ''
+        }));
+        
         populateYearSelector();
         applyFilters();
-        
+        showContent();
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error loading data:", error);
+        showError(error.message || "Failed to load data. Please try again later.");
+      } finally {
+        hideLoading();
       }
     }
-
+    
+    function showLoading() {
+      loadingElement.style.display = 'block';
+    }
+    
+    function hideLoading() {
+      loadingElement.style.display = 'none';
+    }
+    
+    function showError(message) {
+      document.getElementById('errorText').textContent = message;
+      errorElement.style.display = 'block';
+    }
+    
+    function hideError() {
+      errorElement.style.display = 'none';
+    }
+    
+    function showContent() {
+      contentElement.style.display = 'block';
+    }
+    
+    function hideContent() {
+      contentElement.style.display = 'none';
+    }
+    
+    // More robust date parsing
+    function parseDate(dateString) {
+      if (!dateString) return new Date(NaN);
+      
+      // Try ISO format first
+      const date = new Date(dateString);
+      if (!isNaN(date)) return date;
+      
+      // Try other common formats
+      const parts = dateString.split(/[-/]/);
+      if (parts.length === 3) {
+        // Try DD-MM-YYYY or MM-DD-YYYY
+        const dayFirst = new Date(parts[2], parts[1]-1, parts[0]);
+        if (!isNaN(dayFirst)) return dayFirst;
+        
+        const monthFirst = new Date(parts[2], parts[0]-1, parts[1]);
+        if (!isNaN(monthFirst)) return monthFirst;
+      }
+      
+      return new Date(NaN);
+    }
+    
     // Populate year dropdown
     function populateYearSelector() {
       const years = new Set();
       allDonations.forEach(d => {
-        const date = new Date(d.date);
-        if (!isNaN(date.getTime())) {
-          years.add(date.getFullYear());
+        if (!isNaN(d.date.getTime())) {
+          years.add(d.date.getFullYear());
         }
       });
       
@@ -280,40 +596,54 @@
         yearSelect.appendChild(option);
       });
       
-      // Set default to current year
+      // Set default to current year if available
       const currentYear = new Date().getFullYear();
       if (years.has(currentYear)) {
         yearSelect.value = currentYear;
       }
     }
-
-    // Apply filters
+    
+    // Apply filters with debouncing
+    let filterTimeout;
     function applyFilters() {
-      const year = document.getElementById('yearSelect').value;
-      const month = document.getElementById('monthSelect').value;
-      
-      let filtered = [...allDonations];
-      
-      if (year) {
-        filtered = filtered.filter(d => new Date(d.date).getFullYear() == year);
-      }
-      
-      if (month) {
-        filtered = filtered.filter(d => 
-          (new Date(d.date).getMonth() + 1).toString().padStart(2, '0') === month
-        );
-      }
-      
-      updateSummaryCards(filtered);
-      updatePieChart(filtered);
-      updateMonthlyView(filtered);
-      updateRecentDonations(filtered);
+      clearTimeout(filterTimeout);
+      filterTimeout = setTimeout(() => {
+        const year = document.getElementById('yearSelect').value;
+        const month = document.getElementById('monthSelect').value;
+        
+        filteredDonations = allDonations.filter(d => {
+          if (isNaN(d.date.getTime())) return false;
+          
+          const matchesYear = !year || d.date.getFullYear() == year;
+          const matchesMonth = !month || 
+            (d.date.getMonth() + 1).toString().padStart(2, '0') === month;
+          
+          return matchesYear && matchesMonth;
+        });
+        
+        updateSummaryCards(filteredDonations);
+        updatePieChart(filteredDonations);
+        updateMonthlyView(filteredDonations);
+        updateRecentDonations(filteredDonations);
+      }, 100);
     }
-
+    
+    // Debounce function for search
+    function debounce(func, wait) {
+      let timeout;
+      return function() {
+        const context = this, args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          func.apply(context, args);
+        }, wait);
+      };
+    }
+    
     // Update summary cards
     function updateSummaryCards(donations) {
-      // Attendance statistics (assuming 'envelope' field now tracks attendance)
-      const attended = donations.filter(d => d.envelope && d.envelope.toString().toLowerCase() === 'yes').length;
+      // Attendance statistics
+      const attended = donations.filter(d => d.envelope === 'Yes').length;
       const attendancePercent = donations.length > 0 
         ? Math.round((attended / donations.length) * 100)
         : 0;
@@ -325,6 +655,13 @@
       // Total offerings
       const total = donations.reduce((sum, d) => sum + d.amount, 0);
       document.getElementById('totalOfferings').textContent = `RM${total.toFixed(2)}`;
+      
+      // Average offering
+      const avg = donations.length > 0 ? total / donations.length : 0;
+      document.getElementById('avgOffering').textContent = `RM${avg.toFixed(2)}`;
+      
+      // Service count
+      document.getElementById('serviceCount').textContent = donations.length;
       
       // Period text
       let periodText = "All Time";
@@ -340,8 +677,11 @@
       }
       
       document.getElementById('offeringPeriod').textContent = periodText;
+      document.getElementById('avgPeriod').textContent = periodText === "All Time" ? 
+        "Per service" : periodText;
+      document.getElementById('servicePeriod').textContent = periodText;
     }
-
+    
     // Update pie chart
     function updatePieChart(donations) {
       const typeData = {};
@@ -360,54 +700,61 @@
         pieChart.destroy();
       }
       
-      pieChart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-          labels: Object.keys(typeData),
-          datasets: [{
-            data: Object.values(typeData),
-            backgroundColor: [
-              '#0a2463', '#3e92cc', '#d4af37', '#2ecc71', '#e74c3c', '#9b59b6'
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  const label = context.label || '';
-                  const value = context.raw || 0;
-                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                  const percentage = Math.round((value / total) * 100);
-                  return `${label}: RM${value.toFixed(2)} (${percentage}%)`;
+      // Only create chart if we have data
+      if (Object.keys(typeData).length > 0) {
+        pieChart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(typeData),
+            datasets: [{
+              data: Object.values(typeData),
+              backgroundColor: [
+                '#0a2463', '#3e92cc', '#d4af37', '#2ecc71', '#e74c3c', '#9b59b6',
+                '#1abc9c', '#f39c12', '#3498db', '#e67e22', '#34495e', '#16a085'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const label = context.label || '';
+                    const value = context.raw || 0;
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const percentage = Math.round((value / total) * 100);
+                    return `${label}: RM${value.toFixed(2)} (${percentage}%)`;
+                  }
                 }
               }
             }
           }
-        }
-      });
+        });
+      }
     }
-
+    
     // Update monthly view
     function updateMonthlyView(donations) {
       const monthlyData = {};
       
       donations.forEach(d => {
-        const date = new Date(d.date);
-        if (isNaN(date.getTime())) return;
+        if (isNaN(d.date.getTime())) return;
         
-        const monthYear = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}`;
-        const monthName = date.toLocaleDateString('en-US', { month: 'long' });
+        const monthYear = `${d.date.getFullYear()}-${(d.date.getMonth()+1).toString().padStart(2, '0')}`;
+        const monthName = d.date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
         
         if (!monthlyData[monthYear]) {
           monthlyData[monthYear] = {
             name: monthName,
             types: {},
             total: 0,
-            timestamp: date.getTime()
+            timestamp: d.date.getTime()
           };
         }
         
@@ -422,82 +769,148 @@
       const monthlyContainer = document.getElementById('monthlyView');
       monthlyContainer.innerHTML = '';
       
-      Object.entries(monthlyData)
-        .sort((a, b) => b[1].timestamp - a[1].timestamp)
-        .forEach(([key, month]) => {
-          const monthSection = document.createElement('div');
-          monthSection.className = 'chart-container';
-          monthSection.style.marginBottom = '15px';
-          
-          const sortedTypes = Object.entries(month.types)
-            .sort((a, b) => a[0].localeCompare(b[0]));
-          
-          monthSection.innerHTML = `
-            <h3 style="margin-top:0;color:var(--deep-blue)">${month.name} Breakdown</h3>
-            <div class="card-container">
-              ${sortedTypes.map(([type, amount]) => `
-                <div class="card">
-                  <h3>${type}</h3>
-                  <div class="value">RM${amount.toFixed(2)}</div>
-                  <div class="subtext">${((amount / month.total) * 100).toFixed(1)}%</div>
-                </div>
-              `).join('')}
-            </div>
-          `;
-          monthlyContainer.appendChild(monthSection);
-        });
+      const sortedMonths = Object.entries(monthlyData)
+        .sort((a, b) => b[1].timestamp - a[1].timestamp);
+      
+      if (sortedMonths.length === 0) {
+        monthlyContainer.innerHTML = '<div class="chart-container">No data available for selected period</div>';
+        return;
+      }
+      
+      sortedMonths.forEach(([key, month]) => {
+        const monthSection = document.createElement('div');
+        monthSection.className = 'chart-container';
+        monthSection.style.marginBottom = '15px';
+        
+        const sortedTypes = Object.entries(month.types)
+          .sort((a, b) => b[1] - a[1]); // Sort by amount descending
+        
+        monthSection.innerHTML = `
+          <h3 style="margin-top:0;color:var(--deep-blue)">${month.name} Breakdown</h3>
+          <div>Total: <strong>RM${month.total.toFixed(2)}</strong></div>
+          <div class="card-container">
+            ${sortedTypes.map(([type, amount]) => `
+              <div class="card">
+                <h3>${type}</h3>
+                <div class="value">RM${amount.toFixed(2)}</div>
+                <div class="subtext">${((amount / month.total) * 100).toFixed(1)}%</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        monthlyContainer.appendChild(monthSection);
+      });
     }
-
+    
     // Update recent donations table
     function updateRecentDonations(donations) {
       const tbody = document.querySelector('#donationsTable tbody');
-      tbody.innerHTML = donations
-        .sort((a,b) => new Date(b.date) - new Date(a.date)) // Newest first
-        .slice(0, 50) // Show last 50
-        .map(d => `
-          <tr>
-            <td>${formatDate(d.date)}</td>
-            <td>RM${d.amount.toFixed(2)}</td>
-            <td>${d.type}</td>
-            <td>${d.envelope === 'Yes' ? '✓' : '✗'}</td>
-            <td>${d.staff1} & ${d.staff2}</td>
-          </tr>
-        `).join('');
+      
+      // Filter by search term if any
+      let filtered = donations;
+      if (currentSearchTerm) {
+        filtered = donations.filter(d => 
+          d.type.toLowerCase().includes(currentSearchTerm) ||
+          (d.notes && d.notes.toLowerCase().includes(currentSearchTerm)) ||
+          d.staff1.toLowerCase().includes(currentSearchTerm) ||
+          d.staff2.toLowerCase().includes(currentSearchTerm) ||
+          d.amount.toString().includes(currentSearchTerm)
+        );
+      }
+      
+      // Sort by date descending
+      filtered.sort((a,b) => b.date - a.date);
+      
+      // Paginate results
+      const startIdx = 0;
+      const endIdx = currentTransactionPage * TRANSACTIONS_PER_PAGE;
+      const paginated = filtered.slice(startIdx, endIdx);
+      
+      tbody.innerHTML = paginated.map(d => `
+        <tr>
+          <td>${formatDate(d.date)}</td>
+          <td>${d.amount.toFixed(2)}</td>
+          <td>${d.type}</td>
+          <td>${d.envelope === 'Yes' ? '✓' : '✗'}</td>
+          <td>${d.staff1}${d.staff2 ? ' & ' + d.staff2 : ''}</td>
+          <td>${d.notes || ''}</td>
+        </tr>
+      `).join('');
+      
+      // Show/hide load more button
+      loadMoreBtn.style.display = filtered.length > endIdx ? 'inline-block' : 'none';
     }
-
+    
+    function loadMoreTransactions() {
+      currentTransactionPage++;
+      updateRecentDonations(filteredDonations);
+    }
+    
     // Format date for display
-    function formatDate(dateString) {
-      const date = new Date(dateString);
-      return isNaN(date) ? dateString : 
-        date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    function formatDate(date) {
+      if (isNaN(date.getTime())) return 'Invalid date';
+      return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
     }
-
-    // Initialize
-    window.onload = function() {
-      // Populate month dropdown
-      const months = [
-        {value: '01', name: 'January'}, {value: '02', name: 'February'},
-        {value: '03', name: 'March'}, {value: '04', name: 'April'},
-        {value: '05', name: 'May'}, {value: '06', name: 'June'},
-        {value: '07', name: 'July'}, {value: '08', name: 'August'},
-        {value: '09', name: 'September'}, {value: '10', name: 'October'},
-        {value: '11', name: 'November'}, {value: '12', name: 'December'}
+    
+    // Export to CSV
+    function exportToCSV() {
+      let dataToExport = filteredDonations;
+      const year = document.getElementById('yearSelect').value;
+      const month = document.getElementById('monthSelect').value;
+      
+      // If on transactions page with search, export filtered results
+      if (transactionsPage.style.display !== 'none' && currentSearchTerm) {
+        dataToExport = filteredDonations.filter(d => 
+          d.type.toLowerCase().includes(currentSearchTerm) ||
+          (d.notes && d.notes.toLowerCase().includes(currentSearchTerm)) ||
+          d.staff1.toLowerCase().includes(currentSearchTerm) ||
+          d.staff2.toLowerCase().includes(currentSearchTerm) ||
+          d.amount.toString().includes(currentSearchTerm)
+        );
+      }
+      
+      // Sort by date descending for export
+      dataToExport.sort((a,b) => b.date - a.date);
+      
+      const headers = ['Date', 'Amount (RM)', 'Type', 'Attended', 'Counter 1', 'Counter 2', 'Notes'];
+      const csvRows = [
+        headers.join(','),
+        ...dataToExport.map(d => [
+          formatDate(d.date),
+          d.amount.toFixed(2),
+          `"${d.type.replace(/"/g, '""')}"`,
+          d.envelope,
+          `"${d.staff1.replace(/"/g, '""')}"`,
+          `"${d.staff2.replace(/"/g, '""')}"`,
+          `"${(d.notes || '').replace(/"/g, '""')}"`
+        ].join(','))
       ];
       
-      const monthSelect = document.getElementById('monthSelect');
-      months.forEach(month => {
-        const option = document.createElement('option');
-        option.value = month.value;
-        option.textContent = month.name;
-        monthSelect.appendChild(option);
-      });
+      const csvContent = csvRows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
       
-      // Set current month as default
-      const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
-      monthSelect.value = currentMonth;
+      let filename = 'donations';
+      if (year && month) {
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"];
+        filename += `_${monthNames[parseInt(month) - 1]}_${year}`;
+      } else if (year) {
+        filename += `_year_${year}`;
+      }
       
-      loadData();
-    };
+      if (currentSearchTerm) {
+        filename += `_search_${currentSearchTerm.substring(0, 20)}`;
+      }
+      
+      a.download = `${filename}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
   </script>
 </body>
 </html>
