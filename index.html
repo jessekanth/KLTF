@@ -22,36 +22,51 @@
     }
     .card-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
       margin-bottom: 30px;
     }
     .month-container {
-      margin-bottom: 40px;
-    }
-    .month-title {
-      font-size: 1.5rem;
-      color: #2c3e50;
-      border-bottom: 2px solid #3498db;
-      padding-bottom: 5px;
-      margin-bottom: 15px;
-    }
-    .card {
+      margin-bottom: 30px;
       background: white;
       border-radius: 8px;
       padding: 20px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     }
-    .card h3 {
-      margin-top: 0;
+    .month-title {
+      font-size: 1.3rem;
       color: #2c3e50;
-      font-size: 1.1rem;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 8px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .card {
+      background: white;
+      border-radius: 6px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border-left: 4px solid #3498db;
+    }
+    .type-card {
+      background: #f8f9fa;
+    }
+    .card h3 {
+      margin: 0 0 8px 0;
+      color: #2c3e50;
+      font-size: 1rem;
+      font-weight: 600;
     }
     .card .value {
-      font-size: 2rem;
+      font-size: 1.5rem;
       font-weight: bold;
-      margin: 10px 0;
+      margin: 5px 0;
       color: #3498db;
+    }
+    .card .subtext {
+      font-size: 0.85rem;
+      color: #7f8c8d;
     }
     table {
       width: 100%;
@@ -60,30 +75,28 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.08);
       border-radius: 8px;
       overflow: hidden;
+      font-size: 0.9rem;
     }
     th, td {
-      padding: 12px 15px;
+      padding: 10px 12px;
       text-align: left;
       border-bottom: 1px solid #e0e0e0;
     }
     th {
       background-color: #3498db;
       color: white;
-      font-weight: 600;
-    }
-    tr:hover {
-      background-color: #f1f9ff;
+      font-weight: 500;
     }
     .updated {
       text-align: right;
       color: #7f8c8d;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       margin-top: 10px;
     }
     .envelope-indicator {
       display: inline-block;
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background-color: #2ecc71;
       margin-right: 5px;
@@ -91,9 +104,9 @@
     .no-envelope {
       background-color: #e74c3c;
     }
-    .type-card {
-      background: #f8f9fa;
-      border-left: 4px solid #3498db;
+    .total-card {
+      background: #e3f2fd;
+      border-left: 4px solid #1565c0;
     }
   </style>
 </head>
@@ -105,21 +118,19 @@
     </div>
 
     <div id="monthlyCards">
-      <!-- Monthly cards will be inserted here -->
+      <!-- Monthly sections will be inserted here -->
     </div>
     
-    <div class="chart-container">
-      <h2>Recent Donations</h2>
+    <div class="month-container">
+      <h2 class="month-title">Recent Donations</h2>
       <table id="donationsTable">
         <thead>
           <tr>
             <th>Date</th>
             <th>Amount (RM)</th>
             <th>Type</th>
-            <th>Pastor</th>
             <th>Envelope</th>
-            <th>Staff Counter 1</th>
-            <th>Staff Counter 2</th>
+            <th>Counters</th>
           </tr>
         </thead>
         <tbody>
@@ -161,7 +172,7 @@
         if (isNaN(date.getTime())) return;
         
         const monthYear = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}`;
-        const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        const monthName = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
         
         if (!monthlyData[monthYear]) {
           monthlyData[monthYear] = {
@@ -187,17 +198,16 @@
         const monthSection = document.createElement('div');
         monthSection.className = 'month-container';
         monthSection.innerHTML = `
-          <div class="month-title">${month.name}</div>
+          <div class="month-title">
+            <span>${month.name}</span>
+            <span>RM${month.total.toFixed(2)} Total</span>
+          </div>
           <div class="card-container">
-            <div class="card">
-              <h3>Total for ${month.name}</h3>
-              <div class="value">RM${month.total.toFixed(2)}</div>
-            </div>
             ${Object.entries(month.types).map(([type, amount]) => `
               <div class="card type-card">
                 <h3>${type}</h3>
                 <div class="value">RM${amount.toFixed(2)}</div>
-                <div>${((amount / month.total) * 100).toFixed(1)}% of total</div>
+                <div class="subtext">${((amount / month.total) * 100).toFixed(1)}% of month</div>
               </div>
             `).join('')}
           </div>
@@ -205,32 +215,31 @@
         monthlyContainer.appendChild(monthSection);
       });
       
-      // 3. Populate recent donations table
+      // 3. Populate recent donations table (simplified)
       const tbody = document.querySelector('#donationsTable tbody');
-      tbody.innerHTML = donations.slice(0, 15).map(d => `
+      tbody.innerHTML = donations.slice(0, 10).map(d => `
         <tr>
           <td>${formatDate(d.date)}</td>
           <td>RM${d.amount.toFixed(2)}</td>
           <td>${d.type}</td>
-          <td>${d.pastor}</td>
           <td>
             <span class="envelope-indicator ${d.envelope ? '' : 'no-envelope'}"></span>
-            ${d.envelope || 'Not recorded'}
+            ${d.envelope || '--'}
           </td>
-          <td>${d.staff1}</td>
-          <td>${d.staff2}</td>
+          <td>${d.staff1} & ${d.staff2}</td>
         </tr>
       `).join('');
       
       // 4. Update timestamp
       document.getElementById('lastUpdated').textContent = 
-        `Last updated: ${new Date().toLocaleString()}`;
+        `Updated ${new Date().toLocaleTimeString()}`;
     }
 
     // Format date for display
     function formatDate(dateString) {
       const date = new Date(dateString);
-      return isNaN(date) ? dateString : date.toLocaleDateString('en-GB');
+      return isNaN(date) ? dateString : 
+        date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
     }
 
     // Initial load
