@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Church Dashboard</title>
+  <title>KL Telugu Fellowship Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -15,6 +15,8 @@
       --dark-gray: #333;
       --error-red: #e74c3c;
       --success-green: #2ecc71;
+      --teal: #1abc9c;
+      --purple: #9b59b6;
     }
     
     body {
@@ -35,6 +37,17 @@
       padding: 10px 15px;
       background-color: var(--deep-blue);
       color: white;
+    }
+    
+    .church-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .church-logo img {
+      height: 40px;
+      width: auto;
     }
     
     .view-toggle {
@@ -79,6 +92,14 @@
       padding: 12px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
       border-left: 3px solid var(--gold);
+    }
+    
+    .card.teal {
+      border-left-color: var(--teal);
+    }
+    
+    .card.purple {
+      border-left-color: var(--purple);
     }
     
     .card h3 {
@@ -261,6 +282,38 @@
       border: 1px solid #ddd;
     }
     
+    /* Tabs for additional views */
+    .tab-container {
+      margin: 15px;
+    }
+    
+    .tab-buttons {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .tab-btn {
+      padding: 10px 15px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab-btn.active {
+      border-bottom-color: var(--gold);
+      font-weight: bold;
+    }
+    
+    .tab-content {
+      display: none;
+      padding: 15px 0;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
     /* Responsive Design */
     @media (max-width: 768px) {
       .card-container {
@@ -273,6 +326,11 @@
       
       .chart-container {
         height: 250px;
+      }
+      
+      .tab-buttons {
+        overflow-x: auto;
+        white-space: nowrap;
       }
     }
     
@@ -290,6 +348,10 @@
       .toolbar {
         flex-direction: column;
         align-items: stretch;
+      }
+      
+      .church-logo h1 {
+        font-size: 1rem;
       }
     }
     
@@ -332,7 +394,7 @@
         print-color-adjust: exact;
       }
       
-      #pieChart {
+      #pieChart, #expenseChart {
         max-height: 250px !important;
         max-width: 100% !important;
       }
@@ -346,9 +408,12 @@
 </head>
 <body>
   <div class="header">
-    <h1 style="margin:0;font-size:1.2rem;color:var(--gold)">
-      <i class="fas fa-church" aria-hidden="true"></i> Church Dashboard
-    </h1>
+    <div class="church-logo">
+      <img src="https://via.placeholder.com/150x50?text=KL+Telugu+Fellowship" alt="KL Telugu Fellowship Logo">
+      <h1 style="margin:0;font-size:1.2rem;color:var(--gold)">
+        KL Telugu Fellowship Dashboard
+      </h1>
+    </div>
     <button id="printBtn" class="secondary" aria-label="Print dashboard">
       <i class="fas fa-print"></i> Print
     </button>
@@ -360,6 +425,12 @@
     </button>
     <button class="view-btn" id="transactionsBtn" aria-pressed="false">
       <i class="fas fa-list" aria-hidden="true"></i> Transactions
+    </button>
+    <button class="view-btn" id="expensesBtn" aria-pressed="false">
+      <i class="fas fa-receipt" aria-hidden="true"></i> Expenses
+    </button>
+    <button class="view-btn" id="membersBtn" aria-pressed="false">
+      <i class="fas fa-users" aria-hidden="true"></i> Members
     </button>
   </div>
   
@@ -384,6 +455,7 @@
   
   <!-- Main Content -->
   <div id="content" style="display:none;">
+    <!-- Summary Page -->
     <div id="summaryPage">
       <div class="toolbar">
         <div class="input-group">
@@ -430,6 +502,16 @@
           <div class="value" id="serviceCount">0</div>
           <div class="subtext" id="servicePeriod">All Time</div>
         </div>
+        <div class="card teal">
+          <h3>Total Expenses</h3>
+          <div class="value" id="totalExpenses">RM0.00</div>
+          <div class="subtext" id="expensePeriod">All Time</div>
+        </div>
+        <div class="card purple">
+          <h3>Registered Members</h3>
+          <div class="value" id="memberCount">0</div>
+          <div class="subtext">Active members</div>
+        </div>
       </div>
       
       <div class="chart-container">
@@ -456,6 +538,7 @@
       </div>
     </div>
     
+    <!-- Transactions Page -->
     <div id="transactionsPage" style="display:none;">
       <div class="toolbar">
         <div class="input-group">
@@ -512,32 +595,234 @@
         </div>
       </div>
     </div>
+    
+    <!-- Expenses Page -->
+    <div id="expensesPage" style="display:none;">
+      <div class="toolbar">
+        <div class="input-group">
+          <select id="yearSelectExpenses" aria-label="Select year">
+            <!-- Years populated dynamically -->
+          </select>
+          <select id="monthSelectExpenses" aria-label="Select month">
+            <option value="">All Months</option>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+          <button onclick="applyFilters('expenses')" class="primary">
+            <i class="fas fa-filter"></i> Apply
+          </button>
+        </div>
+        <input type="text" id="searchInputExpenses" class="search-input" placeholder="Search expenses..." aria-label="Search expenses">
+        <button onclick="exportExpensesToCSV()" class="secondary">
+          <i class="fas fa-file-csv"></i> Export CSV
+        </button>
+      </div>
+      
+      <div class="chart-container">
+        <h3 style="margin-top:0;color:var(--deep-blue)">Expense Categories</h3>
+        <canvas id="expenseChart" height="200" aria-label="Expense categories chart"></canvas>
+      </div>
+      
+      <div class="chart-container" style="height:auto;padding:0;">
+        <div style="overflow-x:auto;">
+          <table id="expensesTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Amount (RM)</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Approved By</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Data will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+        <div style="text-align:center;margin-top:10px;">
+          <button id="loadMoreExpensesBtn" onclick="loadMoreExpenses()" class="secondary" style="display:none;">
+            <i class="fas fa-plus"></i> Load More
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Members Page -->
+    <div id="membersPage" style="display:none;">
+      <div class="tab-container">
+        <div class="tab-buttons">
+          <button class="tab-btn active" data-tab="membersList">Members List</button>
+          <button class="tab-btn" data-tab="families">Families</button>
+          <button class="tab-btn" data-tab="attendance">Attendance</button>
+        </div>
+        
+        <div class="tab-content active" id="membersListTab">
+          <div class="toolbar">
+            <input type="text" id="searchMembersInput" class="search-input" placeholder="Search members..." aria-label="Search members">
+            <button onclick="exportMembersToCSV()" class="secondary">
+              <i class="fas fa-file-csv"></i> Export CSV
+            </button>
+          </div>
+          
+          <div class="chart-container" style="height:auto;padding:0;">
+            <div style="overflow-x:auto;">
+              <table id="membersTable">
+                <thead>
+                  <tr>
+                    <th>Member ID</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Family</th>
+                    <th>Baptism Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Data will be inserted here -->
+                </tbody>
+              </table>
+            </div>
+            <div style="text-align:center;margin-top:10px;">
+              <button id="loadMoreMembersBtn" onclick="loadMoreMembers()" class="secondary" style="display:none;">
+                <i class="fas fa-plus"></i> Load More
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tab-content" id="familiesTab">
+          <div class="toolbar">
+            <input type="text" id="searchFamiliesInput" class="search-input" placeholder="Search families..." aria-label="Search families">
+          </div>
+          
+          <div class="chart-container" style="height:auto;padding:0;">
+            <div style="overflow-x:auto;">
+              <table id="familiesTable">
+                <thead>
+                  <tr>
+                    <th>Family ID</th>
+                    <th>Family Name</th>
+                    <th>Head of Family</th>
+                    <th>Members</th>
+                    <th>Address</th>
+                    <th>Phone</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Data will be inserted here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tab-content" id="attendanceTab">
+          <div class="toolbar">
+            <div class="input-group">
+              <select id="yearSelectAttendance" aria-label="Select year">
+                <!-- Years populated dynamically -->
+              </select>
+              <select id="monthSelectAttendance" aria-label="Select month">
+                <option value="">All Months</option>
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06">June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+              <button onclick="applyFilters('attendance')" class="primary">
+                <i class="fas fa-filter"></i> Apply
+              </button>
+            </div>
+          </div>
+          
+          <div class="chart-container" style="height:auto;padding:0;">
+            <div style="overflow-x:auto;">
+              <table id="attendanceTable">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Service Type</th>
+                    <th>Total Attendance</th>
+                    <th>First Timers</th>
+                    <th>Children</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Data will be inserted here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
     // Configuration
     const API_URL = "https://script.google.com/macros/s/AKfycbyXVG_LdMJlexPz29jEFXTgOYjffgfJO8GbPjtMfFUMOOagFheVsCWAwp5kfueRbhtl/exec";
     const TRANSACTIONS_PER_PAGE = 20;
+    const EXPENSES_PER_PAGE = 20;
+    const MEMBERS_PER_PAGE = 20;
     
     // State Management
     let allDonations = [];
+    let allExpenses = [];
+    let allMembers = [];
+    let allFamilies = [];
+    let allAttendance = [];
     let filteredDonations = [];
+    let filteredExpenses = [];
+    let filteredMembers = [];
     let pieChart = null;
+    let expenseChart = null;
     let currentTransactionPage = 1;
+    let currentExpensePage = 1;
+    let currentMemberPage = 1;
     let currentSearchTerm = '';
     let currentView = 'summary';
     
     // DOM Elements
     const summaryBtn = document.getElementById('summaryBtn');
     const transactionsBtn = document.getElementById('transactionsBtn');
+    const expensesBtn = document.getElementById('expensesBtn');
+    const membersBtn = document.getElementById('membersBtn');
     const summaryPage = document.getElementById('summaryPage');
     const transactionsPage = document.getElementById('transactionsPage');
+    const expensesPage = document.getElementById('expensesPage');
+    const membersPage = document.getElementById('membersPage');
     const loadingElement = document.getElementById('loading');
     const errorElement = document.getElementById('error');
     const contentElement = document.getElementById('content');
     const searchInput = document.getElementById('searchInput');
+    const searchExpensesInput = document.getElementById('searchInputExpenses');
+    const searchMembersInput = document.getElementById('searchMembersInput');
     const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const loadMoreExpensesBtn = document.getElementById('loadMoreExpensesBtn');
+    const loadMoreMembersBtn = document.getElementById('loadMoreMembersBtn');
     const printBtn = document.getElementById('printBtn');
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
 
     // Initialize the dashboard
     window.onload = function() {
@@ -550,22 +835,22 @@
       // View toggle functionality
       summaryBtn.addEventListener('click', () => {
         currentView = 'summary';
-        summaryBtn.classList.add('active');
-        summaryBtn.setAttribute('aria-pressed', 'true');
-        transactionsBtn.classList.remove('active');
-        transactionsBtn.setAttribute('aria-pressed', 'false');
-        summaryPage.style.display = 'block';
-        transactionsPage.style.display = 'none';
+        updateActiveView();
       });
       
       transactionsBtn.addEventListener('click', () => {
         currentView = 'transactions';
-        transactionsBtn.classList.add('active');
-        transactionsBtn.setAttribute('aria-pressed', 'true');
-        summaryBtn.classList.remove('active');
-        summaryBtn.setAttribute('aria-pressed', 'false');
-        transactionsPage.style.display = 'block';
-        summaryPage.style.display = 'none';
+        updateActiveView();
+      });
+      
+      expensesBtn.addEventListener('click', () => {
+        currentView = 'expenses';
+        updateActiveView();
+      });
+      
+      membersBtn.addEventListener('click', () => {
+        currentView = 'members';
+        updateActiveView();
       });
       
       // Search functionality
@@ -575,9 +860,64 @@
         updateRecentDonations(filteredDonations);
       }, 300));
       
+      searchExpensesInput.addEventListener('input', debounce(() => {
+        currentSearchTerm = searchExpensesInput.value.toLowerCase();
+        currentExpensePage = 1;
+        updateRecentExpenses(filteredExpenses);
+      }, 300));
+      
+      searchMembersInput.addEventListener('input', debounce(() => {
+        currentSearchTerm = searchMembersInput.value.toLowerCase();
+        currentMemberPage = 1;
+        updateMembersList(filteredMembers);
+      }, 300));
+      
       // Print functionality
       printBtn.addEventListener('click', () => {
         window.print();
+      });
+      
+      // Tab functionality for members section
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const tabId = button.getAttribute('data-tab');
+          activateTab(tabId);
+        });
+      });
+    }
+    
+    function updateActiveView() {
+      // Update buttons
+      summaryBtn.classList.toggle('active', currentView === 'summary');
+      summaryBtn.setAttribute('aria-pressed', currentView === 'summary');
+      transactionsBtn.classList.toggle('active', currentView === 'transactions');
+      transactionsBtn.setAttribute('aria-pressed', currentView === 'transactions');
+      expensesBtn.classList.toggle('active', currentView === 'expenses');
+      expensesBtn.setAttribute('aria-pressed', currentView === 'expenses');
+      membersBtn.classList.toggle('active', currentView === 'members');
+      membersBtn.setAttribute('aria-pressed', currentView === 'members');
+      
+      // Update pages
+      summaryPage.style.display = currentView === 'summary' ? 'block' : 'none';
+      transactionsPage.style.display = currentView === 'transactions' ? 'block' : 'none';
+      expensesPage.style.display = currentView === 'expenses' ? 'block' : 'none';
+      membersPage.style.display = currentView === 'members' ? 'block' : 'none';
+      
+      // Apply filters for the current view
+      if (currentView) {
+        applyFilters(currentView);
+      }
+    }
+    
+    function activateTab(tabId) {
+      // Update tab buttons
+      tabButtons.forEach(button => {
+        button.classList.toggle('active', button.getAttribute('data-tab') === tabId);
+      });
+      
+      // Update tab contents
+      tabContents.forEach(content => {
+        content.classList.toggle('active', content.id === `${tabId}Tab`);
       });
     }
     
@@ -589,6 +929,8 @@
       
       document.getElementById('monthSelect').value = currentMonth;
       document.getElementById('monthSelectTransactions').value = currentMonth;
+      document.getElementById('monthSelectExpenses').value = currentMonth;
+      document.getElementById('monthSelectAttendance').value = currentMonth;
     }
     
     // Main data loader
@@ -610,7 +952,8 @@
           throw new Error(result.message || "Data loading failed");
         }
         
-        allDonations = result.donations.map(d => ({
+        // Process donations
+        allDonations = result.donations?.map(d => ({
           ...d,
           amount: parseFloat(d.amount) || 0,
           envelope: d.envelope ? 'Yes' : 'No',
@@ -619,7 +962,49 @@
           staff1: d.staff1 || '',
           staff2: d.staff2 || '',
           notes: d.notes || ''
-        }));
+        })) || [];
+        
+        // Process expenses (mock data - replace with actual API data)
+        allExpenses = result.expenses?.map(e => ({
+          ...e,
+          amount: parseFloat(e.amount) || 0,
+          date: parseDate(e.date),
+          category: e.category || 'General',
+          description: e.description || '',
+          approvedBy: e.approvedBy || ''
+        })) || mockExpenses();
+        
+        // Process members (mock data - replace with actual API data)
+        allMembers = result.members?.map(m => ({
+          ...m,
+          memberId: m.memberId || '',
+          name: m.name || '',
+          phone: m.phone || '',
+          email: m.email || '',
+          familyId: m.familyId || '',
+          baptismDate: parseDate(m.baptismDate),
+          status: m.status || 'Active'
+        })) || mockMembers();
+        
+        // Process families (mock data - replace with actual API data)
+        allFamilies = result.families?.map(f => ({
+          ...f,
+          familyId: f.familyId || '',
+          familyName: f.familyName || '',
+          headOfFamily: f.headOfFamily || '',
+          address: f.address || '',
+          phone: f.phone || ''
+        })) || mockFamilies();
+        
+        // Process attendance (mock data - replace with actual API data)
+        allAttendance = result.attendance?.map(a => ({
+          ...a,
+          date: parseDate(a.date),
+          serviceType: a.serviceType || 'Sunday Service',
+          totalAttendance: parseInt(a.totalAttendance) || 0,
+          firstTimers: parseInt(a.firstTimers) || 0,
+          children: parseInt(a.children) || 0
+        })) || mockAttendance();
         
         populateYearSelectors();
         applyFilters(currentView);
@@ -630,6 +1015,98 @@
       } finally {
         hideLoading();
       }
+    }
+    
+    // Mock data functions (replace with actual API data)
+    function mockExpenses() {
+      const categories = ['Rent', 'Utilities', 'Outreach', 'Equipment', 'Supplies', 'Salaries'];
+      const approvers = ['Pastor John', 'Deacon Thomas', 'Elder Mathew'];
+      const expenses = [];
+      
+      for (let i = 0; i < 50; i++) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - Math.floor(Math.random() * 12));
+        date.setDate(Math.floor(Math.random() * 28) + 1);
+        
+        expenses.push({
+          id: `EXP-${1000 + i}`,
+          date: date,
+          amount: (Math.random() * 500 + 50).toFixed(2),
+          category: categories[Math.floor(Math.random() * categories.length)],
+          description: `Expense for ${['event', 'maintenance', 'program', 'purchase'][Math.floor(Math.random() * 4)]}`,
+          approvedBy: approvers[Math.floor(Math.random() * approvers.length)]
+        });
+      }
+      
+      return expenses;
+    }
+    
+    function mockMembers() {
+      const surnames = ['Rao', 'Kumar', 'Naidu', 'Reddy', 'Goud', 'Sharma', 'Patel'];
+      const firstNames = ['John', 'David', 'Mary', 'Sarah', 'Paul', 'Ruth', 'Daniel', 'Esther'];
+      const statuses = ['Active', 'Inactive', 'Visitor', 'Transferred'];
+      const members = [];
+      
+      for (let i = 0; i < 100; i++) {
+        const surname = surnames[Math.floor(Math.random() * surnames.length)];
+        const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const baptismDate = new Date();
+        baptismDate.setFullYear(baptismDate.getFullYear() - Math.floor(Math.random() * 10));
+        baptismDate.setMonth(Math.floor(Math.random() * 12));
+        baptismDate.setDate(Math.floor(Math.random() * 28) + 1);
+        
+        members.push({
+          memberId: `M-${1000 + i}`,
+          name: `${firstName} ${surname}`,
+          phone: `01${Math.floor(Math.random() * 90000000 + 10000000)}`,
+          email: `${firstName.toLowerCase()}.${surname.toLowerCase()}@example.com`,
+          familyId: `F-${Math.floor(Math.random() * 30) + 100}`,
+          baptismDate: baptismDate,
+          status: statuses[Math.floor(Math.random() * statuses.length)]
+        });
+      }
+      
+      return members;
+    }
+    
+    function mockFamilies() {
+      const surnames = ['Rao', 'Kumar', 'Naidu', 'Reddy', 'Goud', 'Sharma', 'Patel'];
+      const areas = ['KL City', 'Petaling Jaya', 'Subang Jaya', 'Puchong', 'Cheras', 'Kepong'];
+      const families = [];
+      
+      for (let i = 0; i < 30; i++) {
+        const surname = surnames[Math.floor(Math.random() * surnames.length)];
+        families.push({
+          familyId: `F-${100 + i}`,
+          familyName: `${surname} Family`,
+          headOfFamily: `Brother ${surname}`,
+          address: `${Math.floor(Math.random() * 100) + 1} Jalan ${surname}, ${areas[Math.floor(Math.random() * areas.length)]}`,
+          phone: `03${Math.floor(Math.random() * 9000000 + 1000000)}`
+        });
+      }
+      
+      return families;
+    }
+    
+    function mockAttendance() {
+      const serviceTypes = ['Sunday Service', 'Bible Study', 'Prayer Meeting', 'Youth Service', 'Special Event'];
+      const attendance = [];
+      
+      for (let i = 0; i < 50; i++) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - Math.floor(Math.random() * 12));
+        date.setDate(Math.floor(Math.random() * 28) + 1);
+        
+        attendance.push({
+          date: date,
+          serviceType: serviceTypes[Math.floor(Math.random() * serviceTypes.length)],
+          totalAttendance: Math.floor(Math.random() * 100) + 30,
+          firstTimers: Math.floor(Math.random() * 10),
+          children: Math.floor(Math.random() * 20)
+        });
+      }
+      
+      return attendance;
     }
     
     function showLoading() {
@@ -678,15 +1155,33 @@
     // Populate year dropdowns
     function populateYearSelectors() {
       const years = new Set();
+      
+      // Add years from donations
       allDonations.forEach(d => {
         if (!isNaN(d.date.getTime())) {
           years.add(d.date.getFullYear());
         }
       });
       
+      // Add years from expenses
+      allExpenses.forEach(e => {
+        if (!isNaN(e.date.getTime())) {
+          years.add(e.date.getFullYear());
+        }
+      });
+      
+      // Add years from attendance
+      allAttendance.forEach(a => {
+        if (!isNaN(a.date.getTime())) {
+          years.add(a.date.getFullYear());
+        }
+      });
+      
       const yearSelects = [
         document.getElementById('yearSelect'),
-        document.getElementById('yearSelectTransactions')
+        document.getElementById('yearSelectTransactions'),
+        document.getElementById('yearSelectExpenses'),
+        document.getElementById('yearSelectAttendance')
       ];
       
       yearSelects.forEach(select => {
@@ -712,38 +1207,88 @@
       currentView = view || currentView;
       clearTimeout(filterTimeout);
       filterTimeout = setTimeout(() => {
-        const yearSelect = currentView === 'summary' 
-          ? document.getElementById('yearSelect')
-          : document.getElementById('yearSelectTransactions');
-        
-        const monthSelect = currentView === 'summary'
-          ? document.getElementById('monthSelect')
-          : document.getElementById('monthSelectTransactions');
-        
-        const year = yearSelect.value;
-        const month = monthSelect.value;
-        
-        filteredDonations = allDonations.filter(d => {
-          if (isNaN(d.date.getTime())) return false;
-          const matchesYear = !year || d.date.getFullYear() == year;
-          const matchesMonth = !month || 
-            (d.date.getMonth() + 1).toString().padStart(2, '0') === month;
-          return matchesYear && matchesMonth;
-        });
-        
-        if (currentView === 'summary') {
-          document.getElementById('yearSelectTransactions').value = year;
-          document.getElementById('monthSelectTransactions').value = month;
-        } else {
-          document.getElementById('yearSelect').value = year;
-          document.getElementById('monthSelect').value = month;
+        if (currentView === 'summary' || currentView === 'transactions') {
+          filterDonations();
+        } else if (currentView === 'expenses') {
+          filterExpenses();
+        } else if (currentView === 'members') {
+          filterMembers();
+        } else if (currentView === 'attendance') {
+          filterAttendance();
         }
-        
-        updateSummaryCards(filteredDonations);
-        updatePieChart(filteredDonations);
-        updateMonthlyView(filteredDonations);
-        updateRecentDonations(filteredDonations);
       }, 100);
+    }
+    
+    function filterDonations() {
+      const yearSelect = currentView === 'summary' 
+        ? document.getElementById('yearSelect')
+        : document.getElementById('yearSelectTransactions');
+      
+      const monthSelect = currentView === 'summary'
+        ? document.getElementById('monthSelect')
+        : document.getElementById('monthSelectTransactions');
+      
+      const year = yearSelect.value;
+      const month = monthSelect.value;
+      
+      filteredDonations = allDonations.filter(d => {
+        if (isNaN(d.date.getTime())) return false;
+        const matchesYear = !year || d.date.getFullYear() == year;
+        const matchesMonth = !month || 
+          (d.date.getMonth() + 1).toString().padStart(2, '0') === month;
+        return matchesYear && matchesMonth;
+      });
+      
+      if (currentView === 'summary') {
+        document.getElementById('yearSelectTransactions').value = year;
+        document.getElementById('monthSelectTransactions').value = month;
+      } else {
+        document.getElementById('yearSelect').value = year;
+        document.getElementById('monthSelect').value = month;
+      }
+      
+      updateSummaryCards(filteredDonations);
+      updatePieChart(filteredDonations);
+      updateMonthlyView(filteredDonations);
+      updateRecentDonations(filteredDonations);
+    }
+    
+    function filterExpenses() {
+      const year = document.getElementById('yearSelectExpenses').value;
+      const month = document.getElementById('monthSelectExpenses').value;
+      
+      filteredExpenses = allExpenses.filter(e => {
+        if (isNaN(e.date.getTime())) return false;
+        const matchesYear = !year || e.date.getFullYear() == year;
+        const matchesMonth = !month || 
+          (e.date.getMonth() + 1).toString().padStart(2, '0') === month;
+        return matchesYear && matchesMonth;
+      });
+      
+      updateExpenseSummary();
+      updateExpenseChart(filteredExpenses);
+      updateRecentExpenses(filteredExpenses);
+    }
+    
+    function filterMembers() {
+      filteredMembers = [...allMembers];
+      updateMembersSummary();
+      updateMembersList(filteredMembers);
+    }
+    
+    function filterAttendance() {
+      const year = document.getElementById('yearSelectAttendance').value;
+      const month = document.getElementById('monthSelectAttendance').value;
+      
+      const filtered = allAttendance.filter(a => {
+        if (isNaN(a.date.getTime())) return false;
+        const matchesYear = !year || a.date.getFullYear() == year;
+        const matchesMonth = !month || 
+          (a.date.getMonth() + 1).toString().padStart(2, '0') === month;
+        return matchesYear && matchesMonth;
+      });
+      
+      updateAttendanceTable(filtered);
     }
     
     // Debounce function
@@ -770,6 +1315,14 @@
       document.getElementById('avgOffering').textContent = `RM${avg.toFixed(2)}`;
       document.getElementById('serviceCount').textContent = totalServices;
       
+      // Total expenses
+      const totalExpenses = allExpenses.reduce((sum, e) => sum + e.amount, 0);
+      document.getElementById('totalExpenses').textContent = `RM${totalExpenses.toFixed(2)}`;
+      
+      // Member count
+      const activeMembers = allMembers.filter(m => m.status === 'Active').length;
+      document.getElementById('memberCount').textContent = activeMembers;
+      
       // Period text
       let periodText = "All Time";
       const yearSelect = document.getElementById('yearSelect');
@@ -787,6 +1340,31 @@
       document.getElementById('avgPeriod').textContent = periodText === "All Time" ? 
         "Per service" : periodText;
       document.getElementById('servicePeriod').textContent = periodText;
+      document.getElementById('expensePeriod').textContent = periodText;
+    }
+    
+    function updateExpenseSummary() {
+      const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
+      document.getElementById('totalExpenses').textContent = `RM${totalExpenses.toFixed(2)}`;
+      
+      let periodText = "All Time";
+      const yearSelect = document.getElementById('yearSelectExpenses');
+      const monthSelect = document.getElementById('monthSelectExpenses');
+      
+      if (yearSelect.value && monthSelect.value) {
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"];
+        periodText = `${monthNames[parseInt(monthSelect.value) - 1]} ${yearSelect.value}`;
+      } else if (yearSelect.value) {
+        periodText = `Year ${yearSelect.value}`;
+      }
+      
+      document.getElementById('expensePeriod').textContent = periodText;
+    }
+    
+    function updateMembersSummary() {
+      const activeMembers = allMembers.filter(m => m.status === 'Active').length;
+      document.getElementById('memberCount').textContent = activeMembers;
     }
     
     // Update pie chart
@@ -813,6 +1391,75 @@
             labels: Object.keys(typeData),
             datasets: [{
               data: Object.values(typeData),
+              backgroundColor: [
+                '#0a2463', '#3e92cc', '#d4af37', '#2ecc71', '#e74c3c', '#9b59b6',
+                '#1abc9c', '#f39c12', '#3498db', '#e67e22', '#34495e', '#16a085'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+              padding: {
+                top: 10,
+                bottom: 10,
+                left: 10,
+                right: 10
+              }
+            },
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  boxWidth: 12,
+                  font: {
+                    size: 10
+                  }
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const label = context.label || '';
+                    const value = context.raw || 0;
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const percentage = Math.round((value / total) * 100);
+                    return `${label}: RM${value.toFixed(2)} (${percentage}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+    
+    // Update expense chart
+    function updateExpenseChart(expenses) {
+      const categoryData = {};
+      
+      expenses.forEach(e => {
+        if (!categoryData[e.category]) {
+          categoryData[e.category] = 0;
+        }
+        categoryData[e.category] += e.amount;
+      });
+      
+      const ctx = document.getElementById('expenseChart').getContext('2d');
+      
+      if (expenseChart) {
+        expenseChart.destroy();
+      }
+      
+      if (Object.keys(categoryData).length > 0) {
+        expenseChart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(categoryData),
+            datasets: [{
+              data: Object.values(categoryData),
               backgroundColor: [
                 '#0a2463', '#3e92cc', '#d4af37', '#2ecc71', '#e74c3c', '#9b59b6',
                 '#1abc9c', '#f39c12', '#3498db', '#e67e22', '#34495e', '#16a085'
@@ -958,9 +1605,135 @@
       loadMoreBtn.style.display = filtered.length > endIdx ? 'inline-block' : 'none';
     }
     
+    // Update recent expenses table
+    function updateRecentExpenses(expenses) {
+      const tbody = document.querySelector('#expensesTable tbody');
+      
+      let filtered = expenses;
+      if (currentSearchTerm) {
+        filtered = expenses.filter(e => 
+          e.category.toLowerCase().includes(currentSearchTerm) ||
+          (e.description && e.description.toLowerCase().includes(currentSearchTerm)) ||
+          e.approvedBy.toLowerCase().includes(currentSearchTerm) ||
+          e.amount.toString().includes(currentSearchTerm)
+        );
+      }
+      
+      filtered.sort((a,b) => b.date - a.date);
+      
+      const startIdx = 0;
+      const endIdx = currentExpensePage * EXPENSES_PER_PAGE;
+      const paginated = filtered.slice(startIdx, endIdx);
+      
+      tbody.innerHTML = paginated.map(e => `
+        <tr>
+          <td>${formatDate(e.date)}</td>
+          <td>${e.amount.toFixed(2)}</td>
+          <td>${e.category}</td>
+          <td>${e.description}</td>
+          <td>${e.approvedBy}</td>
+        </tr>
+      `).join('');
+      
+      loadMoreExpensesBtn.style.display = filtered.length > endIdx ? 'inline-block' : 'none';
+    }
+    
+    // Update members list
+    function updateMembersList(members) {
+      const tbody = document.querySelector('#membersTable tbody');
+      
+      let filtered = members;
+      if (currentSearchTerm) {
+        filtered = members.filter(m => 
+          m.name.toLowerCase().includes(currentSearchTerm) ||
+          m.memberId.toLowerCase().includes(currentSearchTerm) ||
+          (m.phone && m.phone.includes(currentSearchTerm)) ||
+          (m.email && m.email.toLowerCase().includes(currentSearchTerm)) ||
+          (m.familyId && m.familyId.toLowerCase().includes(currentSearchTerm)) ||
+          m.status.toLowerCase().includes(currentSearchTerm)
+        );
+      }
+      
+      filtered.sort((a,b) => a.name.localeCompare(b.name));
+      
+      const startIdx = 0;
+      const endIdx = currentMemberPage * MEMBERS_PER_PAGE;
+      const paginated = filtered.slice(startIdx, endIdx);
+      
+      tbody.innerHTML = paginated.map(m => `
+        <tr>
+          <td>${m.memberId}</td>
+          <td>${m.name}</td>
+          <td>${m.phone}</td>
+          <td>${m.email}</td>
+          <td>${m.familyId}</td>
+          <td>${m.baptismDate ? formatDate(m.baptismDate) : ''}</td>
+          <td>${m.status}</td>
+        </tr>
+      `).join('');
+      
+      loadMoreMembersBtn.style.display = filtered.length > endIdx ? 'inline-block' : 'none';
+    }
+    
+    // Update families table
+    function updateFamiliesTable() {
+      const tbody = document.querySelector('#familiesTable tbody');
+      
+      let filtered = allFamilies;
+      if (currentSearchTerm) {
+        filtered = allFamilies.filter(f => 
+          f.familyName.toLowerCase().includes(currentSearchTerm) ||
+          f.familyId.toLowerCase().includes(currentSearchTerm) ||
+          f.headOfFamily.toLowerCase().includes(currentSearchTerm) ||
+          (f.address && f.address.toLowerCase().includes(currentSearchTerm)) ||
+          (f.phone && f.phone.includes(currentSearchTerm))
+        );
+      }
+      
+      filtered.sort((a,b) => a.familyName.localeCompare(b.familyName));
+      
+      tbody.innerHTML = filtered.map(f => `
+        <tr>
+          <td>${f.familyId}</td>
+          <td>${f.familyName}</td>
+          <td>${f.headOfFamily}</td>
+          <td>${allMembers.filter(m => m.familyId === f.familyId).length} members</td>
+          <td>${f.address}</td>
+          <td>${f.phone}</td>
+        </tr>
+      `).join('');
+    }
+    
+    // Update attendance table
+    function updateAttendanceTable(attendance) {
+      const tbody = document.querySelector('#attendanceTable tbody');
+      
+      attendance.sort((a,b) => b.date - a.date);
+      
+      tbody.innerHTML = attendance.map(a => `
+        <tr>
+          <td>${formatDate(a.date)}</td>
+          <td>${a.serviceType}</td>
+          <td>${a.totalAttendance}</td>
+          <td>${a.firstTimers}</td>
+          <td>${a.children}</td>
+        </tr>
+      `).join('');
+    }
+    
     function loadMoreTransactions() {
       currentTransactionPage++;
       updateRecentDonations(filteredDonations);
+    }
+    
+    function loadMoreExpenses() {
+      currentExpensePage++;
+      updateRecentExpenses(filteredExpenses);
+    }
+    
+    function loadMoreMembers() {
+      currentMemberPage++;
+      updateMembersList(filteredMembers);
     }
     
     // Format date for display
@@ -1016,6 +1789,108 @@
         filename += `_year_${year}`;
       }
       
+      if (currentSearchTerm) {
+        filename += `_search_${currentSearchTerm.substring(0, 20)}`;
+      }
+      
+      a.download = `${filename}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    
+    function exportExpensesToCSV() {
+      let dataToExport = filteredExpenses;
+      const year = document.getElementById('yearSelectExpenses').value;
+      const month = document.getElementById('monthSelectExpenses').value;
+      
+      if (currentSearchTerm) {
+        dataToExport = filteredExpenses.filter(e => 
+          e.category.toLowerCase().includes(currentSearchTerm) ||
+          (e.description && e.description.toLowerCase().includes(currentSearchTerm)) ||
+          e.approvedBy.toLowerCase().includes(currentSearchTerm) ||
+          e.amount.toString().includes(currentSearchTerm)
+        );
+      }
+      
+      dataToExport.sort((a,b) => b.date - a.date);
+      
+      const headers = ['Date', 'Amount (RM)', 'Category', 'Description', 'Approved By'];
+      const csvRows = [
+        headers.join(','),
+        ...dataToExport.map(e => [
+          formatDate(e.date),
+          e.amount.toFixed(2),
+          `"${e.category.replace(/"/g, '""')}"`,
+          `"${(e.description || '').replace(/"/g, '""')}"`,
+          `"${e.approvedBy.replace(/"/g, '""')}"`
+        ].join(','))
+      ];
+      
+      const csvContent = csvRows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      
+      let filename = 'expenses';
+      if (year && month) {
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"];
+        filename += `_${monthNames[parseInt(month) - 1]}_${year}`;
+      } else if (year) {
+        filename += `_year_${year}`;
+      }
+      
+      if (currentSearchTerm) {
+        filename += `_search_${currentSearchTerm.substring(0, 20)}`;
+      }
+      
+      a.download = `${filename}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    
+    function exportMembersToCSV() {
+      let dataToExport = filteredMembers;
+      
+      if (currentSearchTerm) {
+        dataToExport = filteredMembers.filter(m => 
+          m.name.toLowerCase().includes(currentSearchTerm) ||
+          m.memberId.toLowerCase().includes(currentSearchTerm) ||
+          (m.phone && m.phone.includes(currentSearchTerm)) ||
+          (m.email && m.email.toLowerCase().includes(currentSearchTerm)) ||
+          (m.familyId && m.familyId.toLowerCase().includes(currentSearchTerm)) ||
+          m.status.toLowerCase().includes(currentSearchTerm)
+        );
+      }
+      
+      dataToExport.sort((a,b) => a.name.localeCompare(b.name));
+      
+      const headers = ['Member ID', 'Name', 'Phone', 'Email', 'Family ID', 'Baptism Date', 'Status'];
+      const csvRows = [
+        headers.join(','),
+        ...dataToExport.map(m => [
+          m.memberId,
+          `"${m.name.replace(/"/g, '""')}"`,
+          m.phone,
+          m.email,
+          m.familyId,
+          m.baptismDate ? formatDate(m.baptismDate) : '',
+          m.status
+        ].join(','))
+      ];
+      
+      const csvContent = csvRows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      
+      let filename = 'members';
       if (currentSearchTerm) {
         filename += `_search_${currentSearchTerm.substring(0, 20)}`;
       }
