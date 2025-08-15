@@ -81,10 +81,6 @@
       border-left: 3px solid var(--gold);
     }
     
-    .card.attendance-card {
-      border-left-color: var(--light-blue);
-    }
-    
     .card h3 {
       margin: 0 0 5px 0;
       color: var(--deep-blue);
@@ -96,10 +92,6 @@
       font-weight: bold;
       margin: 5px 0;
       color: var(--deep-blue);
-    }
-    
-    .card.attendance-card .value {
-      color: var(--light-blue);
     }
     
     /* Chart Container */
@@ -423,11 +415,6 @@
       </div>
       
       <div class="card-container">
-        <div class="card attendance-card">
-          <h3>Average Members Attended</h3>
-          <div class="value" id="attendanceCount">0</div>
-          <div class="subtext" id="attendanceSubtext">per service</div>
-        </div>
         <div class="card">
           <h3>Total Offerings</h3>
           <div class="value" id="totalOfferings">RM0.00</div>
@@ -773,15 +760,8 @@
     
     // Update summary cards
     function updateSummaryCards(donations) {
-      // Calculate average attendance per service
-      const attendedServices = donations.filter(d => d.envelope === 'Yes').length;
-      const totalServices = donations.length;
-      const avgAttendance = totalServices > 0 ? Math.round(attendedServices / totalServices) : 0;
-      
-      document.getElementById('attendanceCount').textContent = avgAttendance;
-      document.getElementById('attendanceSubtext').textContent = "per service";
-      
       // Total offerings
+      const totalServices = donations.length;
       const total = donations.reduce((sum, d) => sum + d.amount, 0);
       document.getElementById('totalOfferings').textContent = `RM${total.toFixed(2)}`;
       
