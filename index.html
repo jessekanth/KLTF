@@ -73,11 +73,6 @@
       color: var(--deep-blue);
     }
     
-    .view-btn:focus {
-      outline: 2px solid var(--gold);
-      outline-offset: -2px;
-    }
-    
     /* Card Styles */
     .card-container {
       display: grid;
@@ -94,27 +89,6 @@
       border-left: 3px solid var(--gold);
     }
     
-    .card.teal {
-      border-left-color: var(--teal);
-    }
-    
-    .card.purple {
-      border-left-color: var(--purple);
-    }
-    
-    .card h3 {
-      margin: 0 0 5px 0;
-      color: var(--deep-blue);
-      font-size: 0.9rem;
-    }
-    
-    .card .value {
-      font-size: 1.3rem;
-      font-weight: bold;
-      margin: 5px 0;
-      color: var(--deep-blue);
-    }
-    
     /* Chart Container */
     .chart-container {
       background: var(--white);
@@ -124,76 +98,6 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
       position: relative;
       height: 300px;
-    }
-    
-    /* Table Styles */
-    table {
-      width: calc(100% - 30px);
-      margin: 15px;
-      border-collapse: collapse;
-      background: var(--white);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      border-radius: 5px;
-      overflow: hidden;
-    }
-    
-    th, td {
-      padding: 10px 12px;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-    }
-    
-    th {
-      background-color: var(--deep-blue);
-      color: var(--white);
-      position: sticky;
-      top: 0;
-    }
-    
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-    
-    /* Monthly Table Styles */
-    .monthly-table-container {
-      margin: 15px;
-      background: var(--white);
-      border-radius: 5px;
-      padding: 15px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      overflow-x: auto;
-    }
-
-    .monthly-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .monthly-table th {
-      background-color: var(--deep-blue);
-      color: var(--white);
-      padding: 10px 12px;
-      text-align: left;
-    }
-
-    .monthly-table td {
-      padding: 8px 12px;
-      border-bottom: 1px solid #eee;
-    }
-
-    .monthly-table tr.month-total-row {
-      background-color: var(--light-blue);
-      color: var(--white);
-      font-weight: bold;
-    }
-
-    .monthly-table .amount-column {
-      text-align: right;
-      min-width: 100px;
-    }
-
-    .monthly-table .type-column {
-      padding-left: 20px;
     }
     
     /* Loading and Error States */
@@ -213,1705 +117,340 @@
       animation: spin 1s linear infinite;
     }
     
-    .error-message {
-      color: var(--error-red);
-    }
-    
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
     
-    /* Input and Button Styles */
-    select, button, input {
-      padding: 8px 12px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-      font-family: inherit;
-      font-size: inherit;
+    /* Log Container Styles */
+    #logContainer {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      width: 350px;
+      height: 250px;
+      background: rgba(0,0,0,0.85);
+      color: #00ff00;
+      padding: 10px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      display: none;
+      z-index: 1000;
+      border-top-left-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
     
-    button {
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    
-    button.primary {
-      background-color: var(--gold);
-      color: var(--deep-blue);
-      border: none;
-      font-weight: bold;
-    }
-    
-    button.primary:hover {
-      background-color: #e6c44d;
-    }
-    
-    button.secondary {
-      background-color: var(--light-blue);
-      color: white;
-      border: none;
-    }
-    
-    button.secondary:hover {
-      background-color: #4a9fd6;
-    }
-    
-    .input-group {
-      margin: 15px;
-      display: flex;
-      gap: 10px;
-    }
-    
-    /* Toolbar Styles */
-    .toolbar {
+    #logContainer .log-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin: 15px;
-      flex-wrap: wrap;
-      gap: 10px;
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #444;
     }
     
-    /* Search Input */
-    .search-input {
-      flex: 1;
-      min-width: 200px;
-      padding: 8px 12px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
+    #logContainer .log-header h4 {
+      margin: 0;
+      color: var(--gold);
     }
     
-    /* Tabs for additional views */
-    .tab-container {
-      margin: 15px;
-    }
-    
-    .tab-buttons {
-      display: flex;
-      border-bottom: 1px solid #ddd;
-    }
-    
-    .tab-btn {
-      padding: 10px 15px;
+    #logContainer .log-header button {
       background: none;
       border: none;
+      color: white;
       cursor: pointer;
-      border-bottom: 3px solid transparent;
+      font-size: 16px;
     }
     
-    .tab-btn.active {
-      border-bottom-color: var(--gold);
-      font-weight: bold;
+    #logContent {
+      height: calc(100% - 30px);
+      overflow-y: auto;
     }
     
-    .tab-content {
-      display: none;
-      padding: 15px 0;
+    .log-entry {
+      margin-bottom: 4px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #333;
+      line-height: 1.4;
     }
     
-    .tab-content.active {
-      display: block;
+    .log-entry.error {
+      color: #ff6666;
     }
     
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .card-container {
-        grid-template-columns: 1fr 1fr;
-      }
-      
-      .input-group {
-        flex-direction: column;
-      }
-      
-      .chart-container {
-        height: 250px;
-      }
-      
-      .tab-buttons {
-        overflow-x: auto;
-        white-space: nowrap;
-      }
+    .log-entry.warning {
+      color: #ffcc00;
     }
     
-    @media (max-width: 480px) {
-      .card-container {
-        grid-template-columns: 1fr;
-      }
-      
-      table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-      }
-      
-      .toolbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      
-      .church-logo h1 {
-        font-size: 1rem;
-      }
+    .log-entry.info {
+      color: #66ccff;
     }
     
-    /* Print Styles */
-    @media print {
-      body {
-        background-color: white !important;
-        color: black !important;
-        font-size: 12pt !important;
-      }
-      
-      .header, .view-toggle, .input-group, button {
-        display: none !important;
-      }
-      
-      .card-container {
-        grid-template-columns: 1fr 1fr !important;
-        page-break-inside: avoid;
-      }
-      
-      .chart-container, .monthly-table-container {
-        page-break-inside: avoid;
-        break-inside: avoid;
-        height: auto !important;
-        margin: 10px 0 !important;
-        padding: 10px !important;
-        box-shadow: none !important;
-      }
-      
-      table, .monthly-table {
-        font-size: 10pt !important;
-        width: 100% !important;
-        margin: 10px 0 !important;
-      }
-      
-      .monthly-table tr.month-total-row {
-        background-color: var(--light-blue) !important;
-        color: var(--white) !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-      
-      #pieChart, #expenseChart {
-        max-height: 250px !important;
-        max-width: 100% !important;
-      }
-      
-      @page {
-        size: auto;
-        margin: 10mm;
-      }
+    .log-entry.success {
+      color: #00cc66;
     }
+    
+    .log-timestamp {
+      color: #999;
+      margin-right: 8px;
+    }
+    
+    #logToggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1001;
+      background: var(--deep-blue);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+    
+    #logToggle:hover {
+      transform: scale(1.1);
+      background: var(--gold);
+      color: var(--deep-blue);
+    }
+    
+    /* ... (rest of your existing CSS styles) ... */
   </style>
 </head>
 <body>
+  <!-- Your existing dashboard HTML structure -->
   <div class="header">
     <div class="church-logo">
-      <img src="kltf-logo.png" alt="KL Telugu Fellowship Logo">
-      <h1 style="margin:0;font-size:1.2rem;color:var(--gold)">
-        KL Telugu Fellowship Dashboard
-      </h1>
+      <img src="https://via.placeholder.com/150x50?text=KL+Telugu+Fellowship" alt="KL Telugu Fellowship Logo">
+      <h1>KL Telugu Fellowship Dashboard</h1>
     </div>
-    <button id="printBtn" class="secondary" aria-label="Print dashboard">
+    <button id="printBtn" class="secondary">
       <i class="fas fa-print"></i> Print
     </button>
   </div>
   
-  <div class="view-toggle">
-    <button class="view-btn active" id="summaryBtn" aria-pressed="true">
-      <i class="fas fa-chart-pie" aria-hidden="true"></i> Summary
-    </button>
-    <button class="view-btn" id="transactionsBtn" aria-pressed="false">
-      <i class="fas fa-list" aria-hidden="true"></i> Transactions
-    </button>
-    <button class="view-btn" id="expensesBtn" aria-pressed="false">
-      <i class="fas fa-receipt" aria-hidden="true"></i> Expenses
-    </button>
-    <button class="view-btn" id="membersBtn" aria-pressed="false">
-      <i class="fas fa-users" aria-hidden="true"></i> Members
-    </button>
+  <!-- Your existing view toggle, loading, error, and content containers -->
+  
+  <!-- Logging Container -->
+  <div id="logContainer">
+    <div class="log-header">
+      <h4>System Logs</h4>
+      <button onclick="toggleLogs()">×</button>
+    </div>
+    <div id="logContent"></div>
   </div>
   
-  <!-- Loading State -->
-  <div id="loading" class="loading-container" style="display:none;">
-    <div class="loading-spinner">
-      <i class="fas fa-spinner"></i>
-    </div>
-    <p>Loading church data...</p>
-  </div>
-  
-  <!-- Error State -->
-  <div id="error" class="error-container" style="display:none;">
-    <div class="error-message">
-      <i class="fas fa-exclamation-triangle"></i>
-      <p id="errorText">Failed to load data. Please try again later.</p>
-    </div>
-    <button onclick="loadData()" class="primary" style="margin-top:10px;">
-      <i class="fas fa-sync-alt"></i> Retry
-    </button>
-  </div>
-  
-  <!-- Main Content -->
-  <div id="content" style="display:none;">
-    <!-- Summary Page -->
-    <div id="summaryPage">
-      <div class="toolbar">
-        <div class="input-group">
-          <select id="yearSelect" aria-label="Select year">
-            <!-- Years populated dynamically -->
-          </select>
-          <select id="monthSelect" aria-label="Select month">
-            <option value="">All Months</option>
-            <option value="01">January</option>
-            <option value="02">February</option>
-            <option value="03">March</option>
-            <option value="04">April</option>
-            <option value="05">May</option>
-            <option value="06">June</option>
-            <option value="07">July</option>
-            <option value="08">August</option>
-            <option value="09">September</option>
-            <option value="10">October</option>
-            <option value="11">November</option>
-            <option value="12">December</option>
-          </select>
-          <button onclick="applyFilters('summary')" class="primary">
-            <i class="fas fa-filter"></i> Apply
-          </button>
-        </div>
-        <button onclick="exportToCSV()" class="secondary">
-          <i class="fas fa-file-csv"></i> Export CSV
-        </button>
-      </div>
-      
-      <div class="card-container">
-        <div class="card">
-          <h3>Total Offerings</h3>
-          <div class="value" id="totalOfferings">RM0.00</div>
-          <div class="subtext" id="offeringPeriod">All Time</div>
-        </div>
-        <div class="card">
-          <h3>Average Offering</h3>
-          <div class="value" id="avgOffering">RM0.00</div>
-          <div class="subtext" id="avgPeriod">Per service</div>
-        </div>
-        <div class="card">
-          <h3>Services Recorded</h3>
-          <div class="value" id="serviceCount">0</div>
-          <div class="subtext" id="servicePeriod">All Time</div>
-        </div>
-        <div class="card teal">
-          <h3>Total Expenses</h3>
-          <div class="value" id="totalExpenses">RM0.00</div>
-          <div class="subtext" id="expensePeriod">All Time</div>
-        </div>
-        <div class="card purple">
-          <h3>Registered Members</h3>
-          <div class="value" id="memberCount">0</div>
-          <div class="subtext">Active members</div>
-        </div>
-      </div>
-      
-      <div class="chart-container">
-        <h3 style="margin-top:0;color:var(--deep-blue)">Donation Type Breakdown</h3>
-        <canvas id="pieChart" height="200" aria-label="Donation type breakdown chart"></canvas>
-      </div>
-      
-      <div id="monthlyView">
-        <div class="monthly-table-container">
-          <h3 style="margin-top:0;color:var(--deep-blue)">Monthly Donations</h3>
-          <table class="monthly-table" id="monthlyDonationsTable">
-            <thead>
-              <tr>
-                <th>Month</th>
-                <th>Donation Type</th>
-                <th class="amount-column">Amount (RM)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Data will be inserted here -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Transactions Page -->
-    <div id="transactionsPage" style="display:none;">
-      <div class="toolbar">
-        <div class="input-group">
-          <select id="yearSelectTransactions" aria-label="Select year">
-            <!-- Years populated dynamically -->
-          </select>
-          <select id="monthSelectTransactions" aria-label="Select month">
-            <option value="">All Months</option>
-            <option value="01">January</option>
-            <option value="02">February</option>
-            <option value="03">March</option>
-            <option value="04">April</option>
-            <option value="05">May</option>
-            <option value="06">June</option>
-            <option value="07">July</option>
-            <option value="08">August</option>
-            <option value="09">September</option>
-            <option value="10">October</option>
-            <option value="11">November</option>
-            <option value="12">December</option>
-          </select>
-          <button onclick="applyFilters('transactions')" class="primary">
-            <i class="fas fa-filter"></i> Apply
-          </button>
-        </div>
-        <input type="text" id="searchInput" class="search-input" placeholder="Search transactions..." aria-label="Search transactions">
-        <button onclick="exportToCSV()" class="secondary">
-          <i class="fas fa-file-csv"></i> Export CSV
-        </button>
-      </div>
-      
-      <div class="chart-container" style="height:auto;padding:0;">
-        <div style="overflow-x:auto;">
-          <table id="donationsTable">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Amount (RM)</th>
-                <th>Type</th>
-                <th>Attended</th>
-                <th>Counters</th>
-                <th>Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Data will be inserted here -->
-            </tbody>
-          </table>
-        </div>
-        <div style="text-align:center;margin-top:10px;">
-          <button id="loadMoreBtn" onclick="loadMoreTransactions()" class="secondary" style="display:none;">
-            <i class="fas fa-plus"></i> Load More
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Expenses Page -->
-    <div id="expensesPage" style="display:none;">
-      <div class="toolbar">
-        <div class="input-group">
-          <select id="yearSelectExpenses" aria-label="Select year">
-            <!-- Years populated dynamically -->
-          </select>
-          <select id="monthSelectExpenses" aria-label="Select month">
-            <option value="">All Months</option>
-            <option value="01">January</option>
-            <option value="02">February</option>
-            <option value="03">March</option>
-            <option value="04">April</option>
-            <option value="05">May</option>
-            <option value="06">June</option>
-            <option value="07">July</option>
-            <option value="08">August</option>
-            <option value="09">September</option>
-            <option value="10">October</option>
-            <option value="11">November</option>
-            <option value="12">December</option>
-          </select>
-          <button onclick="applyFilters('expenses')" class="primary">
-            <i class="fas fa-filter"></i> Apply
-          </button>
-        </div>
-        <input type="text" id="searchInputExpenses" class="search-input" placeholder="Search expenses..." aria-label="Search expenses">
-        <button onclick="exportExpensesToCSV()" class="secondary">
-          <i class="fas fa-file-csv"></i> Export CSV
-        </button>
-      </div>
-      
-      <div class="chart-container">
-        <h3 style="margin-top:0;color:var(--deep-blue)">Expense Categories</h3>
-        <canvas id="expenseChart" height="200" aria-label="Expense categories chart"></canvas>
-      </div>
-      
-      <div class="chart-container" style="height:auto;padding:0;">
-        <div style="overflow-x:auto;">
-          <table id="expensesTable">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Amount (RM)</th>
-                <th>Category</th>
-                <th>Description</th>
-                <th>Approved By</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Data will be inserted here -->
-            </tbody>
-          </table>
-        </div>
-        <div style="text-align:center;margin-top:10px;">
-          <button id="loadMoreExpensesBtn" onclick="loadMoreExpenses()" class="secondary" style="display:none;">
-            <i class="fas fa-plus"></i> Load More
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Members Page -->
-    <div id="membersPage" style="display:none;">
-      <div class="tab-container">
-        <div class="tab-buttons">
-          <button class="tab-btn active" data-tab="membersList">Members List</button>
-          <button class="tab-btn" data-tab="families">Families</button>
-          <button class="tab-btn" data-tab="attendance">Attendance</button>
-        </div>
-        
-        <div class="tab-content active" id="membersListTab">
-          <div class="toolbar">
-            <input type="text" id="searchMembersInput" class="search-input" placeholder="Search members..." aria-label="Search members">
-            <button onclick="exportMembersToCSV()" class="secondary">
-              <i class="fas fa-file-csv"></i> Export CSV
-            </button>
-          </div>
-          
-          <div class="chart-container" style="height:auto;padding:0;">
-            <div style="overflow-x:auto;">
-              <table id="membersTable">
-                <thead>
-                  <tr>
-                    <th>Member ID</th>
-                    <th>Name</th>
-                    <th>Phone</th>
-                    <th>Email</th>
-                    <th>Family</th>
-                    <th>Baptism Date</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Data will be inserted here -->
-                </tbody>
-              </table>
-            </div>
-            <div style="text-align:center;margin-top:10px;">
-              <button id="loadMoreMembersBtn" onclick="loadMoreMembers()" class="secondary" style="display:none;">
-                <i class="fas fa-plus"></i> Load More
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        <div class="tab-content" id="familiesTab">
-          <div class="toolbar">
-            <input type="text" id="searchFamiliesInput" class="search-input" placeholder="Search families..." aria-label="Search families">
-          </div>
-          
-          <div class="chart-container" style="height:auto;padding:0;">
-            <div style="overflow-x:auto;">
-              <table id="familiesTable">
-                <thead>
-                  <tr>
-                    <th>Family ID</th>
-                    <th>Family Name</th>
-                    <th>Head of Family</th>
-                    <th>Members</th>
-                    <th>Address</th>
-                    <th>Phone</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Data will be inserted here -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        
-        <div class="tab-content" id="attendanceTab">
-          <div class="toolbar">
-            <div class="input-group">
-              <select id="yearSelectAttendance" aria-label="Select year">
-                <!-- Years populated dynamically -->
-              </select>
-              <select id="monthSelectAttendance" aria-label="Select month">
-                <option value="">All Months</option>
-                <option value="01">January</option>
-                <option value="02">February</option>
-                <option value="03">March</option>
-                <option value="04">April</option>
-                <option value="05">May</option>
-                <option value="06">June</option>
-                <option value="07">July</option>
-                <option value="08">August</option>
-                <option value="09">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
-              </select>
-              <button onclick="applyFilters('attendance')" class="primary">
-                <i class="fas fa-filter"></i> Apply
-              </button>
-            </div>
-          </div>
-          
-          <div class="chart-container" style="height:auto;padding:0;">
-            <div style="overflow-x:auto;">
-              <table id="attendanceTable">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Service Type</th>
-                    <th>Total Attendance</th>
-                    <th>First Timers</th>
-                    <th>Children</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Data will be inserted here -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <button id="logToggle" onclick="toggleLogs()">📜</button>
 
   <script>
-    // ===== CONFIGURATION =====
-    const API_URL = "https://script.google.com/macros/s/AKfycbypEhhZPt0OeoSOMSl0fN6EY6Mbl7G2dMc1y9kjsQzuBh6K192vawrXkUhfveoIr-Co/exec";
-    const TRANSACTIONS_PER_PAGE = 50;
-    const EXPENSES_PER_PAGE = 50;
-    const MEMBERS_PER_PAGE = 50;
-    const DEBOUNCE_DELAY = 300;
-    
-    // ===== STATE MANAGEMENT =====
-    let allDonations = [];
-    let allExpenses = [];
-    let allMembers = [];
-    let allFamilies = [];
-    let allAttendance = [];
-    let filteredDonations = [];
-    let filteredExpenses = [];
-    let filteredMembers = [];
-    let filteredAttendance = [];
-    let pieChart = null;
-    let expenseChart = null;
-    let currentTransactionPage = 1;
-    let currentExpensePage = 1;
-    let currentMemberPage = 1;
-    let currentSearchTerm = '';
-    let currentView = 'summary';
-    let searchIndex = new Map();
-    
-    // ===== DOM ELEMENTS =====
-    const elements = {
-      // Views
-      summaryBtn: document.getElementById('summaryBtn'),
-      transactionsBtn: document.getElementById('transactionsBtn'),
-      expensesBtn: document.getElementById('expensesBtn'),
-      membersBtn: document.getElementById('membersBtn'),
-      summaryPage: document.getElementById('summaryPage'),
-      transactionsPage: document.getElementById('transactionsPage'),
-      expensesPage: document.getElementById('expensesPage'),
-      membersPage: document.getElementById('membersPage'),
-      
-      // Loading/Error
-      loading: document.getElementById('loading'),
-      error: document.getElementById('error'),
-      errorText: document.getElementById('errorText'),
-      content: document.getElementById('content'),
-      
-      // Search
-      searchInput: document.getElementById('searchInput'),
-      searchExpensesInput: document.getElementById('searchInputExpenses'),
-      searchMembersInput: document.getElementById('searchMembersInput'),
-      searchFamiliesInput: document.getElementById('searchFamiliesInput'),
-      
-      // Pagination
-      loadMoreBtn: document.getElementById('loadMoreBtn'),
-      loadMoreExpensesBtn: document.getElementById('loadMoreExpensesBtn'),
-      loadMoreMembersBtn: document.getElementById('loadMoreMembersBtn'),
-      
-      // Print
-      printBtn: document.getElementById('printBtn'),
-      
-      // Summary Cards
-      totalOfferings: document.getElementById('totalOfferings'),
-      avgOffering: document.getElementById('avgOffering'),
-      serviceCount: document.getElementById('serviceCount'),
-      totalExpenses: document.getElementById('totalExpenses'),
-      memberCount: document.getElementById('memberCount'),
-      offeringPeriod: document.getElementById('offeringPeriod'),
-      avgPeriod: document.getElementById('avgPeriod'),
-      servicePeriod: document.getElementById('servicePeriod'),
-      expensePeriod: document.getElementById('expensePeriod'),
-      
-      // Tables
-      monthlyDonationsTable: document.getElementById('monthlyDonationsTable').querySelector('tbody'),
-      donationsTable: document.getElementById('donationsTable').querySelector('tbody'),
-      expensesTable: document.getElementById('expensesTable').querySelector('tbody'),
-      membersTable: document.getElementById('membersTable').querySelector('tbody'),
-      familiesTable: document.getElementById('familiesTable').querySelector('tbody'),
-      attendanceTable: document.getElementById('attendanceTable').querySelector('tbody'),
-      
-      // Selectors
-      yearSelect: document.getElementById('yearSelect'),
-      monthSelect: document.getElementById('monthSelect'),
-      yearSelectTransactions: document.getElementById('yearSelectTransactions'),
-      monthSelectTransactions: document.getElementById('monthSelectTransactions'),
-      yearSelectExpenses: document.getElementById('yearSelectExpenses'),
-      monthSelectExpenses: document.getElementById('monthSelectExpenses'),
-      yearSelectAttendance: document.getElementById('yearSelectAttendance'),
-      monthSelectAttendance: document.getElementById('monthSelectAttendance'),
-      
-      // Tabs
-      tabButtons: document.querySelectorAll('.tab-btn'),
-      tabContents: document.querySelectorAll('.tab-content')
+    // Configuration
+    const API_URL = "YOUR_DEPLOYED_WEB_APP_URL";
+    const LOG_LEVELS = {
+      INFO: 'info',
+      ERROR: 'error',
+      WARNING: 'warning',
+      SUCCESS: 'success'
     };
     
-    // ===== INITIALIZATION =====
+    // State Management
+    let appState = {
+      logs: [],
+      performance: {
+        lastLoadTime: 0,
+        averageLoadTime: 0,
+        loadCount: 0
+      }
+    };
+    
+    // Initialize the dashboard
     document.addEventListener('DOMContentLoaded', () => {
       setupEventListeners();
-      setDefaultDateFilters();
+      initializeLogging();
       loadData();
-      monitorPerformance();
     });
     
-    // ===== EVENT HANDLERS =====
     function setupEventListeners() {
-      // View toggle
-      elements.summaryBtn.addEventListener('click', () => switchView('summary'));
-      elements.transactionsBtn.addEventListener('click', () => switchView('transactions'));
-      elements.expensesBtn.addEventListener('click', () => switchView('expenses'));
-      elements.membersBtn.addEventListener('click', () => switchView('members'));
+      // Your existing event listeners
+      document.getElementById('printBtn').addEventListener('click', handlePrint);
       
-      // Search
-      elements.searchInput.addEventListener('input', debounce(handleSearch, DEBOUNCE_DELAY));
-      elements.searchExpensesInput.addEventListener('input', debounce(handleExpenseSearch, DEBOUNCE_DELAY));
-      elements.searchMembersInput.addEventListener('input', debounce(handleMemberSearch, DEBOUNCE_DELAY));
-      elements.searchFamiliesInput.addEventListener('input', debounce(handleFamilySearch, DEBOUNCE_DELAY));
-      
-      // Print
-      elements.printBtn.addEventListener('click', handlePrint);
-      
-      // Tabs
-      elements.tabButtons.forEach(btn => {
-        btn.addEventListener('click', () => activateTab(btn.dataset.tab));
-      });
-      
-      // Window resize
-      window.addEventListener('resize', debounce(handleResize, 200));
+      // Add resize observer for log container
+      new ResizeObserver(handleLogResize).observe(document.getElementById('logContent'));
     }
     
-    // ===== CORE FUNCTIONS =====
+    function initializeLogging() {
+      addLog('Dashboard initialized', LOG_LEVELS.INFO);
+      monitorPerformance();
+    }
+    
+    // Enhanced logging function
+    function addLog(message, level = LOG_LEVELS.INFO, details = null) {
+      const timestamp = new Date();
+      const logEntry = {
+        timestamp,
+        message,
+        level,
+        details
+      };
+      
+      appState.logs.push(logEntry);
+      renderLogEntry(logEntry);
+      
+      // Keep log size manageable
+      if (appState.logs.length > 200) {
+        appState.logs = appState.logs.slice(-200);
+      }
+      
+      return logEntry;
+    }
+    
+    function renderLogEntry(entry) {
+      const logContent = document.getElementById('logContent');
+      const entryElement = document.createElement('div');
+      
+      entryElement.className = `log-entry ${entry.level}`;
+      entryElement.innerHTML = `
+        <span class="log-timestamp">[${entry.timestamp.toLocaleTimeString()}]</span>
+        ${entry.message}
+        ${entry.details ? `<div class="log-details" style="display:none;">${JSON.stringify(entry.details)}</div>` : ''}
+      `;
+      
+      if (entry.details) {
+        entryElement.addEventListener('click', () => {
+          const details = entryElement.querySelector('.log-details');
+          details.style.display = details.style.display === 'none' ? 'block' : 'none';
+        });
+        entryElement.style.cursor = 'pointer';
+      }
+      
+      logContent.prepend(entryElement);
+      
+      // Auto-scroll if at bottom
+      if (logContent.scrollTop === 0) {
+        setTimeout(() => {
+          logContent.scrollTop = 0;
+        }, 10);
+      }
+    }
+    
+    function toggleLogs() {
+      const logContainer = document.getElementById('logContainer');
+      logContainer.style.display = logContainer.style.display === 'none' ? 'block' : 'none';
+      document.getElementById('logToggle').textContent = 
+        logContainer.style.display === 'none' ? '📜' : '📖';
+    }
+    
+    function handleLogResize() {
+      // Handle any log container resize events
+    }
+    
+    // Enhanced loadData function with logging
     async function loadData() {
+      const loadStart = performance.now();
+      addLog('Starting data load from Google Sheets', LOG_LEVELS.INFO);
+      
       showLoading();
       hideError();
       hideContent();
       
       try {
-        const startTime = performance.now();
         const response = await fetch(API_URL);
+        const loadTime = performance.now() - loadStart;
         
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         
         const result = await response.json();
         
-        if (result.status !== "success") throw new Error(result.message || "Data loading failed");
+        if (result.status !== "success") {
+          throw new Error(result.message || "Data loading failed");
+        }
         
-        // Process data
-        allDonations = processDonations(result.donations || []);
-        allExpenses = processExpenses(result.expenses || mockExpenses());
-        allMembers = processMembers(result.members || mockMembers());
-        allFamilies = processFamilies(result.families || mockFamilies());
-        allAttendance = processAttendance(result.attendance || mockAttendance());
+        // Process server logs
+        if (result.metadata?.logs) {
+          result.metadata.logs.forEach(log => {
+            addLog(log, LOG_LEVELS.INFO);
+          });
+        }
         
-        // Build search index
-        buildSearchIndex();
+        // Update performance metrics
+        appState.performance.lastLoadTime = loadTime;
+        appState.performance.loadCount++;
+        appState.performance.averageLoadTime = 
+          ((appState.performance.averageLoadTime * (appState.performance.loadCount - 1)) + loadTime) / 
+          appState.performance.loadCount;
         
-        // Update UI
+        addLog(`Data loaded in ${loadTime.toFixed(2)}ms (Avg: ${appState.performance.averageLoadTime.toFixed(2)}ms)`, 
+               LOG_LEVELS.SUCCESS, {
+                 stats: result.metadata?.stats,
+                 recordCounts: {
+                   donations: result.data.donations.length,
+                   expenses: result.data.expenses.length,
+                   members: result.data.members.length
+                 }
+               });
+        
+        // Process your data as before
+        allDonations = processDonations(result.data.donations || []);
+        allExpenses = processExpenses(result.data.expenses || []);
+        allMembers = processMembers(result.data.members || []);
+        allFamilies = processFamilies(result.data.families || []);
+        allAttendance = processAttendance(result.data.attendance || []);
+        
         populateYearSelectors();
         applyFilters(currentView);
         showContent();
         
-        console.log(`Data loaded in ${(performance.now() - startTime).toFixed(2)}ms`);
       } catch (error) {
-        console.error("Error loading data:", error);
+        addLog(`Data load failed: ${error.message}`, LOG_LEVELS.ERROR, {
+          error: error.message,
+          stack: error.stack
+        });
         showError(error.message || "Failed to load data. Please try again later.");
       } finally {
         hideLoading();
       }
     }
     
+    function monitorPerformance() {
+      setInterval(() => {
+        if (window.performance?.memory) {
+          const mem = window.performance.memory;
+          addLog(`Memory: ${(mem.usedJSHeapSize / 1048576).toFixed(2)}MB used of ${(mem.totalJSHeapSize / 1048576).toFixed(2)}MB`, 
+                 LOG_LEVELS.INFO);
+        }
+      }, 30000);
+    }
+    
+    // Your existing dashboard functions (processDonations, applyFilters, etc.)
+    // ... with added logging at key points
+    
     function processDonations(data) {
-      return data.map(d => ({
-        ...d,
-        amount: parseFloat(d.amount) || 0,
-        envelope: d.envelope ? 'Yes' : 'No',
-        date: parseDate(d.date),
-        type: d.type || 'Unknown',
-        staff1: d.staff1 || '',
-        staff2: d.staff2 || '',
-        notes: d.notes || ''
-      }));
-    }
-    
-    function processExpenses(data) {
-      return data.map(e => ({
-        ...e,
-        amount: parseFloat(e.amount) || 0,
-        date: parseDate(e.date),
-        category: e.category || 'General',
-        description: e.description || '',
-        approvedBy: e.approvedBy || ''
-      }));
-    }
-    
-    function processMembers(data) {
-      return data.map(m => ({
-        ...m,
-        memberId: m.memberId || '',
-        name: m.name || '',
-        phone: m.phone || '',
-        email: m.email || '',
-        familyId: m.familyId || '',
-        baptismDate: parseDate(m.baptismDate),
-        status: m.status || 'Active'
-      }));
-    }
-    
-    function processFamilies(data) {
-      return data.map(f => ({
-        ...f,
-        familyId: f.familyId || '',
-        familyName: f.familyName || '',
-        headOfFamily: f.headOfFamily || '',
-        address: f.address || '',
-        phone: f.phone || ''
-      }));
-    }
-    
-    function processAttendance(data) {
-      return data.map(a => ({
-        ...a,
-        date: parseDate(a.date),
-        serviceType: a.serviceType || 'Sunday Service',
-        totalAttendance: parseInt(a.totalAttendance) || 0,
-        firstTimers: parseInt(a.firstTimers) || 0,
-        children: parseInt(a.children) || 0
-      }));
-    }
-    
-    function buildSearchIndex() {
-      searchIndex.clear();
-      allDonations.forEach((d, index) => {
-        const searchString = [
-          d.type, 
-          d.notes || '', 
-          d.staff1, 
-          d.staff2, 
-          d.amount.toString()
-        ].join(' ').toLowerCase();
-        
-        searchIndex.set(index, searchString);
-      });
-    }
-    
-    function populateYearSelectors() {
-      const years = new Set();
-      
-      // Collect years from all data sources
-      [allDonations, allExpenses, allAttendance].forEach(data => {
-        data.forEach(item => {
-          if (!isNaN(item.date.getTime())) {
-            years.add(item.date.getFullYear());
-          }
-        });
-      });
-      
-      // Update all year selectors
-      const yearSelects = [
-        elements.yearSelect,
-        elements.yearSelectTransactions,
-        elements.yearSelectExpenses,
-        elements.yearSelectAttendance
-      ];
-      
-      yearSelects.forEach(select => {
-        select.innerHTML = '<option value="">All Years</option>';
-        
-        Array.from(years).sort((a,b) => b - a).forEach(year => {
-          const option = document.createElement('option');
-          option.value = year;
-          option.textContent = year;
-          select.appendChild(option);
-        });
-        
-        const currentYear = new Date().getFullYear();
-        if (years.has(currentYear)) {
-          select.value = currentYear;
-        }
-      });
-    }
-    
-    function applyFilters(view) {
-      currentView = view;
-      
-      switch (view) {
-        case 'summary':
-        case 'transactions':
-          filterDonations();
-          break;
-        case 'expenses':
-          filterExpenses();
-          break;
-        case 'members':
-          filterMembers();
-          break;
-        case 'attendance':
-          filterAttendance();
-          break;
+      addLog(`Processing ${data.length} donation records`, LOG_LEVELS.INFO);
+      try {
+        // Your existing processing logic
+        return data.map(d => ({
+          ...d,
+          amount: parseFloat(d.amount) || 0,
+          date: parseDate(d.date),
+          // ... other fields
+        }));
+      } catch (error) {
+        addLog(`Error processing donations: ${error.message}`, LOG_LEVELS.ERROR);
+        return [];
       }
     }
     
-    function filterDonations() {
-      const year = currentView === 'summary' 
-        ? elements.yearSelect.value 
-        : elements.yearSelectTransactions.value;
-      
-      const month = currentView === 'summary'
-        ? elements.yearSelect.value
-        : elements.monthSelectTransactions.value;
-      
-      filteredDonations = allDonations.filter(d => {
-        if (isNaN(d.date.getTime())) return false;
-        const matchesYear = !year || d.date.getFullYear() == year;
-        const matchesMonth = !month || 
-          (d.date.getMonth() + 1).toString().padStart(2, '0') === month;
-        return matchesYear && matchesMonth;
-      });
-      
-      updateSummaryCards();
-      updatePieChart();
-      updateMonthlyView();
-      updateRecentDonations();
-    }
-    
-    function filterExpenses() {
-      const year = elements.yearSelectExpenses.value;
-      const month = elements.monthSelectExpenses.value;
-      
-      filteredExpenses = allExpenses.filter(e => {
-        if (isNaN(e.date.getTime())) return false;
-        const matchesYear = !year || e.date.getFullYear() == year;
-        const matchesMonth = !month || 
-          (e.date.getMonth() + 1).toString().padStart(2, '0') === month;
-        return matchesYear && matchesMonth;
-      });
-      
-      updateExpenseSummary();
-      updateExpenseChart();
-      updateRecentExpenses();
-    }
-    
-    function filterMembers() {
-      filteredMembers = [...allMembers];
-      updateMembersSummary();
-      updateMembersList();
-    }
-    
-    function filterAttendance() {
-      const year = elements.yearSelectAttendance.value;
-      const month = elements.monthSelectAttendance.value;
-      
-      filteredAttendance = allAttendance.filter(a => {
-        if (isNaN(a.date.getTime())) return false;
-        const matchesYear = !year || a.date.getFullYear() == year;
-        const matchesMonth = !month || 
-          (a.date.getMonth() + 1).toString().padStart(2, '0') === month;
-        return matchesYear && matchesMonth;
-      });
-      
-      updateAttendanceTable();
-    }
-    
-    // ===== UI UPDATES =====
-    function updateSummaryCards() {
-      const totalServices = filteredDonations.length;
-      const totalOfferings = filteredDonations.reduce((sum, d) => sum + d.amount, 0);
-      const avgOffering = totalServices > 0 ? totalOfferings / totalServices : 0;
-      const totalExpenses = allExpenses.reduce((sum, e) => sum + e.amount, 0);
-      const activeMembers = allMembers.filter(m => m.status === 'Active').length;
-      
-      // Get period text
-      let periodText = "All Time";
-      const yearSelect = elements.yearSelect;
-      const monthSelect = elements.monthSelect;
-      
-      if (yearSelect.value && monthSelect.value) {
-        const monthNames = ["January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"];
-        periodText = `${monthNames[parseInt(monthSelect.value) - 1]} ${yearSelect.value}`;
-      } else if (yearSelect.value) {
-        periodText = `Year ${yearSelect.value}`;
-      }
-      
-      // Batch DOM updates
-      requestAnimationFrame(() => {
-        elements.totalOfferings.textContent = `RM${totalOfferings.toFixed(2)}`;
-        elements.avgOffering.textContent = `RM${avgOffering.toFixed(2)}`;
-        elements.serviceCount.textContent = totalServices;
-        elements.totalExpenses.textContent = `RM${totalExpenses.toFixed(2)}`;
-        elements.memberCount.textContent = activeMembers;
-        elements.offeringPeriod.textContent = periodText;
-        elements.avgPeriod.textContent = periodText === "All Time" ? "Per service" : periodText;
-        elements.servicePeriod.textContent = periodText;
-        elements.expensePeriod.textContent = periodText;
-      });
-    }
-    
-    function updateExpenseSummary() {
-      const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
-      
-      let periodText = "All Time";
-      const yearSelect = elements.yearSelectExpenses;
-      const monthSelect = elements.monthSelectExpenses;
-      
-      if (yearSelect.value && monthSelect.value) {
-        const monthNames = ["January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"];
-        periodText = `${monthNames[parseInt(monthSelect.value) - 1]} ${yearSelect.value}`;
-      } else if (yearSelect.value) {
-        periodText = `Year ${yearSelect.value}`;
-      }
-      
-      requestAnimationFrame(() => {
-        elements.totalExpenses.textContent = `RM${totalExpenses.toFixed(2)}`;
-        elements.expensePeriod.textContent = periodText;
-      });
-    }
-    
-    function updateMembersSummary() {
-      const activeMembers = allMembers.filter(m => m.status === 'Active').length;
-      requestAnimationFrame(() => {
-        elements.memberCount.textContent = activeMembers;
-      });
-    }
-    
-    function updatePieChart() {
-      const typeData = {};
-      
-      filteredDonations.forEach(d => {
-        if (!typeData[d.type]) typeData[d.type] = 0;
-        typeData[d.type] += d.amount;
-      });
-      
-      if (!pieChart) {
-        const ctx = document.getElementById('pieChart').getContext('2d');
-        pieChart = new Chart(ctx, {
-          type: 'pie',
-          data: {
-            labels: Object.keys(typeData),
-            datasets: [{
-              data: Object.values(typeData),
-              backgroundColor: [
-                '#0a2463', '#3e92cc', '#d4af37', '#2ecc71', '#e74c3c', '#9b59b6',
-                '#1abc9c', '#f39c12', '#3498db', '#e67e22', '#34495e', '#16a085'
-              ],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'bottom',
-                labels: {
-                  boxWidth: 12,
-                  font: { size: 10 }
-                }
-              },
-              tooltip: {
-                callbacks: {
-                  label: function(context) {
-                    const label = context.label || '';
-                    const value = context.raw || 0;
-                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                    const percentage = Math.round((value / total) * 100);
-                    return `${label}: RM${value.toFixed(2)} (${percentage}%)`;
-                  }
-                }
-              }
-            }
-          }
-        });
-      } else {
-        pieChart.data.labels = Object.keys(typeData);
-        pieChart.data.datasets[0].data = Object.values(typeData);
-        pieChart.update();
-      }
-    }
-    
-    function updateExpenseChart() {
-      const categoryData = {};
-      
-      filteredExpenses.forEach(e => {
-        if (!categoryData[e.category]) categoryData[e.category] = 0;
-        categoryData[e.category] += e.amount;
-      });
-      
-      if (!expenseChart) {
-        const ctx = document.getElementById('expenseChart').getContext('2d');
-        expenseChart = new Chart(ctx, {
-          type: 'pie',
-          data: {
-            labels: Object.keys(categoryData),
-            datasets: [{
-              data: Object.values(categoryData),
-              backgroundColor: [
-                '#0a2463', '#3e92cc', '#d4af37', '#2ecc71', '#e74c3c', '#9b59b6',
-                '#1abc9c', '#f39c12', '#3498db', '#e67e22', '#34495e', '#16a085'
-              ],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'bottom',
-                labels: {
-                  boxWidth: 12,
-                  font: { size: 10 }
-                }
-              },
-              tooltip: {
-                callbacks: {
-                  label: function(context) {
-                    const label = context.label || '';
-                    const value = context.raw || 0;
-                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                    const percentage = Math.round((value / total) * 100);
-                    return `${label}: RM${value.toFixed(2)} (${percentage}%)`;
-                  }
-                }
-              }
-            }
-          }
-        });
-      } else {
-        expenseChart.data.labels = Object.keys(categoryData);
-        expenseChart.data.datasets[0].data = Object.values(categoryData);
-        expenseChart.update();
-      }
-    }
-    
-    function updateMonthlyView() {
-      const monthlyData = {};
-      
-      filteredDonations.forEach(d => {
-        if (isNaN(d.date.getTime())) return;
-        
-        const monthYear = `${d.date.getFullYear()}-${(d.date.getMonth()+1).toString().padStart(2, '0')}`;
-        const monthName = d.date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-        
-        if (!monthlyData[monthYear]) {
-          monthlyData[monthYear] = {
-            name: monthName,
-            types: {},
-            total: 0,
-            timestamp: d.date.getTime()
-          };
-        }
-        
-        if (!monthlyData[monthYear].types[d.type]) {
-          monthlyData[monthYear].types[d.type] = 0;
-        }
-        
-        monthlyData[monthYear].types[d.type] += d.amount;
-        monthlyData[monthYear].total += d.amount;
-      });
-      
-      const fragment = document.createDocumentFragment();
-      const sortedMonths = Object.entries(monthlyData)
-        .sort((a, b) => b[1].timestamp - a[1].timestamp);
-      
-      if (sortedMonths.length === 0) {
-        fragment.appendChild(createTableRow(['No data available for selected period'], 3));
-      } else {
-        sortedMonths.forEach(([key, month]) => {
-          // Month total row
-          const monthTotalRow = document.createElement('tr');
-          monthTotalRow.className = 'month-total-row';
-          monthTotalRow.innerHTML = `
-            <td>${month.name}</td>
-            <td>Total</td>
-            <td class="amount-column">${month.total.toFixed(2)}</td>
-          `;
-          fragment.appendChild(monthTotalRow);
-          
-          // Type rows
-          Object.entries(month.types)
-            .sort((a, b) => a[0].localeCompare(b[0]))
-            .forEach(([type, amount]) => {
-              const row = document.createElement('tr');
-              row.innerHTML = `
-                <td></td>
-                <td class="type-column">${type}</td>
-                <td class="amount-column">${amount.toFixed(2)}</td>
-              `;
-              fragment.appendChild(row);
-            });
-        });
-      }
-      
-      elements.monthlyDonationsTable.innerHTML = '';
-      elements.monthlyDonationsTable.appendChild(fragment);
-    }
-    
-    function updateRecentDonations() {
-      const fragment = document.createDocumentFragment();
-      const startIdx = 0;
-      const endIdx = currentTransactionPage * TRANSACTIONS_PER_PAGE;
-      
-      filteredDonations
-        .slice(startIdx, endIdx)
-        .forEach(d => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${formatDate(d.date)}</td>
-            <td>${d.amount.toFixed(2)}</td>
-            <td>${d.type}</td>
-            <td>${d.envelope === 'Yes' ? '✓' : '✗'}</td>
-            <td>${d.staff1}${d.staff2 ? ' & ' + d.staff2 : ''}</td>
-            <td>${d.notes || ''}</td>
-          `;
-          fragment.appendChild(row);
-        });
-      
-      elements.donationsTable.innerHTML = '';
-      elements.donationsTable.appendChild(fragment);
-      elements.loadMoreBtn.style.display = 
-        filteredDonations.length > endIdx ? 'inline-block' : 'none';
-    }
-    
-    function updateRecentExpenses() {
-      const fragment = document.createDocumentFragment();
-      const startIdx = 0;
-      const endIdx = currentExpensePage * EXPENSES_PER_PAGE;
-      
-      filteredExpenses
-        .slice(startIdx, endIdx)
-        .forEach(e => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${formatDate(e.date)}</td>
-            <td>${e.amount.toFixed(2)}</td>
-            <td>${e.category}</td>
-            <td>${e.description}</td>
-            <td>${e.approvedBy}</td>
-          `;
-          fragment.appendChild(row);
-        });
-      
-      elements.expensesTable.innerHTML = '';
-      elements.expensesTable.appendChild(fragment);
-      elements.loadMoreExpensesBtn.style.display = 
-        filteredExpenses.length > endIdx ? 'inline-block' : 'none';
-    }
-    
-    function updateMembersList() {
-      const fragment = document.createDocumentFragment();
-      const startIdx = 0;
-      const endIdx = currentMemberPage * MEMBERS_PER_PAGE;
-      
-      filteredMembers
-        .slice(startIdx, endIdx)
-        .forEach(m => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${m.memberId}</td>
-            <td>${m.name}</td>
-            <td>${m.phone}</td>
-            <td>${m.email}</td>
-            <td>${m.familyId}</td>
-            <td>${m.baptismDate ? formatDate(m.baptismDate) : ''}</td>
-            <td>${m.status}</td>
-          `;
-          fragment.appendChild(row);
-        });
-      
-      elements.membersTable.innerHTML = '';
-      elements.membersTable.appendChild(fragment);
-      elements.loadMoreMembersBtn.style.display = 
-        filteredMembers.length > endIdx ? 'inline-block' : 'none';
-    }
-    
-    function updateFamiliesTable() {
-      const fragment = document.createDocumentFragment();
-      
-      allFamilies.forEach(f => {
-        const memberCount = allMembers.filter(m => m.familyId === f.familyId).length;
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${f.familyId}</td>
-          <td>${f.familyName}</td>
-          <td>${f.headOfFamily}</td>
-          <td>${memberCount} members</td>
-          <td>${f.address}</td>
-          <td>${f.phone}</td>
-        `;
-        fragment.appendChild(row);
-      });
-      
-      elements.familiesTable.innerHTML = '';
-      elements.familiesTable.appendChild(fragment);
-    }
-    
-    function updateAttendanceTable() {
-      const fragment = document.createDocumentFragment();
-      
-      filteredAttendance.forEach(a => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${formatDate(a.date)}</td>
-          <td>${a.serviceType}</td>
-          <td>${a.totalAttendance}</td>
-          <td>${a.firstTimers}</td>
-          <td>${a.children}</td>
-        `;
-        fragment.appendChild(row);
-      });
-      
-      elements.attendanceTable.innerHTML = '';
-      elements.attendanceTable.appendChild(fragment);
-    }
-    
-    // ===== VIEW MANAGEMENT =====
-    function switchView(view) {
-      currentView = view;
-      
-      // Update active button
-      elements.summaryBtn.classList.toggle('active', view === 'summary');
-      elements.transactionsBtn.classList.toggle('active', view === 'transactions');
-      elements.expensesBtn.classList.toggle('active', view === 'expenses');
-      elements.membersBtn.classList.toggle('active', view === 'members');
-      
-      // Update aria-pressed
-      elements.summaryBtn.setAttribute('aria-pressed', view === 'summary');
-      elements.transactionsBtn.setAttribute('aria-pressed', view === 'transactions');
-      elements.expensesBtn.setAttribute('aria-pressed', view === 'expenses');
-      elements.membersBtn.setAttribute('aria-pressed', view === 'members');
-      
-      // Show/hide pages
-      elements.summaryPage.style.display = view === 'summary' ? 'block' : 'none';
-      elements.transactionsPage.style.display = view === 'transactions' ? 'block' : 'none';
-      elements.expensesPage.style.display = view === 'expenses' ? 'block' : 'none';
-      elements.membersPage.style.display = view === 'members' ? 'block' : 'none';
-      
-      // Reset pagination
-      currentTransactionPage = 1;
-      currentExpensePage = 1;
-      currentMemberPage = 1;
-      
-      // Apply filters for the current view
-      applyFilters(view);
-    }
-    
-    function activateTab(tabId) {
-      // Update tab buttons
-      elements.tabButtons.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tab === tabId);
-      });
-      
-      // Update tab contents
-      elements.tabContents.forEach(content => {
-        content.classList.toggle('active', content.id === `${tabId}Tab`);
-      });
-      
-      // Update data if needed
-      if (tabId === 'families') {
-        updateFamiliesTable();
-      } else if (tabId === 'attendance') {
-        updateAttendanceTable();
-      }
-    }
-    
-    // ===== UTILITY FUNCTIONS =====
-    function parseDate(dateString) {
-      if (!dateString) return new Date(NaN);
-      const date = new Date(dateString);
-      if (!isNaN(date)) return date;
-      
-      const parts = dateString.split(/[-/]/);
-      if (parts.length === 3) {
-        const dayFirst = new Date(parts[2], parts[1]-1, parts[0]);
-        if (!isNaN(dayFirst)) return dayFirst;
-        
-        const monthFirst = new Date(parts[2], parts[0]-1, parts[1]);
-        if (!isNaN(monthFirst)) return monthFirst;
-      }
-      
-      return new Date(NaN);
-    }
-    
-    function formatDate(date) {
-      if (isNaN(date.getTime())) return 'Invalid date';
-      return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-    }
-    
-    function debounce(func, wait) {
-      let timeout;
-      return function() {
-        const context = this, args = arguments;
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          func.apply(context, args);
-        }, wait);
-      };
-    }
-    
-    function setDefaultDateFilters() {
-      const currentDate = new Date();
-      const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-      
-      elements.monthSelect.value = currentMonth;
-      elements.monthSelectTransactions.value = currentMonth;
-      elements.monthSelectExpenses.value = currentMonth;
-      elements.monthSelectAttendance.value = currentMonth;
-    }
-    
-    function showLoading() {
-      elements.loading.style.display = 'block';
-    }
-    
-    function hideLoading() {
-      elements.loading.style.display = 'none';
-    }
-    
-    function showError(message) {
-      elements.errorText.textContent = message;
-      elements.error.style.display = 'block';
-    }
-    
-    function hideError() {
-      elements.error.style.display = 'none';
-    }
-    
-    function showContent() {
-      elements.content.style.display = 'block';
-    }
-    
-    function hideContent() {
-      elements.content.style.display = 'none';
-    }
-    
-    function createTableRow(content, colspan = 1) {
-      const row = document.createElement('tr');
-      const cell = document.createElement('td');
-      cell.textContent = content;
-      cell.colSpan = colspan;
-      row.appendChild(cell);
-      return row;
-    }
-    
-    // ===== EVENT HANDLERS =====
-    function handleSearch() {
-      currentSearchTerm = elements.searchInput.value.toLowerCase();
-      currentTransactionPage = 1;
-      updateRecentDonations();
-    }
-    
-    function handleExpenseSearch() {
-      currentSearchTerm = elements.searchExpensesInput.value.toLowerCase();
-      currentExpensePage = 1;
-      updateRecentExpenses();
-    }
-    
-    function handleMemberSearch() {
-      currentSearchTerm = elements.searchMembersInput.value.toLowerCase();
-      currentMemberPage = 1;
-      updateMembersList();
-    }
-    
-    function handleFamilySearch() {
-      currentSearchTerm = elements.searchFamiliesInput.value.toLowerCase();
-      updateFamiliesTable();
-    }
+    // ... include all your other existing functions
     
     function handlePrint() {
+      addLog('Printing dashboard', LOG_LEVELS.INFO);
       window.print();
-    }
-    
-    function handleResize() {
-      if (pieChart) pieChart.resize();
-      if (expenseChart) expenseChart.resize();
-    }
-    
-    function loadMoreTransactions() {
-      currentTransactionPage++;
-      updateRecentDonations();
-    }
-    
-    function loadMoreExpenses() {
-      currentExpensePage++;
-      updateRecentExpenses();
-    }
-    
-    function loadMoreMembers() {
-      currentMemberPage++;
-      updateMembersList();
-    }
-    
-    // ===== MOCK DATA GENERATORS =====
-    function mockExpenses() {
-      const categories = ['Rent', 'Utilities', 'Outreach', 'Equipment', 'Supplies', 'Salaries'];
-      const approvers = ['Pastor John', 'Deacon Thomas', 'Elder Mathew'];
-      const expenses = [];
-      
-      for (let i = 0; i < 50; i++) {
-        const date = new Date();
-        date.setMonth(date.getMonth() - Math.floor(Math.random() * 12));
-        date.setDate(Math.floor(Math.random() * 28) + 1);
-        
-        expenses.push({
-          id: `EXP-${1000 + i}`,
-          date: date,
-          amount: (Math.random() * 500 + 50).toFixed(2),
-          category: categories[Math.floor(Math.random() * categories.length)],
-          description: `Expense for ${['event', 'maintenance', 'program', 'purchase'][Math.floor(Math.random() * 4)]}`,
-          approvedBy: approvers[Math.floor(Math.random() * approvers.length)]
-        });
-      }
-      
-      return expenses;
-    }
-    
-    function mockMembers() {
-      const surnames = ['Rao', 'Kumar', 'Naidu', 'Reddy', 'Goud', 'Sharma', 'Patel'];
-      const firstNames = ['John', 'David', 'Mary', 'Sarah', 'Paul', 'Ruth', 'Daniel', 'Esther'];
-      const statuses = ['Active', 'Inactive', 'Visitor', 'Transferred'];
-      const members = [];
-      
-      for (let i = 0; i < 100; i++) {
-        const surname = surnames[Math.floor(Math.random() * surnames.length)];
-        const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-        const baptismDate = new Date();
-        baptismDate.setFullYear(baptismDate.getFullYear() - Math.floor(Math.random() * 10));
-        baptismDate.setMonth(Math.floor(Math.random() * 12));
-        baptismDate.setDate(Math.floor(Math.random() * 28) + 1);
-        
-        members.push({
-          memberId: `M-${1000 + i}`,
-          name: `${firstName} ${surname}`,
-          phone: `01${Math.floor(Math.random() * 90000000 + 10000000)}`,
-          email: `${firstName.toLowerCase()}.${surname.toLowerCase()}@example.com`,
-          familyId: `F-${Math.floor(Math.random() * 30) + 100}`,
-          baptismDate: baptismDate,
-          status: statuses[Math.floor(Math.random() * statuses.length)]
-        });
-      }
-      
-      return members;
-    }
-    
-    function mockFamilies() {
-      const surnames = ['Rao', 'Kumar', 'Naidu', 'Reddy', 'Goud', 'Sharma', 'Patel'];
-      const areas = ['KL City', 'Petaling Jaya', 'Subang Jaya', 'Puchong', 'Cheras', 'Kepong'];
-      const families = [];
-      
-      for (let i = 0; i < 30; i++) {
-        const surname = surnames[Math.floor(Math.random() * surnames.length)];
-        families.push({
-          familyId: `F-${100 + i}`,
-          familyName: `${surname} Family`,
-          headOfFamily: `Brother ${surname}`,
-          address: `${Math.floor(Math.random() * 100) + 1} Jalan ${surname}, ${areas[Math.floor(Math.random() * areas.length)]}`,
-          phone: `03${Math.floor(Math.random() * 9000000 + 1000000)}`
-        });
-      }
-      
-      return families;
-    }
-    
-    function mockAttendance() {
-      const serviceTypes = ['Sunday Service', 'Bible Study', 'Prayer Meeting', 'Youth Service', 'Special Event'];
-      const attendance = [];
-      
-      for (let i = 0; i < 50; i++) {
-        const date = new Date();
-        date.setMonth(date.getMonth() - Math.floor(Math.random() * 12));
-        date.setDate(Math.floor(Math.random() * 28) + 1);
-        
-        attendance.push({
-          date: date,
-          serviceType: serviceTypes[Math.floor(Math.random() * serviceTypes.length)],
-          totalAttendance: Math.floor(Math.random() * 100) + 30,
-          firstTimers: Math.floor(Math.random() * 10),
-          children: Math.floor(Math.random() * 20)
-        });
-      }
-      
-      return attendance;
-    }
-    
-    // ===== EXPORT FUNCTIONS =====
-    function exportToCSV() {
-      let dataToExport = filteredDonations;
-      const year = elements.yearSelect.value;
-      const month = elements.monthSelect.value;
-      
-      if (currentSearchTerm) {
-        dataToExport = searchDonationsOptimized(currentSearchTerm);
-      }
-      
-      exportDataAsCSV(dataToExport, 'donations', year, month);
-    }
-    
-    function exportExpensesToCSV() {
-      let dataToExport = filteredExpenses;
-      const year = elements.yearSelectExpenses.value;
-      const month = elements.monthSelectExpenses.value;
-      
-      if (currentSearchTerm) {
-        dataToExport = filteredExpenses.filter(e => 
-          e.category.toLowerCase().includes(currentSearchTerm) ||
-          (e.description && e.description.toLowerCase().includes(currentSearchTerm)) ||
-          e.approvedBy.toLowerCase().includes(currentSearchTerm) ||
-          e.amount.toString().includes(currentSearchTerm)
-        );
-      }
-      
-      exportDataAsCSV(dataToExport, 'expenses', year, month);
-    }
-    
-    function exportMembersToCSV() {
-      let dataToExport = filteredMembers;
-      
-      if (currentSearchTerm) {
-        dataToExport = filteredMembers.filter(m => 
-          m.name.toLowerCase().includes(currentSearchTerm) ||
-          m.memberId.toLowerCase().includes(currentSearchTerm) ||
-          (m.phone && m.phone.includes(currentSearchTerm)) ||
-          (m.email && m.email.toLowerCase().includes(currentSearchTerm)) ||
-          (m.familyId && m.familyId.toLowerCase().includes(currentSearchTerm)) ||
-          m.status.toLowerCase().includes(currentSearchTerm)
-        );
-      }
-      
-      exportDataAsCSV(dataToExport, 'members');
-    }
-    
-    function exportDataAsCSV(data, type, year, month) {
-      let headers, rows;
-      
-      switch (type) {
-        case 'donations':
-          headers = ['Date', 'Amount (RM)', 'Type', 'Attended', 'Counter 1', 'Counter 2', 'Notes'];
-          rows = data.map(d => [
-            formatDate(d.date),
-            d.amount.toFixed(2),
-            `"${d.type.replace(/"/g, '""')}"`,
-            d.envelope,
-            `"${d.staff1.replace(/"/g, '""')}"`,
-            `"${d.staff2.replace(/"/g, '""')}"`,
-            `"${(d.notes || '').replace(/"/g, '""')}"`
-          ]);
-          break;
-          
-        case 'expenses':
-          headers = ['Date', 'Amount (RM)', 'Category', 'Description', 'Approved By'];
-          rows = data.map(e => [
-            formatDate(e.date),
-            e.amount.toFixed(2),
-            `"${e.category.replace(/"/g, '""')}"`,
-            `"${(e.description || '').replace(/"/g, '""')}"`,
-            `"${e.approvedBy.replace(/"/g, '""')}"`
-          ]);
-          break;
-          
-        case 'members':
-          headers = ['Member ID', 'Name', 'Phone', 'Email', 'Family ID', 'Baptism Date', 'Status'];
-          rows = data.map(m => [
-            m.memberId,
-            `"${m.name.replace(/"/g, '""')}"`,
-            m.phone,
-            m.email,
-            m.familyId,
-            m.baptismDate ? formatDate(m.baptismDate) : '',
-            m.status
-          ]);
-          break;
-      }
-      
-      const csvContent = [
-        headers.join(','),
-        ...rows.map(row => row.join(','))
-      ].join('\n');
-      
-      let filename = type;
-      if (year && month) {
-        const monthNames = ["January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"];
-        filename += `_${monthNames[parseInt(month) - 1]}_${year}`;
-      } else if (year) {
-        filename += `_year_${year}`;
-      }
-      
-      if (currentSearchTerm) {
-        filename += `_search_${currentSearchTerm.substring(0, 20)}`;
-      }
-      
-      downloadCSV(csvContent, `${filename}.csv`);
-    }
-    
-    function downloadCSV(content, filename) {
-      const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-    
-    // ===== PERFORMANCE MONITORING =====
-    function monitorPerformance() {
-      let frameCount = 0;
-      let lastTime = performance.now();
-      
-      function checkFrameRate() {
-        frameCount++;
-        const now = performance.now();
-        if (now >= lastTime + 1000) {
-          const fps = Math.round((frameCount * 1000) / (now - lastTime));
-          if (fps < 30) {
-            console.warn(`Low FPS: ${fps}. Consider optimizing your dashboard.`);
-          }
-          frameCount = 0;
-          lastTime = now;
-        }
-        requestAnimationFrame(checkFrameRate);
-      }
-      
-      checkFrameRate();
-    }
-    
-    // ===== SEARCH OPTIMIZATION =====
-    function searchDonationsOptimized(term) {
-      const results = [];
-      for (const [index, text] of searchIndex.entries()) {
-        if (text.includes(term)) {
-          results.push(allDonations[index]);
-        }
-      }
-      return results;
     }
   </script>
 </body>
