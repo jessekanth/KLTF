@@ -779,13 +779,14 @@
   </div>
 
   <script>
-    // Configuration
-    const API_URL = "https://script.google.com/macros/s/AKfycbyXVG_LdMJlexPz29jEFXTgOYjffgfJO8GbPjtMfFUMOOagFheVsCWAwp5kfueRbhtl/exec";
-    const TRANSACTIONS_PER_PAGE = 20;
-    const EXPENSES_PER_PAGE = 20;
-    const MEMBERS_PER_PAGE = 20;
+    // ===== CONFIGURATION =====
+    const API_URL = "https://script.google.com/macros/s/AKfycbypEhhZPt0OeoSOMSl0fN6EY6Mbl7G2dMc1y9kjsQzuBh6K192vawrXkUhfveoIr-Co/exec";
+    const TRANSACTIONS_PER_PAGE = 50;
+    const EXPENSES_PER_PAGE = 50;
+    const MEMBERS_PER_PAGE = 50;
+    const DEBOUNCE_DELAY = 300;
     
-    // State Management
+    // ===== STATE MANAGEMENT =====
     let allDonations = [];
     let allExpenses = [];
     let allMembers = [];
@@ -794,6 +795,7 @@
     let filteredDonations = [];
     let filteredExpenses = [];
     let filteredMembers = [];
+    let filteredAttendance = [];
     let pieChart = null;
     let expenseChart = null;
     let currentTransactionPage = 1;
@@ -801,214 +803,140 @@
     let currentMemberPage = 1;
     let currentSearchTerm = '';
     let currentView = 'summary';
+    let searchIndex = new Map();
     
-    // DOM Elements
-    const summaryBtn = document.getElementById('summaryBtn');
-    const transactionsBtn = document.getElementById('transactionsBtn');
-    const expensesBtn = document.getElementById('expensesBtn');
-    const membersBtn = document.getElementById('membersBtn');
-    const summaryPage = document.getElementById('summaryPage');
-    const transactionsPage = document.getElementById('transactionsPage');
-    const expensesPage = document.getElementById('expensesPage');
-    const membersPage = document.getElementById('membersPage');
-    const loadingElement = document.getElementById('loading');
-    const errorElement = document.getElementById('error');
-    const contentElement = document.getElementById('content');
-    const searchInput = document.getElementById('searchInput');
-    const searchExpensesInput = document.getElementById('searchInputExpenses');
-    const searchMembersInput = document.getElementById('searchMembersInput');
-    const loadMoreBtn = document.getElementById('loadMoreBtn');
-    const loadMoreExpensesBtn = document.getElementById('loadMoreExpensesBtn');
-    const loadMoreMembersBtn = document.getElementById('loadMoreMembersBtn');
-    const printBtn = document.getElementById('printBtn');
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    // Initialize the dashboard
-    window.onload = function() {
+    // ===== DOM ELEMENTS =====
+    const elements = {
+      // Views
+      summaryBtn: document.getElementById('summaryBtn'),
+      transactionsBtn: document.getElementById('transactionsBtn'),
+      expensesBtn: document.getElementById('expensesBtn'),
+      membersBtn: document.getElementById('membersBtn'),
+      summaryPage: document.getElementById('summaryPage'),
+      transactionsPage: document.getElementById('transactionsPage'),
+      expensesPage: document.getElementById('expensesPage'),
+      membersPage: document.getElementById('membersPage'),
+      
+      // Loading/Error
+      loading: document.getElementById('loading'),
+      error: document.getElementById('error'),
+      errorText: document.getElementById('errorText'),
+      content: document.getElementById('content'),
+      
+      // Search
+      searchInput: document.getElementById('searchInput'),
+      searchExpensesInput: document.getElementById('searchInputExpenses'),
+      searchMembersInput: document.getElementById('searchMembersInput'),
+      searchFamiliesInput: document.getElementById('searchFamiliesInput'),
+      
+      // Pagination
+      loadMoreBtn: document.getElementById('loadMoreBtn'),
+      loadMoreExpensesBtn: document.getElementById('loadMoreExpensesBtn'),
+      loadMoreMembersBtn: document.getElementById('loadMoreMembersBtn'),
+      
+      // Print
+      printBtn: document.getElementById('printBtn'),
+      
+      // Summary Cards
+      totalOfferings: document.getElementById('totalOfferings'),
+      avgOffering: document.getElementById('avgOffering'),
+      serviceCount: document.getElementById('serviceCount'),
+      totalExpenses: document.getElementById('totalExpenses'),
+      memberCount: document.getElementById('memberCount'),
+      offeringPeriod: document.getElementById('offeringPeriod'),
+      avgPeriod: document.getElementById('avgPeriod'),
+      servicePeriod: document.getElementById('servicePeriod'),
+      expensePeriod: document.getElementById('expensePeriod'),
+      
+      // Tables
+      monthlyDonationsTable: document.getElementById('monthlyDonationsTable').querySelector('tbody'),
+      donationsTable: document.getElementById('donationsTable').querySelector('tbody'),
+      expensesTable: document.getElementById('expensesTable').querySelector('tbody'),
+      membersTable: document.getElementById('membersTable').querySelector('tbody'),
+      familiesTable: document.getElementById('familiesTable').querySelector('tbody'),
+      attendanceTable: document.getElementById('attendanceTable').querySelector('tbody'),
+      
+      // Selectors
+      yearSelect: document.getElementById('yearSelect'),
+      monthSelect: document.getElementById('monthSelect'),
+      yearSelectTransactions: document.getElementById('yearSelectTransactions'),
+      monthSelectTransactions: document.getElementById('monthSelectTransactions'),
+      yearSelectExpenses: document.getElementById('yearSelectExpenses'),
+      monthSelectExpenses: document.getElementById('monthSelectExpenses'),
+      yearSelectAttendance: document.getElementById('yearSelectAttendance'),
+      monthSelectAttendance: document.getElementById('monthSelectAttendance'),
+      
+      // Tabs
+      tabButtons: document.querySelectorAll('.tab-btn'),
+      tabContents: document.querySelectorAll('.tab-content')
+    };
+    
+    // ===== INITIALIZATION =====
+    document.addEventListener('DOMContentLoaded', () => {
       setupEventListeners();
       setDefaultDateFilters();
       loadData();
-    };
+      monitorPerformance();
+    });
     
+    // ===== EVENT HANDLERS =====
     function setupEventListeners() {
-      // View toggle functionality
-      summaryBtn.addEventListener('click', () => {
-        currentView = 'summary';
-        updateActiveView();
+      // View toggle
+      elements.summaryBtn.addEventListener('click', () => switchView('summary'));
+      elements.transactionsBtn.addEventListener('click', () => switchView('transactions'));
+      elements.expensesBtn.addEventListener('click', () => switchView('expenses'));
+      elements.membersBtn.addEventListener('click', () => switchView('members'));
+      
+      // Search
+      elements.searchInput.addEventListener('input', debounce(handleSearch, DEBOUNCE_DELAY));
+      elements.searchExpensesInput.addEventListener('input', debounce(handleExpenseSearch, DEBOUNCE_DELAY));
+      elements.searchMembersInput.addEventListener('input', debounce(handleMemberSearch, DEBOUNCE_DELAY));
+      elements.searchFamiliesInput.addEventListener('input', debounce(handleFamilySearch, DEBOUNCE_DELAY));
+      
+      // Print
+      elements.printBtn.addEventListener('click', handlePrint);
+      
+      // Tabs
+      elements.tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => activateTab(btn.dataset.tab));
       });
       
-      transactionsBtn.addEventListener('click', () => {
-        currentView = 'transactions';
-        updateActiveView();
-      });
-      
-      expensesBtn.addEventListener('click', () => {
-        currentView = 'expenses';
-        updateActiveView();
-      });
-      
-      membersBtn.addEventListener('click', () => {
-        currentView = 'members';
-        updateActiveView();
-      });
-      
-      // Search functionality
-      searchInput.addEventListener('input', debounce(() => {
-        currentSearchTerm = searchInput.value.toLowerCase();
-        currentTransactionPage = 1;
-        updateRecentDonations(filteredDonations);
-      }, 300));
-      
-      searchExpensesInput.addEventListener('input', debounce(() => {
-        currentSearchTerm = searchExpensesInput.value.toLowerCase();
-        currentExpensePage = 1;
-        updateRecentExpenses(filteredExpenses);
-      }, 300));
-      
-      searchMembersInput.addEventListener('input', debounce(() => {
-        currentSearchTerm = searchMembersInput.value.toLowerCase();
-        currentMemberPage = 1;
-        updateMembersList(filteredMembers);
-      }, 300));
-      
-      // Print functionality
-      printBtn.addEventListener('click', () => {
-        window.print();
-      });
-      
-      // Tab functionality for members section
-      tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          const tabId = button.getAttribute('data-tab');
-          activateTab(tabId);
-        });
-      });
+      // Window resize
+      window.addEventListener('resize', debounce(handleResize, 200));
     }
     
-    function updateActiveView() {
-      // Update buttons
-      summaryBtn.classList.toggle('active', currentView === 'summary');
-      summaryBtn.setAttribute('aria-pressed', currentView === 'summary');
-      transactionsBtn.classList.toggle('active', currentView === 'transactions');
-      transactionsBtn.setAttribute('aria-pressed', currentView === 'transactions');
-      expensesBtn.classList.toggle('active', currentView === 'expenses');
-      expensesBtn.setAttribute('aria-pressed', currentView === 'expenses');
-      membersBtn.classList.toggle('active', currentView === 'members');
-      membersBtn.setAttribute('aria-pressed', currentView === 'members');
-      
-      // Update pages
-      summaryPage.style.display = currentView === 'summary' ? 'block' : 'none';
-      transactionsPage.style.display = currentView === 'transactions' ? 'block' : 'none';
-      expensesPage.style.display = currentView === 'expenses' ? 'block' : 'none';
-      membersPage.style.display = currentView === 'members' ? 'block' : 'none';
-      
-      // Apply filters for the current view
-      if (currentView) {
-        applyFilters(currentView);
-      }
-    }
-    
-    function activateTab(tabId) {
-      // Update tab buttons
-      tabButtons.forEach(button => {
-        button.classList.toggle('active', button.getAttribute('data-tab') === tabId);
-      });
-      
-      // Update tab contents
-      tabContents.forEach(content => {
-        content.classList.toggle('active', content.id === `${tabId}Tab`);
-      });
-    }
-    
-    function setDefaultDateFilters() {
-      // Set current month as default
-      const currentDate = new Date();
-      const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-      const currentYear = currentDate.getFullYear();
-      
-      document.getElementById('monthSelect').value = currentMonth;
-      document.getElementById('monthSelectTransactions').value = currentMonth;
-      document.getElementById('monthSelectExpenses').value = currentMonth;
-      document.getElementById('monthSelectAttendance').value = currentMonth;
-    }
-    
-    // Main data loader
+    // ===== CORE FUNCTIONS =====
     async function loadData() {
       showLoading();
       hideError();
       hideContent();
       
       try {
+        const startTime = performance.now();
         const response = await fetch(API_URL);
         
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         
         const result = await response.json();
         
-        if (result.status !== "success") {
-          throw new Error(result.message || "Data loading failed");
-        }
+        if (result.status !== "success") throw new Error(result.message || "Data loading failed");
         
-        // Process donations
-        allDonations = result.donations?.map(d => ({
-          ...d,
-          amount: parseFloat(d.amount) || 0,
-          envelope: d.envelope ? 'Yes' : 'No',
-          date: parseDate(d.date),
-          type: d.type || 'Unknown',
-          staff1: d.staff1 || '',
-          staff2: d.staff2 || '',
-          notes: d.notes || ''
-        })) || [];
+        // Process data
+        allDonations = processDonations(result.donations || []);
+        allExpenses = processExpenses(result.expenses || mockExpenses());
+        allMembers = processMembers(result.members || mockMembers());
+        allFamilies = processFamilies(result.families || mockFamilies());
+        allAttendance = processAttendance(result.attendance || mockAttendance());
         
-        // Process expenses (mock data - replace with actual API data)
-        allExpenses = result.expenses?.map(e => ({
-          ...e,
-          amount: parseFloat(e.amount) || 0,
-          date: parseDate(e.date),
-          category: e.category || 'General',
-          description: e.description || '',
-          approvedBy: e.approvedBy || ''
-        })) || mockExpenses();
+        // Build search index
+        buildSearchIndex();
         
-        // Process members (mock data - replace with actual API data)
-        allMembers = result.members?.map(m => ({
-          ...m,
-          memberId: m.memberId || '',
-          name: m.name || '',
-          phone: m.phone || '',
-          email: m.email || '',
-          familyId: m.familyId || '',
-          baptismDate: parseDate(m.baptismDate),
-          status: m.status || 'Active'
-        })) || mockMembers();
-        
-        // Process families (mock data - replace with actual API data)
-        allFamilies = result.families?.map(f => ({
-          ...f,
-          familyId: f.familyId || '',
-          familyName: f.familyName || '',
-          headOfFamily: f.headOfFamily || '',
-          address: f.address || '',
-          phone: f.phone || ''
-        })) || mockFamilies();
-        
-        // Process attendance (mock data - replace with actual API data)
-        allAttendance = result.attendance?.map(a => ({
-          ...a,
-          date: parseDate(a.date),
-          serviceType: a.serviceType || 'Sunday Service',
-          totalAttendance: parseInt(a.totalAttendance) || 0,
-          firstTimers: parseInt(a.firstTimers) || 0,
-          children: parseInt(a.children) || 0
-        })) || mockAttendance();
-        
+        // Update UI
         populateYearSelectors();
         applyFilters(currentView);
         showContent();
+        
+        console.log(`Data loaded in ${(performance.now() - startTime).toFixed(2)}ms`);
       } catch (error) {
         console.error("Error loading data:", error);
         showError(error.message || "Failed to load data. Please try again later.");
@@ -1017,7 +945,729 @@
       }
     }
     
-    // Mock data functions (replace with actual API data)
+    function processDonations(data) {
+      return data.map(d => ({
+        ...d,
+        amount: parseFloat(d.amount) || 0,
+        envelope: d.envelope ? 'Yes' : 'No',
+        date: parseDate(d.date),
+        type: d.type || 'Unknown',
+        staff1: d.staff1 || '',
+        staff2: d.staff2 || '',
+        notes: d.notes || ''
+      }));
+    }
+    
+    function processExpenses(data) {
+      return data.map(e => ({
+        ...e,
+        amount: parseFloat(e.amount) || 0,
+        date: parseDate(e.date),
+        category: e.category || 'General',
+        description: e.description || '',
+        approvedBy: e.approvedBy || ''
+      }));
+    }
+    
+    function processMembers(data) {
+      return data.map(m => ({
+        ...m,
+        memberId: m.memberId || '',
+        name: m.name || '',
+        phone: m.phone || '',
+        email: m.email || '',
+        familyId: m.familyId || '',
+        baptismDate: parseDate(m.baptismDate),
+        status: m.status || 'Active'
+      }));
+    }
+    
+    function processFamilies(data) {
+      return data.map(f => ({
+        ...f,
+        familyId: f.familyId || '',
+        familyName: f.familyName || '',
+        headOfFamily: f.headOfFamily || '',
+        address: f.address || '',
+        phone: f.phone || ''
+      }));
+    }
+    
+    function processAttendance(data) {
+      return data.map(a => ({
+        ...a,
+        date: parseDate(a.date),
+        serviceType: a.serviceType || 'Sunday Service',
+        totalAttendance: parseInt(a.totalAttendance) || 0,
+        firstTimers: parseInt(a.firstTimers) || 0,
+        children: parseInt(a.children) || 0
+      }));
+    }
+    
+    function buildSearchIndex() {
+      searchIndex.clear();
+      allDonations.forEach((d, index) => {
+        const searchString = [
+          d.type, 
+          d.notes || '', 
+          d.staff1, 
+          d.staff2, 
+          d.amount.toString()
+        ].join(' ').toLowerCase();
+        
+        searchIndex.set(index, searchString);
+      });
+    }
+    
+    function populateYearSelectors() {
+      const years = new Set();
+      
+      // Collect years from all data sources
+      [allDonations, allExpenses, allAttendance].forEach(data => {
+        data.forEach(item => {
+          if (!isNaN(item.date.getTime())) {
+            years.add(item.date.getFullYear());
+          }
+        });
+      });
+      
+      // Update all year selectors
+      const yearSelects = [
+        elements.yearSelect,
+        elements.yearSelectTransactions,
+        elements.yearSelectExpenses,
+        elements.yearSelectAttendance
+      ];
+      
+      yearSelects.forEach(select => {
+        select.innerHTML = '<option value="">All Years</option>';
+        
+        Array.from(years).sort((a,b) => b - a).forEach(year => {
+          const option = document.createElement('option');
+          option.value = year;
+          option.textContent = year;
+          select.appendChild(option);
+        });
+        
+        const currentYear = new Date().getFullYear();
+        if (years.has(currentYear)) {
+          select.value = currentYear;
+        }
+      });
+    }
+    
+    function applyFilters(view) {
+      currentView = view;
+      
+      switch (view) {
+        case 'summary':
+        case 'transactions':
+          filterDonations();
+          break;
+        case 'expenses':
+          filterExpenses();
+          break;
+        case 'members':
+          filterMembers();
+          break;
+        case 'attendance':
+          filterAttendance();
+          break;
+      }
+    }
+    
+    function filterDonations() {
+      const year = currentView === 'summary' 
+        ? elements.yearSelect.value 
+        : elements.yearSelectTransactions.value;
+      
+      const month = currentView === 'summary'
+        ? elements.yearSelect.value
+        : elements.monthSelectTransactions.value;
+      
+      filteredDonations = allDonations.filter(d => {
+        if (isNaN(d.date.getTime())) return false;
+        const matchesYear = !year || d.date.getFullYear() == year;
+        const matchesMonth = !month || 
+          (d.date.getMonth() + 1).toString().padStart(2, '0') === month;
+        return matchesYear && matchesMonth;
+      });
+      
+      updateSummaryCards();
+      updatePieChart();
+      updateMonthlyView();
+      updateRecentDonations();
+    }
+    
+    function filterExpenses() {
+      const year = elements.yearSelectExpenses.value;
+      const month = elements.monthSelectExpenses.value;
+      
+      filteredExpenses = allExpenses.filter(e => {
+        if (isNaN(e.date.getTime())) return false;
+        const matchesYear = !year || e.date.getFullYear() == year;
+        const matchesMonth = !month || 
+          (e.date.getMonth() + 1).toString().padStart(2, '0') === month;
+        return matchesYear && matchesMonth;
+      });
+      
+      updateExpenseSummary();
+      updateExpenseChart();
+      updateRecentExpenses();
+    }
+    
+    function filterMembers() {
+      filteredMembers = [...allMembers];
+      updateMembersSummary();
+      updateMembersList();
+    }
+    
+    function filterAttendance() {
+      const year = elements.yearSelectAttendance.value;
+      const month = elements.monthSelectAttendance.value;
+      
+      filteredAttendance = allAttendance.filter(a => {
+        if (isNaN(a.date.getTime())) return false;
+        const matchesYear = !year || a.date.getFullYear() == year;
+        const matchesMonth = !month || 
+          (a.date.getMonth() + 1).toString().padStart(2, '0') === month;
+        return matchesYear && matchesMonth;
+      });
+      
+      updateAttendanceTable();
+    }
+    
+    // ===== UI UPDATES =====
+    function updateSummaryCards() {
+      const totalServices = filteredDonations.length;
+      const totalOfferings = filteredDonations.reduce((sum, d) => sum + d.amount, 0);
+      const avgOffering = totalServices > 0 ? totalOfferings / totalServices : 0;
+      const totalExpenses = allExpenses.reduce((sum, e) => sum + e.amount, 0);
+      const activeMembers = allMembers.filter(m => m.status === 'Active').length;
+      
+      // Get period text
+      let periodText = "All Time";
+      const yearSelect = elements.yearSelect;
+      const monthSelect = elements.monthSelect;
+      
+      if (yearSelect.value && monthSelect.value) {
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"];
+        periodText = `${monthNames[parseInt(monthSelect.value) - 1]} ${yearSelect.value}`;
+      } else if (yearSelect.value) {
+        periodText = `Year ${yearSelect.value}`;
+      }
+      
+      // Batch DOM updates
+      requestAnimationFrame(() => {
+        elements.totalOfferings.textContent = `RM${totalOfferings.toFixed(2)}`;
+        elements.avgOffering.textContent = `RM${avgOffering.toFixed(2)}`;
+        elements.serviceCount.textContent = totalServices;
+        elements.totalExpenses.textContent = `RM${totalExpenses.toFixed(2)}`;
+        elements.memberCount.textContent = activeMembers;
+        elements.offeringPeriod.textContent = periodText;
+        elements.avgPeriod.textContent = periodText === "All Time" ? "Per service" : periodText;
+        elements.servicePeriod.textContent = periodText;
+        elements.expensePeriod.textContent = periodText;
+      });
+    }
+    
+    function updateExpenseSummary() {
+      const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
+      
+      let periodText = "All Time";
+      const yearSelect = elements.yearSelectExpenses;
+      const monthSelect = elements.monthSelectExpenses;
+      
+      if (yearSelect.value && monthSelect.value) {
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"];
+        periodText = `${monthNames[parseInt(monthSelect.value) - 1]} ${yearSelect.value}`;
+      } else if (yearSelect.value) {
+        periodText = `Year ${yearSelect.value}`;
+      }
+      
+      requestAnimationFrame(() => {
+        elements.totalExpenses.textContent = `RM${totalExpenses.toFixed(2)}`;
+        elements.expensePeriod.textContent = periodText;
+      });
+    }
+    
+    function updateMembersSummary() {
+      const activeMembers = allMembers.filter(m => m.status === 'Active').length;
+      requestAnimationFrame(() => {
+        elements.memberCount.textContent = activeMembers;
+      });
+    }
+    
+    function updatePieChart() {
+      const typeData = {};
+      
+      filteredDonations.forEach(d => {
+        if (!typeData[d.type]) typeData[d.type] = 0;
+        typeData[d.type] += d.amount;
+      });
+      
+      if (!pieChart) {
+        const ctx = document.getElementById('pieChart').getContext('2d');
+        pieChart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(typeData),
+            datasets: [{
+              data: Object.values(typeData),
+              backgroundColor: [
+                '#0a2463', '#3e92cc', '#d4af37', '#2ecc71', '#e74c3c', '#9b59b6',
+                '#1abc9c', '#f39c12', '#3498db', '#e67e22', '#34495e', '#16a085'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  boxWidth: 12,
+                  font: { size: 10 }
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const label = context.label || '';
+                    const value = context.raw || 0;
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const percentage = Math.round((value / total) * 100);
+                    return `${label}: RM${value.toFixed(2)} (${percentage}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      } else {
+        pieChart.data.labels = Object.keys(typeData);
+        pieChart.data.datasets[0].data = Object.values(typeData);
+        pieChart.update();
+      }
+    }
+    
+    function updateExpenseChart() {
+      const categoryData = {};
+      
+      filteredExpenses.forEach(e => {
+        if (!categoryData[e.category]) categoryData[e.category] = 0;
+        categoryData[e.category] += e.amount;
+      });
+      
+      if (!expenseChart) {
+        const ctx = document.getElementById('expenseChart').getContext('2d');
+        expenseChart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(categoryData),
+            datasets: [{
+              data: Object.values(categoryData),
+              backgroundColor: [
+                '#0a2463', '#3e92cc', '#d4af37', '#2ecc71', '#e74c3c', '#9b59b6',
+                '#1abc9c', '#f39c12', '#3498db', '#e67e22', '#34495e', '#16a085'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  boxWidth: 12,
+                  font: { size: 10 }
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const label = context.label || '';
+                    const value = context.raw || 0;
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const percentage = Math.round((value / total) * 100);
+                    return `${label}: RM${value.toFixed(2)} (${percentage}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      } else {
+        expenseChart.data.labels = Object.keys(categoryData);
+        expenseChart.data.datasets[0].data = Object.values(categoryData);
+        expenseChart.update();
+      }
+    }
+    
+    function updateMonthlyView() {
+      const monthlyData = {};
+      
+      filteredDonations.forEach(d => {
+        if (isNaN(d.date.getTime())) return;
+        
+        const monthYear = `${d.date.getFullYear()}-${(d.date.getMonth()+1).toString().padStart(2, '0')}`;
+        const monthName = d.date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        
+        if (!monthlyData[monthYear]) {
+          monthlyData[monthYear] = {
+            name: monthName,
+            types: {},
+            total: 0,
+            timestamp: d.date.getTime()
+          };
+        }
+        
+        if (!monthlyData[monthYear].types[d.type]) {
+          monthlyData[monthYear].types[d.type] = 0;
+        }
+        
+        monthlyData[monthYear].types[d.type] += d.amount;
+        monthlyData[monthYear].total += d.amount;
+      });
+      
+      const fragment = document.createDocumentFragment();
+      const sortedMonths = Object.entries(monthlyData)
+        .sort((a, b) => b[1].timestamp - a[1].timestamp);
+      
+      if (sortedMonths.length === 0) {
+        fragment.appendChild(createTableRow(['No data available for selected period'], 3));
+      } else {
+        sortedMonths.forEach(([key, month]) => {
+          // Month total row
+          const monthTotalRow = document.createElement('tr');
+          monthTotalRow.className = 'month-total-row';
+          monthTotalRow.innerHTML = `
+            <td>${month.name}</td>
+            <td>Total</td>
+            <td class="amount-column">${month.total.toFixed(2)}</td>
+          `;
+          fragment.appendChild(monthTotalRow);
+          
+          // Type rows
+          Object.entries(month.types)
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .forEach(([type, amount]) => {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                <td></td>
+                <td class="type-column">${type}</td>
+                <td class="amount-column">${amount.toFixed(2)}</td>
+              `;
+              fragment.appendChild(row);
+            });
+        });
+      }
+      
+      elements.monthlyDonationsTable.innerHTML = '';
+      elements.monthlyDonationsTable.appendChild(fragment);
+    }
+    
+    function updateRecentDonations() {
+      const fragment = document.createDocumentFragment();
+      const startIdx = 0;
+      const endIdx = currentTransactionPage * TRANSACTIONS_PER_PAGE;
+      
+      filteredDonations
+        .slice(startIdx, endIdx)
+        .forEach(d => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${formatDate(d.date)}</td>
+            <td>${d.amount.toFixed(2)}</td>
+            <td>${d.type}</td>
+            <td>${d.envelope === 'Yes' ? '✓' : '✗'}</td>
+            <td>${d.staff1}${d.staff2 ? ' & ' + d.staff2 : ''}</td>
+            <td>${d.notes || ''}</td>
+          `;
+          fragment.appendChild(row);
+        });
+      
+      elements.donationsTable.innerHTML = '';
+      elements.donationsTable.appendChild(fragment);
+      elements.loadMoreBtn.style.display = 
+        filteredDonations.length > endIdx ? 'inline-block' : 'none';
+    }
+    
+    function updateRecentExpenses() {
+      const fragment = document.createDocumentFragment();
+      const startIdx = 0;
+      const endIdx = currentExpensePage * EXPENSES_PER_PAGE;
+      
+      filteredExpenses
+        .slice(startIdx, endIdx)
+        .forEach(e => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${formatDate(e.date)}</td>
+            <td>${e.amount.toFixed(2)}</td>
+            <td>${e.category}</td>
+            <td>${e.description}</td>
+            <td>${e.approvedBy}</td>
+          `;
+          fragment.appendChild(row);
+        });
+      
+      elements.expensesTable.innerHTML = '';
+      elements.expensesTable.appendChild(fragment);
+      elements.loadMoreExpensesBtn.style.display = 
+        filteredExpenses.length > endIdx ? 'inline-block' : 'none';
+    }
+    
+    function updateMembersList() {
+      const fragment = document.createDocumentFragment();
+      const startIdx = 0;
+      const endIdx = currentMemberPage * MEMBERS_PER_PAGE;
+      
+      filteredMembers
+        .slice(startIdx, endIdx)
+        .forEach(m => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${m.memberId}</td>
+            <td>${m.name}</td>
+            <td>${m.phone}</td>
+            <td>${m.email}</td>
+            <td>${m.familyId}</td>
+            <td>${m.baptismDate ? formatDate(m.baptismDate) : ''}</td>
+            <td>${m.status}</td>
+          `;
+          fragment.appendChild(row);
+        });
+      
+      elements.membersTable.innerHTML = '';
+      elements.membersTable.appendChild(fragment);
+      elements.loadMoreMembersBtn.style.display = 
+        filteredMembers.length > endIdx ? 'inline-block' : 'none';
+    }
+    
+    function updateFamiliesTable() {
+      const fragment = document.createDocumentFragment();
+      
+      allFamilies.forEach(f => {
+        const memberCount = allMembers.filter(m => m.familyId === f.familyId).length;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${f.familyId}</td>
+          <td>${f.familyName}</td>
+          <td>${f.headOfFamily}</td>
+          <td>${memberCount} members</td>
+          <td>${f.address}</td>
+          <td>${f.phone}</td>
+        `;
+        fragment.appendChild(row);
+      });
+      
+      elements.familiesTable.innerHTML = '';
+      elements.familiesTable.appendChild(fragment);
+    }
+    
+    function updateAttendanceTable() {
+      const fragment = document.createDocumentFragment();
+      
+      filteredAttendance.forEach(a => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${formatDate(a.date)}</td>
+          <td>${a.serviceType}</td>
+          <td>${a.totalAttendance}</td>
+          <td>${a.firstTimers}</td>
+          <td>${a.children}</td>
+        `;
+        fragment.appendChild(row);
+      });
+      
+      elements.attendanceTable.innerHTML = '';
+      elements.attendanceTable.appendChild(fragment);
+    }
+    
+    // ===== VIEW MANAGEMENT =====
+    function switchView(view) {
+      currentView = view;
+      
+      // Update active button
+      elements.summaryBtn.classList.toggle('active', view === 'summary');
+      elements.transactionsBtn.classList.toggle('active', view === 'transactions');
+      elements.expensesBtn.classList.toggle('active', view === 'expenses');
+      elements.membersBtn.classList.toggle('active', view === 'members');
+      
+      // Update aria-pressed
+      elements.summaryBtn.setAttribute('aria-pressed', view === 'summary');
+      elements.transactionsBtn.setAttribute('aria-pressed', view === 'transactions');
+      elements.expensesBtn.setAttribute('aria-pressed', view === 'expenses');
+      elements.membersBtn.setAttribute('aria-pressed', view === 'members');
+      
+      // Show/hide pages
+      elements.summaryPage.style.display = view === 'summary' ? 'block' : 'none';
+      elements.transactionsPage.style.display = view === 'transactions' ? 'block' : 'none';
+      elements.expensesPage.style.display = view === 'expenses' ? 'block' : 'none';
+      elements.membersPage.style.display = view === 'members' ? 'block' : 'none';
+      
+      // Reset pagination
+      currentTransactionPage = 1;
+      currentExpensePage = 1;
+      currentMemberPage = 1;
+      
+      // Apply filters for the current view
+      applyFilters(view);
+    }
+    
+    function activateTab(tabId) {
+      // Update tab buttons
+      elements.tabButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabId);
+      });
+      
+      // Update tab contents
+      elements.tabContents.forEach(content => {
+        content.classList.toggle('active', content.id === `${tabId}Tab`);
+      });
+      
+      // Update data if needed
+      if (tabId === 'families') {
+        updateFamiliesTable();
+      } else if (tabId === 'attendance') {
+        updateAttendanceTable();
+      }
+    }
+    
+    // ===== UTILITY FUNCTIONS =====
+    function parseDate(dateString) {
+      if (!dateString) return new Date(NaN);
+      const date = new Date(dateString);
+      if (!isNaN(date)) return date;
+      
+      const parts = dateString.split(/[-/]/);
+      if (parts.length === 3) {
+        const dayFirst = new Date(parts[2], parts[1]-1, parts[0]);
+        if (!isNaN(dayFirst)) return dayFirst;
+        
+        const monthFirst = new Date(parts[2], parts[0]-1, parts[1]);
+        if (!isNaN(monthFirst)) return monthFirst;
+      }
+      
+      return new Date(NaN);
+    }
+    
+    function formatDate(date) {
+      if (isNaN(date.getTime())) return 'Invalid date';
+      return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+    
+    function debounce(func, wait) {
+      let timeout;
+      return function() {
+        const context = this, args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          func.apply(context, args);
+        }, wait);
+      };
+    }
+    
+    function setDefaultDateFilters() {
+      const currentDate = new Date();
+      const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+      
+      elements.monthSelect.value = currentMonth;
+      elements.monthSelectTransactions.value = currentMonth;
+      elements.monthSelectExpenses.value = currentMonth;
+      elements.monthSelectAttendance.value = currentMonth;
+    }
+    
+    function showLoading() {
+      elements.loading.style.display = 'block';
+    }
+    
+    function hideLoading() {
+      elements.loading.style.display = 'none';
+    }
+    
+    function showError(message) {
+      elements.errorText.textContent = message;
+      elements.error.style.display = 'block';
+    }
+    
+    function hideError() {
+      elements.error.style.display = 'none';
+    }
+    
+    function showContent() {
+      elements.content.style.display = 'block';
+    }
+    
+    function hideContent() {
+      elements.content.style.display = 'none';
+    }
+    
+    function createTableRow(content, colspan = 1) {
+      const row = document.createElement('tr');
+      const cell = document.createElement('td');
+      cell.textContent = content;
+      cell.colSpan = colspan;
+      row.appendChild(cell);
+      return row;
+    }
+    
+    // ===== EVENT HANDLERS =====
+    function handleSearch() {
+      currentSearchTerm = elements.searchInput.value.toLowerCase();
+      currentTransactionPage = 1;
+      updateRecentDonations();
+    }
+    
+    function handleExpenseSearch() {
+      currentSearchTerm = elements.searchExpensesInput.value.toLowerCase();
+      currentExpensePage = 1;
+      updateRecentExpenses();
+    }
+    
+    function handleMemberSearch() {
+      currentSearchTerm = elements.searchMembersInput.value.toLowerCase();
+      currentMemberPage = 1;
+      updateMembersList();
+    }
+    
+    function handleFamilySearch() {
+      currentSearchTerm = elements.searchFamiliesInput.value.toLowerCase();
+      updateFamiliesTable();
+    }
+    
+    function handlePrint() {
+      window.print();
+    }
+    
+    function handleResize() {
+      if (pieChart) pieChart.resize();
+      if (expenseChart) expenseChart.resize();
+    }
+    
+    function loadMoreTransactions() {
+      currentTransactionPage++;
+      updateRecentDonations();
+    }
+    
+    function loadMoreExpenses() {
+      currentExpensePage++;
+      updateRecentExpenses();
+    }
+    
+    function loadMoreMembers() {
+      currentMemberPage++;
+      updateMembersList();
+    }
+    
+    // ===== MOCK DATA GENERATORS =====
     function mockExpenses() {
       const categories = ['Rent', 'Utilities', 'Outreach', 'Equipment', 'Supplies', 'Salaries'];
       const approvers = ['Pastor John', 'Deacon Thomas', 'Elder Mathew'];
@@ -1109,701 +1759,23 @@
       return attendance;
     }
     
-    function showLoading() {
-      loadingElement.style.display = 'block';
-    }
-    
-    function hideLoading() {
-      loadingElement.style.display = 'none';
-    }
-    
-    function showError(message) {
-      document.getElementById('errorText').textContent = message;
-      errorElement.style.display = 'block';
-    }
-    
-    function hideError() {
-      errorElement.style.display = 'none';
-    }
-    
-    function showContent() {
-      contentElement.style.display = 'block';
-    }
-    
-    function hideContent() {
-      contentElement.style.display = 'none';
-    }
-    
-    // Date parsing
-    function parseDate(dateString) {
-      if (!dateString) return new Date(NaN);
-      const date = new Date(dateString);
-      if (!isNaN(date)) return date;
-      
-      const parts = dateString.split(/[-/]/);
-      if (parts.length === 3) {
-        const dayFirst = new Date(parts[2], parts[1]-1, parts[0]);
-        if (!isNaN(dayFirst)) return dayFirst;
-        
-        const monthFirst = new Date(parts[2], parts[0]-1, parts[1]);
-        if (!isNaN(monthFirst)) return monthFirst;
-      }
-      
-      return new Date(NaN);
-    }
-    
-    // Populate year dropdowns
-    function populateYearSelectors() {
-      const years = new Set();
-      
-      // Add years from donations
-      allDonations.forEach(d => {
-        if (!isNaN(d.date.getTime())) {
-          years.add(d.date.getFullYear());
-        }
-      });
-      
-      // Add years from expenses
-      allExpenses.forEach(e => {
-        if (!isNaN(e.date.getTime())) {
-          years.add(e.date.getFullYear());
-        }
-      });
-      
-      // Add years from attendance
-      allAttendance.forEach(a => {
-        if (!isNaN(a.date.getTime())) {
-          years.add(a.date.getFullYear());
-        }
-      });
-      
-      const yearSelects = [
-        document.getElementById('yearSelect'),
-        document.getElementById('yearSelectTransactions'),
-        document.getElementById('yearSelectExpenses'),
-        document.getElementById('yearSelectAttendance')
-      ];
-      
-      yearSelects.forEach(select => {
-        select.innerHTML = '<option value="">All Years</option>';
-        
-        Array.from(years).sort((a,b) => b - a).forEach(year => {
-          const option = document.createElement('option');
-          option.value = year;
-          option.textContent = year;
-          select.appendChild(option);
-        });
-        
-        const currentYear = new Date().getFullYear();
-        if (years.has(currentYear)) {
-          select.value = currentYear;
-        }
-      });
-    }
-    
-    // Apply filters
-    let filterTimeout;
-    function applyFilters(view) {
-      currentView = view || currentView;
-      clearTimeout(filterTimeout);
-      filterTimeout = setTimeout(() => {
-        if (currentView === 'summary' || currentView === 'transactions') {
-          filterDonations();
-        } else if (currentView === 'expenses') {
-          filterExpenses();
-        } else if (currentView === 'members') {
-          filterMembers();
-        } else if (currentView === 'attendance') {
-          filterAttendance();
-        }
-      }, 100);
-    }
-    
-    function filterDonations() {
-      const yearSelect = currentView === 'summary' 
-        ? document.getElementById('yearSelect')
-        : document.getElementById('yearSelectTransactions');
-      
-      const monthSelect = currentView === 'summary'
-        ? document.getElementById('monthSelect')
-        : document.getElementById('monthSelectTransactions');
-      
-      const year = yearSelect.value;
-      const month = monthSelect.value;
-      
-      filteredDonations = allDonations.filter(d => {
-        if (isNaN(d.date.getTime())) return false;
-        const matchesYear = !year || d.date.getFullYear() == year;
-        const matchesMonth = !month || 
-          (d.date.getMonth() + 1).toString().padStart(2, '0') === month;
-        return matchesYear && matchesMonth;
-      });
-      
-      if (currentView === 'summary') {
-        document.getElementById('yearSelectTransactions').value = year;
-        document.getElementById('monthSelectTransactions').value = month;
-      } else {
-        document.getElementById('yearSelect').value = year;
-        document.getElementById('monthSelect').value = month;
-      }
-      
-      updateSummaryCards(filteredDonations);
-      updatePieChart(filteredDonations);
-      updateMonthlyView(filteredDonations);
-      updateRecentDonations(filteredDonations);
-    }
-    
-    function filterExpenses() {
-      const year = document.getElementById('yearSelectExpenses').value;
-      const month = document.getElementById('monthSelectExpenses').value;
-      
-      filteredExpenses = allExpenses.filter(e => {
-        if (isNaN(e.date.getTime())) return false;
-        const matchesYear = !year || e.date.getFullYear() == year;
-        const matchesMonth = !month || 
-          (e.date.getMonth() + 1).toString().padStart(2, '0') === month;
-        return matchesYear && matchesMonth;
-      });
-      
-      updateExpenseSummary();
-      updateExpenseChart(filteredExpenses);
-      updateRecentExpenses(filteredExpenses);
-    }
-    
-    function filterMembers() {
-      filteredMembers = [...allMembers];
-      updateMembersSummary();
-      updateMembersList(filteredMembers);
-    }
-    
-    function filterAttendance() {
-      const year = document.getElementById('yearSelectAttendance').value;
-      const month = document.getElementById('monthSelectAttendance').value;
-      
-      const filtered = allAttendance.filter(a => {
-        if (isNaN(a.date.getTime())) return false;
-        const matchesYear = !year || a.date.getFullYear() == year;
-        const matchesMonth = !month || 
-          (a.date.getMonth() + 1).toString().padStart(2, '0') === month;
-        return matchesYear && matchesMonth;
-      });
-      
-      updateAttendanceTable(filtered);
-    }
-    
-    // Debounce function
-    function debounce(func, wait) {
-      let timeout;
-      return function() {
-        const context = this, args = arguments;
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          func.apply(context, args);
-        }, wait);
-      };
-    }
-    
-    // Update summary cards
-    function updateSummaryCards(donations) {
-      // Total offerings
-      const totalServices = donations.length;
-      const total = donations.reduce((sum, d) => sum + d.amount, 0);
-      document.getElementById('totalOfferings').textContent = `RM${total.toFixed(2)}`;
-      
-      // Average offering
-      const avg = totalServices > 0 ? total / totalServices : 0;
-      document.getElementById('avgOffering').textContent = `RM${avg.toFixed(2)}`;
-      document.getElementById('serviceCount').textContent = totalServices;
-      
-      // Total expenses
-      const totalExpenses = allExpenses.reduce((sum, e) => sum + e.amount, 0);
-      document.getElementById('totalExpenses').textContent = `RM${totalExpenses.toFixed(2)}`;
-      
-      // Member count
-      const activeMembers = allMembers.filter(m => m.status === 'Active').length;
-      document.getElementById('memberCount').textContent = activeMembers;
-      
-      // Period text
-      let periodText = "All Time";
-      const yearSelect = document.getElementById('yearSelect');
-      const monthSelect = document.getElementById('monthSelect');
-      
-      if (yearSelect.value && monthSelect.value) {
-        const monthNames = ["January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"];
-        periodText = `${monthNames[parseInt(monthSelect.value) - 1]} ${yearSelect.value}`;
-      } else if (yearSelect.value) {
-        periodText = `Year ${yearSelect.value}`;
-      }
-      
-      document.getElementById('offeringPeriod').textContent = periodText;
-      document.getElementById('avgPeriod').textContent = periodText === "All Time" ? 
-        "Per service" : periodText;
-      document.getElementById('servicePeriod').textContent = periodText;
-      document.getElementById('expensePeriod').textContent = periodText;
-    }
-    
-    function updateExpenseSummary() {
-      const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
-      document.getElementById('totalExpenses').textContent = `RM${totalExpenses.toFixed(2)}`;
-      
-      let periodText = "All Time";
-      const yearSelect = document.getElementById('yearSelectExpenses');
-      const monthSelect = document.getElementById('monthSelectExpenses');
-      
-      if (yearSelect.value && monthSelect.value) {
-        const monthNames = ["January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"];
-        periodText = `${monthNames[parseInt(monthSelect.value) - 1]} ${yearSelect.value}`;
-      } else if (yearSelect.value) {
-        periodText = `Year ${yearSelect.value}`;
-      }
-      
-      document.getElementById('expensePeriod').textContent = periodText;
-    }
-    
-    function updateMembersSummary() {
-      const activeMembers = allMembers.filter(m => m.status === 'Active').length;
-      document.getElementById('memberCount').textContent = activeMembers;
-    }
-    
-    // Update pie chart
-    function updatePieChart(donations) {
-      const typeData = {};
-      
-      donations.forEach(d => {
-        if (!typeData[d.type]) {
-          typeData[d.type] = 0;
-        }
-        typeData[d.type] += d.amount;
-      });
-      
-      const ctx = document.getElementById('pieChart').getContext('2d');
-      
-      if (pieChart) {
-        pieChart.destroy();
-      }
-      
-      if (Object.keys(typeData).length > 0) {
-        pieChart = new Chart(ctx, {
-          type: 'pie',
-          data: {
-            labels: Object.keys(typeData),
-            datasets: [{
-              data: Object.values(typeData),
-              backgroundColor: [
-                '#0a2463', '#3e92cc', '#d4af37', '#2ecc71', '#e74c3c', '#9b59b6',
-                '#1abc9c', '#f39c12', '#3498db', '#e67e22', '#34495e', '#16a085'
-              ],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: {
-              padding: {
-                top: 10,
-                bottom: 10,
-                left: 10,
-                right: 10
-              }
-            },
-            plugins: {
-              legend: {
-                position: 'bottom',
-                labels: {
-                  boxWidth: 12,
-                  font: {
-                    size: 10
-                  }
-                }
-              },
-              tooltip: {
-                callbacks: {
-                  label: function(context) {
-                    const label = context.label || '';
-                    const value = context.raw || 0;
-                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                    const percentage = Math.round((value / total) * 100);
-                    return `${label}: RM${value.toFixed(2)} (${percentage}%)`;
-                  }
-                }
-              }
-            }
-          }
-        });
-      }
-    }
-    
-    // Update expense chart
-    function updateExpenseChart(expenses) {
-      const categoryData = {};
-      
-      expenses.forEach(e => {
-        if (!categoryData[e.category]) {
-          categoryData[e.category] = 0;
-        }
-        categoryData[e.category] += e.amount;
-      });
-      
-      const ctx = document.getElementById('expenseChart').getContext('2d');
-      
-      if (expenseChart) {
-        expenseChart.destroy();
-      }
-      
-      if (Object.keys(categoryData).length > 0) {
-        expenseChart = new Chart(ctx, {
-          type: 'pie',
-          data: {
-            labels: Object.keys(categoryData),
-            datasets: [{
-              data: Object.values(categoryData),
-              backgroundColor: [
-                '#0a2463', '#3e92cc', '#d4af37', '#2ecc71', '#e74c3c', '#9b59b6',
-                '#1abc9c', '#f39c12', '#3498db', '#e67e22', '#34495e', '#16a085'
-              ],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: {
-              padding: {
-                top: 10,
-                bottom: 10,
-                left: 10,
-                right: 10
-              }
-            },
-            plugins: {
-              legend: {
-                position: 'bottom',
-                labels: {
-                  boxWidth: 12,
-                  font: {
-                    size: 10
-                  }
-                }
-              },
-              tooltip: {
-                callbacks: {
-                  label: function(context) {
-                    const label = context.label || '';
-                    const value = context.raw || 0;
-                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                    const percentage = Math.round((value / total) * 100);
-                    return `${label}: RM${value.toFixed(2)} (${percentage}%)`;
-                  }
-                }
-              }
-            }
-          }
-        });
-      }
-    }
-    
-    // Update monthly view with simplified table
-    function updateMonthlyView(donations) {
-      const monthlyData = {};
-      
-      donations.forEach(d => {
-        if (isNaN(d.date.getTime())) return;
-        
-        const monthYear = `${d.date.getFullYear()}-${(d.date.getMonth()+1).toString().padStart(2, '0')}`;
-        const monthName = d.date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-        
-        if (!monthlyData[monthYear]) {
-          monthlyData[monthYear] = {
-            name: monthName,
-            types: {},
-            total: 0,
-            timestamp: d.date.getTime()
-          };
-        }
-        
-        if (!monthlyData[monthYear].types[d.type]) {
-          monthlyData[monthYear].types[d.type] = 0;
-        }
-        
-        monthlyData[monthYear].types[d.type] += d.amount;
-        monthlyData[monthYear].total += d.amount;
-      });
-      
-      const monthlyContainer = document.getElementById('monthlyDonationsTable').querySelector('tbody');
-      monthlyContainer.innerHTML = '';
-      
-      const sortedMonths = Object.entries(monthlyData)
-        .sort((a, b) => b[1].timestamp - a[1].timestamp);
-      
-      if (sortedMonths.length === 0) {
-        monthlyContainer.innerHTML = '<tr><td colspan="3">No data available for selected period</td></tr>';
-        return;
-      }
-      
-      // Create table rows for each month
-      sortedMonths.forEach(([key, month]) => {
-        // Add month total row
-        const monthTotalRow = document.createElement('tr');
-        monthTotalRow.className = 'month-total-row';
-        monthTotalRow.innerHTML = `
-          <td>${month.name}</td>
-          <td>Total</td>
-          <td class="amount-column">${month.total.toFixed(2)}</td>
-        `;
-        monthlyContainer.appendChild(monthTotalRow);
-        
-        // Add rows for each donation type (sorted alphabetically)
-        Object.entries(month.types)
-          .sort((a, b) => a[0].localeCompare(b[0]))
-          .forEach(([type, amount]) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td></td>
-              <td class="type-column">${type}</td>
-              <td class="amount-column">${amount.toFixed(2)}</td>
-            `;
-            monthlyContainer.appendChild(row);
-          });
-      });
-    }
-    
-    // Update recent donations table
-    function updateRecentDonations(donations) {
-      const tbody = document.querySelector('#donationsTable tbody');
-      
-      let filtered = donations;
-      if (currentSearchTerm) {
-        filtered = donations.filter(d => 
-          d.type.toLowerCase().includes(currentSearchTerm) ||
-          (d.notes && d.notes.toLowerCase().includes(currentSearchTerm)) ||
-          d.staff1.toLowerCase().includes(currentSearchTerm) ||
-          d.staff2.toLowerCase().includes(currentSearchTerm) ||
-          d.amount.toString().includes(currentSearchTerm)
-        );
-      }
-      
-      filtered.sort((a,b) => b.date - a.date);
-      
-      const startIdx = 0;
-      const endIdx = currentTransactionPage * TRANSACTIONS_PER_PAGE;
-      const paginated = filtered.slice(startIdx, endIdx);
-      
-      tbody.innerHTML = paginated.map(d => `
-        <tr>
-          <td>${formatDate(d.date)}</td>
-          <td>${d.amount.toFixed(2)}</td>
-          <td>${d.type}</td>
-          <td>${d.envelope === 'Yes' ? '✓' : '✗'}</td>
-          <td>${d.staff1}${d.staff2 ? ' & ' + d.staff2 : ''}</td>
-          <td>${d.notes || ''}</td>
-        </tr>
-      `).join('');
-      
-      loadMoreBtn.style.display = filtered.length > endIdx ? 'inline-block' : 'none';
-    }
-    
-    // Update recent expenses table
-    function updateRecentExpenses(expenses) {
-      const tbody = document.querySelector('#expensesTable tbody');
-      
-      let filtered = expenses;
-      if (currentSearchTerm) {
-        filtered = expenses.filter(e => 
-          e.category.toLowerCase().includes(currentSearchTerm) ||
-          (e.description && e.description.toLowerCase().includes(currentSearchTerm)) ||
-          e.approvedBy.toLowerCase().includes(currentSearchTerm) ||
-          e.amount.toString().includes(currentSearchTerm)
-        );
-      }
-      
-      filtered.sort((a,b) => b.date - a.date);
-      
-      const startIdx = 0;
-      const endIdx = currentExpensePage * EXPENSES_PER_PAGE;
-      const paginated = filtered.slice(startIdx, endIdx);
-      
-      tbody.innerHTML = paginated.map(e => `
-        <tr>
-          <td>${formatDate(e.date)}</td>
-          <td>${e.amount.toFixed(2)}</td>
-          <td>${e.category}</td>
-          <td>${e.description}</td>
-          <td>${e.approvedBy}</td>
-        </tr>
-      `).join('');
-      
-      loadMoreExpensesBtn.style.display = filtered.length > endIdx ? 'inline-block' : 'none';
-    }
-    
-    // Update members list
-    function updateMembersList(members) {
-      const tbody = document.querySelector('#membersTable tbody');
-      
-      let filtered = members;
-      if (currentSearchTerm) {
-        filtered = members.filter(m => 
-          m.name.toLowerCase().includes(currentSearchTerm) ||
-          m.memberId.toLowerCase().includes(currentSearchTerm) ||
-          (m.phone && m.phone.includes(currentSearchTerm)) ||
-          (m.email && m.email.toLowerCase().includes(currentSearchTerm)) ||
-          (m.familyId && m.familyId.toLowerCase().includes(currentSearchTerm)) ||
-          m.status.toLowerCase().includes(currentSearchTerm)
-        );
-      }
-      
-      filtered.sort((a,b) => a.name.localeCompare(b.name));
-      
-      const startIdx = 0;
-      const endIdx = currentMemberPage * MEMBERS_PER_PAGE;
-      const paginated = filtered.slice(startIdx, endIdx);
-      
-      tbody.innerHTML = paginated.map(m => `
-        <tr>
-          <td>${m.memberId}</td>
-          <td>${m.name}</td>
-          <td>${m.phone}</td>
-          <td>${m.email}</td>
-          <td>${m.familyId}</td>
-          <td>${m.baptismDate ? formatDate(m.baptismDate) : ''}</td>
-          <td>${m.status}</td>
-        </tr>
-      `).join('');
-      
-      loadMoreMembersBtn.style.display = filtered.length > endIdx ? 'inline-block' : 'none';
-    }
-    
-    // Update families table
-    function updateFamiliesTable() {
-      const tbody = document.querySelector('#familiesTable tbody');
-      
-      let filtered = allFamilies;
-      if (currentSearchTerm) {
-        filtered = allFamilies.filter(f => 
-          f.familyName.toLowerCase().includes(currentSearchTerm) ||
-          f.familyId.toLowerCase().includes(currentSearchTerm) ||
-          f.headOfFamily.toLowerCase().includes(currentSearchTerm) ||
-          (f.address && f.address.toLowerCase().includes(currentSearchTerm)) ||
-          (f.phone && f.phone.includes(currentSearchTerm))
-        );
-      }
-      
-      filtered.sort((a,b) => a.familyName.localeCompare(b.familyName));
-      
-      tbody.innerHTML = filtered.map(f => `
-        <tr>
-          <td>${f.familyId}</td>
-          <td>${f.familyName}</td>
-          <td>${f.headOfFamily}</td>
-          <td>${allMembers.filter(m => m.familyId === f.familyId).length} members</td>
-          <td>${f.address}</td>
-          <td>${f.phone}</td>
-        </tr>
-      `).join('');
-    }
-    
-    // Update attendance table
-    function updateAttendanceTable(attendance) {
-      const tbody = document.querySelector('#attendanceTable tbody');
-      
-      attendance.sort((a,b) => b.date - a.date);
-      
-      tbody.innerHTML = attendance.map(a => `
-        <tr>
-          <td>${formatDate(a.date)}</td>
-          <td>${a.serviceType}</td>
-          <td>${a.totalAttendance}</td>
-          <td>${a.firstTimers}</td>
-          <td>${a.children}</td>
-        </tr>
-      `).join('');
-    }
-    
-    function loadMoreTransactions() {
-      currentTransactionPage++;
-      updateRecentDonations(filteredDonations);
-    }
-    
-    function loadMoreExpenses() {
-      currentExpensePage++;
-      updateRecentExpenses(filteredExpenses);
-    }
-    
-    function loadMoreMembers() {
-      currentMemberPage++;
-      updateMembersList(filteredMembers);
-    }
-    
-    // Format date for display
-    function formatDate(date) {
-      if (isNaN(date.getTime())) return 'Invalid date';
-      return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-    }
-    
-    // Export to CSV
+    // ===== EXPORT FUNCTIONS =====
     function exportToCSV() {
       let dataToExport = filteredDonations;
-      const year = document.getElementById('yearSelect').value;
-      const month = document.getElementById('monthSelect').value;
-      
-      if (currentView === 'transactions' && currentSearchTerm) {
-        dataToExport = filteredDonations.filter(d => 
-          d.type.toLowerCase().includes(currentSearchTerm) ||
-          (d.notes && d.notes.toLowerCase().includes(currentSearchTerm)) ||
-          d.staff1.toLowerCase().includes(currentSearchTerm) ||
-          d.staff2.toLowerCase().includes(currentSearchTerm) ||
-          d.amount.toString().includes(currentSearchTerm)
-        );
-      }
-      
-      dataToExport.sort((a,b) => b.date - a.date);
-      
-      const headers = ['Date', 'Amount (RM)', 'Type', 'Attended', 'Counter 1', 'Counter 2', 'Notes'];
-      const csvRows = [
-        headers.join(','),
-        ...dataToExport.map(d => [
-          formatDate(d.date),
-          d.amount.toFixed(2),
-          `"${d.type.replace(/"/g, '""')}"`,
-          d.envelope,
-          `"${d.staff1.replace(/"/g, '""')}"`,
-          `"${d.staff2.replace(/"/g, '""')}"`,
-          `"${(d.notes || '').replace(/"/g, '""')}"`
-        ].join(','))
-      ];
-      
-      const csvContent = csvRows.join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      
-      let filename = 'donations';
-      if (year && month) {
-        const monthNames = ["January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"];
-        filename += `_${monthNames[parseInt(month) - 1]}_${year}`;
-      } else if (year) {
-        filename += `_year_${year}`;
-      }
+      const year = elements.yearSelect.value;
+      const month = elements.monthSelect.value;
       
       if (currentSearchTerm) {
-        filename += `_search_${currentSearchTerm.substring(0, 20)}`;
+        dataToExport = searchDonationsOptimized(currentSearchTerm);
       }
       
-      a.download = `${filename}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      exportDataAsCSV(dataToExport, 'donations', year, month);
     }
     
     function exportExpensesToCSV() {
       let dataToExport = filteredExpenses;
-      const year = document.getElementById('yearSelectExpenses').value;
-      const month = document.getElementById('monthSelectExpenses').value;
+      const year = elements.yearSelectExpenses.value;
+      const month = elements.monthSelectExpenses.value;
       
       if (currentSearchTerm) {
         dataToExport = filteredExpenses.filter(e => 
@@ -1814,44 +1786,7 @@
         );
       }
       
-      dataToExport.sort((a,b) => b.date - a.date);
-      
-      const headers = ['Date', 'Amount (RM)', 'Category', 'Description', 'Approved By'];
-      const csvRows = [
-        headers.join(','),
-        ...dataToExport.map(e => [
-          formatDate(e.date),
-          e.amount.toFixed(2),
-          `"${e.category.replace(/"/g, '""')}"`,
-          `"${(e.description || '').replace(/"/g, '""')}"`,
-          `"${e.approvedBy.replace(/"/g, '""')}"`
-        ].join(','))
-      ];
-      
-      const csvContent = csvRows.join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      
-      let filename = 'expenses';
-      if (year && month) {
-        const monthNames = ["January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"];
-        filename += `_${monthNames[parseInt(month) - 1]}_${year}`;
-      } else if (year) {
-        filename += `_year_${year}`;
-      }
-      
-      if (currentSearchTerm) {
-        filename += `_search_${currentSearchTerm.substring(0, 20)}`;
-      }
-      
-      a.download = `${filename}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      exportDataAsCSV(dataToExport, 'expenses', year, month);
     }
     
     function exportMembersToCSV() {
@@ -1868,38 +1803,115 @@
         );
       }
       
-      dataToExport.sort((a,b) => a.name.localeCompare(b.name));
+      exportDataAsCSV(dataToExport, 'members');
+    }
+    
+    function exportDataAsCSV(data, type, year, month) {
+      let headers, rows;
       
-      const headers = ['Member ID', 'Name', 'Phone', 'Email', 'Family ID', 'Baptism Date', 'Status'];
-      const csvRows = [
+      switch (type) {
+        case 'donations':
+          headers = ['Date', 'Amount (RM)', 'Type', 'Attended', 'Counter 1', 'Counter 2', 'Notes'];
+          rows = data.map(d => [
+            formatDate(d.date),
+            d.amount.toFixed(2),
+            `"${d.type.replace(/"/g, '""')}"`,
+            d.envelope,
+            `"${d.staff1.replace(/"/g, '""')}"`,
+            `"${d.staff2.replace(/"/g, '""')}"`,
+            `"${(d.notes || '').replace(/"/g, '""')}"`
+          ]);
+          break;
+          
+        case 'expenses':
+          headers = ['Date', 'Amount (RM)', 'Category', 'Description', 'Approved By'];
+          rows = data.map(e => [
+            formatDate(e.date),
+            e.amount.toFixed(2),
+            `"${e.category.replace(/"/g, '""')}"`,
+            `"${(e.description || '').replace(/"/g, '""')}"`,
+            `"${e.approvedBy.replace(/"/g, '""')}"`
+          ]);
+          break;
+          
+        case 'members':
+          headers = ['Member ID', 'Name', 'Phone', 'Email', 'Family ID', 'Baptism Date', 'Status'];
+          rows = data.map(m => [
+            m.memberId,
+            `"${m.name.replace(/"/g, '""')}"`,
+            m.phone,
+            m.email,
+            m.familyId,
+            m.baptismDate ? formatDate(m.baptismDate) : '',
+            m.status
+          ]);
+          break;
+      }
+      
+      const csvContent = [
         headers.join(','),
-        ...dataToExport.map(m => [
-          m.memberId,
-          `"${m.name.replace(/"/g, '""')}"`,
-          m.phone,
-          m.email,
-          m.familyId,
-          m.baptismDate ? formatDate(m.baptismDate) : '',
-          m.status
-        ].join(','))
-      ];
+        ...rows.map(row => row.join(','))
+      ].join('\n');
       
-      const csvContent = csvRows.join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
+      let filename = type;
+      if (year && month) {
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"];
+        filename += `_${monthNames[parseInt(month) - 1]}_${year}`;
+      } else if (year) {
+        filename += `_year_${year}`;
+      }
       
-      let filename = 'members';
       if (currentSearchTerm) {
         filename += `_search_${currentSearchTerm.substring(0, 20)}`;
       }
       
-      a.download = `${filename}.csv`;
+      downloadCSV(csvContent, `${filename}.csv`);
+    }
+    
+    function downloadCSV(content, filename) {
+      const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    }
+    
+    // ===== PERFORMANCE MONITORING =====
+    function monitorPerformance() {
+      let frameCount = 0;
+      let lastTime = performance.now();
+      
+      function checkFrameRate() {
+        frameCount++;
+        const now = performance.now();
+        if (now >= lastTime + 1000) {
+          const fps = Math.round((frameCount * 1000) / (now - lastTime));
+          if (fps < 30) {
+            console.warn(`Low FPS: ${fps}. Consider optimizing your dashboard.`);
+          }
+          frameCount = 0;
+          lastTime = now;
+        }
+        requestAnimationFrame(checkFrameRate);
+      }
+      
+      checkFrameRate();
+    }
+    
+    // ===== SEARCH OPTIMIZATION =====
+    function searchDonationsOptimized(term) {
+      const results = [];
+      for (const [index, text] of searchIndex.entries()) {
+        if (text.includes(term)) {
+          results.push(allDonations[index]);
+        }
+      }
+      return results;
     }
   </script>
 </body>
