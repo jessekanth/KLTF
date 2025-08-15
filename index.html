@@ -424,9 +424,9 @@
       
       <div class="card-container">
         <div class="card attendance-card">
-          <h3>Members Attended</h3>
+          <h3>Average Members Attended</h3>
           <div class="value" id="attendanceCount">0</div>
-          <div class="subtext" id="attendancePercent">0% of members</div>
+          <div class="subtext" id="attendanceSubtext">per service</div>
         </div>
         <div class="card">
           <h3>Total Offerings</h3>
@@ -531,7 +531,6 @@
     // Configuration
     const API_URL = "https://script.google.com/macros/s/AKfycbyXVG_LdMJlexPz29jEFXTgOYjffgfJO8GbPjtMfFUMOOagFheVsCWAwp5kfueRbhtl/exec";
     const TRANSACTIONS_PER_PAGE = 20;
-    const CHURCH_STRENGTH = 150; // Set your actual church strength number here
     
     // State Management
     let allDonations = [];
@@ -774,22 +773,24 @@
     
     // Update summary cards
     function updateSummaryCards(donations) {
-      const attended = donations.filter(d => d.envelope === 'Yes').length;
-      const attendancePercent = CHURCH_STRENGTH > 0 
-        ? Math.round((attended / CHURCH_STRENGTH) * 100)
-        : 0;
+      // Calculate average attendance per service
+      const attendedServices = donations.filter(d => d.envelope === 'Yes').length;
+      const totalServices = donations.length;
+      const avgAttendance = totalServices > 0 ? Math.round(attendedServices / totalServices) : 0;
       
-      document.getElementById('attendanceCount').textContent = attended;
-      document.getElementById('attendancePercent').textContent = 
-        `${attendancePercent}% of ${CHURCH_STRENGTH} members`;
+      document.getElementById('attendanceCount').textContent = avgAttendance;
+      document.getElementById('attendanceSubtext').textContent = "per service";
       
+      // Total offerings
       const total = donations.reduce((sum, d) => sum + d.amount, 0);
       document.getElementById('totalOfferings').textContent = `RM${total.toFixed(2)}`;
       
-      const avg = donations.length > 0 ? total / donations.length : 0;
+      // Average offering
+      const avg = totalServices > 0 ? total / totalServices : 0;
       document.getElementById('avgOffering').textContent = `RM${avg.toFixed(2)}`;
-      document.getElementById('serviceCount').textContent = donations.length;
+      document.getElementById('serviceCount').textContent = totalServices;
       
+      // Period text
       let periodText = "All Time";
       const yearSelect = document.getElementById('yearSelect');
       const monthSelect = document.getElementById('monthSelect');
