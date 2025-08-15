@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    /* Your existing CSS styles */
     :root {
       --deep-blue: #0a2463;
       --gold: #d4af37;
@@ -15,89 +16,6 @@
       --dark-gray: #333;
       --error-red: #e74c3c;
       --success-green: #2ecc71;
-      --teal: #1abc9c;
-      --purple: #9b59b6;
-    }
-    
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: var(--light-gray);
-      color: var(--dark-gray);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-    
-    /* Header and Navigation */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 15px;
-      background-color: var(--deep-blue);
-      color: white;
-    }
-    
-    .church-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .church-logo img {
-      height: 40px;
-      width: auto;
-    }
-    
-    .view-toggle {
-      display: flex;
-      background-color: var(--deep-blue);
-      border-radius: 5px;
-      overflow: hidden;
-      margin: 15px;
-    }
-    
-    .view-btn {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      background-color: var(--deep-blue);
-      color: var(--white);
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    
-    .view-btn.active {
-      background-color: var(--gold);
-      color: var(--deep-blue);
-    }
-    
-    /* Card Styles */
-    .card-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 10px;
-      margin: 15px;
-    }
-    
-    .card {
-      background: var(--white);
-      border-radius: 5px;
-      padding: 12px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      border-left: 3px solid var(--gold);
-    }
-    
-    /* Chart Container */
-    .chart-container {
-      background: var(--white);
-      border-radius: 5px;
-      padding: 15px;
-      margin: 15px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      position: relative;
-      height: 300px;
     }
     
     /* Loading and Error States */
@@ -122,111 +40,13 @@
       100% { transform: rotate(360deg); }
     }
     
-    /* Log Container Styles */
-    #logContainer {
-      position: fixed;
-      bottom: 0;
-      right: 0;
-      width: 350px;
-      height: 250px;
-      background: rgba(0,0,0,0.85);
-      color: #00ff00;
-      padding: 10px;
-      overflow-y: auto;
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
-      display: none;
-      z-index: 1000;
-      border-top-left-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
-    
-    #logContainer .log-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      padding-bottom: 5px;
-      border-bottom: 1px solid #444;
-    }
-    
-    #logContainer .log-header h4 {
-      margin: 0;
-      color: var(--gold);
-    }
-    
-    #logContainer .log-header button {
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    
-    #logContent {
-      height: calc(100% - 30px);
-      overflow-y: auto;
-    }
-    
-    .log-entry {
-      margin-bottom: 4px;
-      padding-bottom: 4px;
-      border-bottom: 1px solid #333;
-      line-height: 1.4;
-    }
-    
-    .log-entry.error {
-      color: #ff6666;
-    }
-    
-    .log-entry.warning {
-      color: #ffcc00;
-    }
-    
-    .log-entry.info {
-      color: #66ccff;
-    }
-    
-    .log-entry.success {
-      color: #00cc66;
-    }
-    
-    .log-timestamp {
-      color: #999;
-      margin-right: 8px;
-    }
-    
-    #logToggle {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1001;
-      background: var(--deep-blue);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      font-size: 20px;
-      cursor: pointer;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      transition: all 0.3s ease;
-    }
-    
-    #logToggle:hover {
-      transform: scale(1.1);
-      background: var(--gold);
-      color: var(--deep-blue);
-    }
-    
-    /* ... (rest of your existing CSS styles) ... */
+    /* Add other existing styles here */
   </style>
 </head>
 <body>
-  <!-- Your existing dashboard HTML structure -->
   <div class="header">
     <div class="church-logo">
-      <img src="kltf-logo.png" alt="KL Telugu Fellowship Logo">
+      <img src="https://via.placeholder.com/150x50?text=KL+Telugu+Fellowship" alt="KL Telugu Fellowship Logo">
       <h1>KL Telugu Fellowship Dashboard</h1>
     </div>
     <button id="printBtn" class="secondary">
@@ -234,132 +54,92 @@
     </button>
   </div>
   
-  <!-- Your existing view toggle, loading, error, and content containers -->
-  
-  <!-- Logging Container -->
-  <div id="logContainer">
-    <div class="log-header">
-      <h4>System Logs</h4>
-      <button onclick="toggleLogs()">×</button>
+  <!-- Loading State -->
+  <div id="loading" class="loading-container" style="display:none;">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner"></i>
     </div>
-    <div id="logContent"></div>
+    <p>Loading church data...</p>
   </div>
   
-  <button id="logToggle" onclick="toggleLogs()">📜</button>
+  <!-- Error State -->
+  <div id="error" class="error-container" style="display:none;">
+    <div class="error-message">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p id="errorText">Failed to load data. Please try again later.</p>
+    </div>
+    <button onclick="loadData()" class="primary" style="margin-top:10px;">
+      <i class="fas fa-sync-alt"></i> Retry
+    </button>
+  </div>
+  
+  <!-- Main Content -->
+  <div id="content" style="display:none;">
+    <!-- Your dashboard content here -->
+  </div>
 
   <script>
     // Configuration
-    const API_URL = "https://script.google.com/macros/s/AKfycbz6I-sv_uX4Gto5YadWPw4XBCGUn_2TJjMF8HHAFr36UnAX_wVKKJopsEaNyVMZOBWd/exec";
-    const LOG_LEVELS = {
-      INFO: 'info',
-      ERROR: 'error',
-      WARNING: 'warning',
-      SUCCESS: 'success'
-    };
+    const API_URL = "https://script.google.com/macros/s/AKfycbypEhhZPt0OeoSOMSl0fN6EY6Mbl7G2dMc1y9kjsQzuBh6K192vawrXkUhfveoIr-Co/exec";
     
     // State Management
-    let appState = {
-      logs: [],
-      performance: {
-        lastLoadTime: 0,
-        averageLoadTime: 0,
-        loadCount: 0
-      }
+    let allDonations = [];
+    let filteredDonations = [];
+    let pieChart = null;
+    
+    // DOM Elements
+    const loadingElement = document.getElementById('loading');
+    const errorElement = document.getElementById('error');
+    const contentElement = document.getElementById('content');
+    const errorTextElement = document.getElementById('errorText');
+    const printBtn = document.getElementById('printBtn');
+
+    // Initialize the dashboard
+    window.onload = function() {
+      setupEventListeners();
+      loadData();
     };
     
-    // Initialize the dashboard
-    document.addEventListener('DOMContentLoaded', () => {
-      setupEventListeners();
-      initializeLogging();
-      loadData();
-    });
-    
     function setupEventListeners() {
-      // Your existing event listeners
-      document.getElementById('printBtn').addEventListener('click', handlePrint);
-      
-      // Add resize observer for log container
-      new ResizeObserver(handleLogResize).observe(document.getElementById('logContent'));
+      printBtn.addEventListener('click', handlePrint);
     }
     
-    function initializeLogging() {
-      addLog('Dashboard initialized', LOG_LEVELS.INFO);
-      monitorPerformance();
+    // Loading state functions
+    function showLoading() {
+      loadingElement.style.display = 'block';
+      errorElement.style.display = 'none';
+      contentElement.style.display = 'none';
     }
     
-    // Enhanced logging function
-    function addLog(message, level = LOG_LEVELS.INFO, details = null) {
-      const timestamp = new Date();
-      const logEntry = {
-        timestamp,
-        message,
-        level,
-        details
-      };
-      
-      appState.logs.push(logEntry);
-      renderLogEntry(logEntry);
-      
-      // Keep log size manageable
-      if (appState.logs.length > 200) {
-        appState.logs = appState.logs.slice(-200);
-      }
-      
-      return logEntry;
+    function hideLoading() {
+      loadingElement.style.display = 'none';
     }
     
-    function renderLogEntry(entry) {
-      const logContent = document.getElementById('logContent');
-      const entryElement = document.createElement('div');
-      
-      entryElement.className = `log-entry ${entry.level}`;
-      entryElement.innerHTML = `
-        <span class="log-timestamp">[${entry.timestamp.toLocaleTimeString()}]</span>
-        ${entry.message}
-        ${entry.details ? `<div class="log-details" style="display:none;">${JSON.stringify(entry.details)}</div>` : ''}
-      `;
-      
-      if (entry.details) {
-        entryElement.addEventListener('click', () => {
-          const details = entryElement.querySelector('.log-details');
-          details.style.display = details.style.display === 'none' ? 'block' : 'none';
-        });
-        entryElement.style.cursor = 'pointer';
-      }
-      
-      logContent.prepend(entryElement);
-      
-      // Auto-scroll if at bottom
-      if (logContent.scrollTop === 0) {
-        setTimeout(() => {
-          logContent.scrollTop = 0;
-        }, 10);
-      }
+    function showError(message) {
+      errorTextElement.textContent = message;
+      errorElement.style.display = 'block';
+      contentElement.style.display = 'none';
+      loadingElement.style.display = 'none';
     }
     
-    function toggleLogs() {
-      const logContainer = document.getElementById('logContainer');
-      logContainer.style.display = logContainer.style.display === 'none' ? 'block' : 'none';
-      document.getElementById('logToggle').textContent = 
-        logContainer.style.display === 'none' ? '📜' : '📖';
+    function hideError() {
+      errorElement.style.display = 'none';
     }
     
-    function handleLogResize() {
-      // Handle any log container resize events
+    function showContent() {
+      contentElement.style.display = 'block';
+      errorElement.style.display = 'none';
+      loadingElement.style.display = 'none';
     }
     
-    // Enhanced loadData function with logging
+    // Main data loader
     async function loadData() {
-      const loadStart = performance.now();
-      addLog('Starting data load from Google Sheets', LOG_LEVELS.INFO);
-      
       showLoading();
       hideError();
       hideContent();
       
       try {
         const response = await fetch(API_URL);
-        const loadTime = performance.now() - loadStart;
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -371,85 +151,47 @@
           throw new Error(result.message || "Data loading failed");
         }
         
-        // Process server logs
-        if (result.metadata?.logs) {
-          result.metadata.logs.forEach(log => {
-            addLog(log, LOG_LEVELS.INFO);
-          });
-        }
+        allDonations = result.donations.map(d => ({
+          ...d,
+          amount: parseFloat(d.amount) || 0,
+          date: parseDate(d.date),
+          // Add other processing as needed
+        }));
         
-        // Update performance metrics
-        appState.performance.lastLoadTime = loadTime;
-        appState.performance.loadCount++;
-        appState.performance.averageLoadTime = 
-          ((appState.performance.averageLoadTime * (appState.performance.loadCount - 1)) + loadTime) / 
-          appState.performance.loadCount;
-        
-        addLog(`Data loaded in ${loadTime.toFixed(2)}ms (Avg: ${appState.performance.averageLoadTime.toFixed(2)}ms)`, 
-               LOG_LEVELS.SUCCESS, {
-                 stats: result.metadata?.stats,
-                 recordCounts: {
-                   donations: result.data.donations.length,
-                   expenses: result.data.expenses.length,
-                   members: result.data.members.length
-                 }
-               });
-        
-        // Process your data as before
-        allDonations = processDonations(result.data.donations || []);
-        allExpenses = processExpenses(result.data.expenses || []);
-        allMembers = processMembers(result.data.members || []);
-        allFamilies = processFamilies(result.data.families || []);
-        allAttendance = processAttendance(result.data.attendance || []);
-        
-        populateYearSelectors();
-        applyFilters(currentView);
+        // Process your data and update UI
+        updateUI();
         showContent();
         
       } catch (error) {
-        addLog(`Data load failed: ${error.message}`, LOG_LEVELS.ERROR, {
-          error: error.message,
-          stack: error.stack
-        });
+        console.error("Error loading data:", error);
         showError(error.message || "Failed to load data. Please try again later.");
       } finally {
         hideLoading();
       }
     }
     
-    function monitorPerformance() {
-      setInterval(() => {
-        if (window.performance?.memory) {
-          const mem = window.performance.memory;
-          addLog(`Memory: ${(mem.usedJSHeapSize / 1048576).toFixed(2)}MB used of ${(mem.totalJSHeapSize / 1048576).toFixed(2)}MB`, 
-                 LOG_LEVELS.INFO);
-        }
-      }, 30000);
-    }
-    
-    // Your existing dashboard functions (processDonations, applyFilters, etc.)
-    // ... with added logging at key points
-    
-    function processDonations(data) {
-      addLog(`Processing ${data.length} donation records`, LOG_LEVELS.INFO);
-      try {
-        // Your existing processing logic
-        return data.map(d => ({
-          ...d,
-          amount: parseFloat(d.amount) || 0,
-          date: parseDate(d.date),
-          // ... other fields
-        }));
-      } catch (error) {
-        addLog(`Error processing donations: ${error.message}`, LOG_LEVELS.ERROR);
-        return [];
+    function parseDate(dateString) {
+      if (!dateString) return new Date(NaN);
+      const date = new Date(dateString);
+      if (!isNaN(date)) return date;
+      
+      const parts = dateString.split(/[-/]/);
+      if (parts.length === 3) {
+        const dayFirst = new Date(parts[2], parts[1]-1, parts[0]);
+        if (!isNaN(dayFirst)) return dayFirst;
+        
+        const monthFirst = new Date(parts[2], parts[0]-1, parts[1]);
+        if (!isNaN(monthFirst)) return monthFirst;
       }
+      
+      return new Date(NaN);
     }
     
-    // ... include all your other existing functions
+    function updateUI() {
+      // Update your charts, tables, and other UI elements here
+    }
     
     function handlePrint() {
-      addLog('Printing dashboard', LOG_LEVELS.INFO);
       window.print();
     }
   </script>
