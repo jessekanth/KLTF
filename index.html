@@ -917,15 +917,60 @@
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         
         const result = await response.json();
-        
-        if (result.status !== "success") throw new Error(result.message || "Data loading failed");
-        
-        // Process data - no mock data fallback
-        allDonations = processDonations(result.donations || []);
-        allExpenses = processExpenses(result.expenses || []);
-        allMembers = processMembers(result.members || []);
-        allFamilies = processFamilies(result.families || []);
-        allAttendance = processAttendance(result.attendance || []);
+
+if (result.status !== "success") throw new Error(result.message || "Data loading failed");
+
+// === Transform incoming JSON keys to match what the dashboard expects ===
+result.donations = (result.donations || []).map(d => ({
+  date: d.Date,
+  amount: d.Amount,
+  type: d.Type,
+  envelope: (d.Envelope || "").toLowerCase() === "yes",
+  staff1: d["Counter 1"] || "",
+  staff2: d["Counter 2"] || "",
+  notes: d.Notes || ""
+}));
+
+result.expenses = (result.expenses || []).map(e => ({
+  date: e.Date,
+  amount: e.Amount,
+  category: e.Category,
+  description: e.Description,
+  approvedBy: e["Approved By"] || ""
+}));
+
+result.members = (result.members || []).map(m => ({
+  memberId: m.MemberID,
+  name: m.Name,
+  phone: m.Phone ? m.Phone.toString() : "",
+  email: m.Email,
+  familyId: m.FamilyID,
+  baptismDate: m["Baptism Date"],
+  status: m.Status
+}));
+
+result.families = (result.families || []).map(f => ({
+  familyId: f.FamilyID,
+  familyName: f["Family Name"],
+  headOfFamily: f["Head of Family"],
+  address: f.Address,
+  phone: f.Phone ? f.Phone.toString() : ""
+}));
+
+result.attendance = (result.attendance || []).map(a => ({
+  date: a.Date,
+  serviceType: a["Service Type"],
+  totalAttendance: a["Total Attendance"],
+  firstTimers: a["First Timers"],
+  children: a.Children
+}));
+
+// === Now process with your existing functions ===
+allDonations = processDonations(result.donations || []);
+allExpenses = processExpenses(result.expenses || []);
+allMembers = processMembers(result.members || []);
+allFamilies = processFamilies(result.families || []);
+allAttendance = processAttendance(result.attendance || []);
         
         // Build search index
         buildSearchIndex();
