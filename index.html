@@ -780,7 +780,7 @@
 
   <script>
     // ===== CONFIGURATION =====
-    const API_URL = "https://script.google.com/macros/s/AKfycbz6I-sv_uX4Gto5YadWPw4XBCGUn_2TJjMF8HHAFr36UnAX_wVKKJopsEaNyVMZOBWd/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycby-88C1Qb64FO3rrqKnURcuvojY1rzMxnAv9D0K3TlczkRyLi4F3G_zBU2oaz4ghHUm/exec";
     const TRANSACTIONS_PER_PAGE = 50;
     const EXPENSES_PER_PAGE = 50;
     const MEMBERS_PER_PAGE = 50;
@@ -876,7 +876,6 @@
       setupEventListeners();
       setDefaultDateFilters();
       loadData();
-      monitorPerformance();
     });
     
     // ===== EVENT HANDLERS =====
@@ -921,12 +920,12 @@
         
         if (result.status !== "success") throw new Error(result.message || "Data loading failed");
         
-        // Process data
+        // Process data - no mock data fallback
         allDonations = processDonations(result.donations || []);
-        allExpenses = processExpenses(result.expenses || mockExpenses());
-        allMembers = processMembers(result.members || mockMembers());
-        allFamilies = processFamilies(result.families || mockFamilies());
-        allAttendance = processAttendance(result.attendance || mockAttendance());
+        allExpenses = processExpenses(result.expenses || []);
+        allMembers = processMembers(result.members || []);
+        allFamilies = processFamilies(result.families || []);
+        allAttendance = processAttendance(result.attendance || []);
         
         // Build search index
         buildSearchIndex();
@@ -1667,98 +1666,6 @@
       updateMembersList();
     }
     
-    // ===== MOCK DATA GENERATORS =====
-    function mockExpenses() {
-      const categories = ['Rent', 'Utilities', 'Outreach', 'Equipment', 'Supplies', 'Salaries'];
-      const approvers = ['Pastor John', 'Deacon Thomas', 'Elder Mathew'];
-      const expenses = [];
-      
-      for (let i = 0; i < 50; i++) {
-        const date = new Date();
-        date.setMonth(date.getMonth() - Math.floor(Math.random() * 12));
-        date.setDate(Math.floor(Math.random() * 28) + 1);
-        
-        expenses.push({
-          id: `EXP-${1000 + i}`,
-          date: date,
-          amount: (Math.random() * 500 + 50).toFixed(2),
-          category: categories[Math.floor(Math.random() * categories.length)],
-          description: `Expense for ${['event', 'maintenance', 'program', 'purchase'][Math.floor(Math.random() * 4)]}`,
-          approvedBy: approvers[Math.floor(Math.random() * approvers.length)]
-        });
-      }
-      
-      return expenses;
-    }
-    
-    function mockMembers() {
-      const surnames = ['Rao', 'Kumar', 'Naidu', 'Reddy', 'Goud', 'Sharma', 'Patel'];
-      const firstNames = ['John', 'David', 'Mary', 'Sarah', 'Paul', 'Ruth', 'Daniel', 'Esther'];
-      const statuses = ['Active', 'Inactive', 'Visitor', 'Transferred'];
-      const members = [];
-      
-      for (let i = 0; i < 100; i++) {
-        const surname = surnames[Math.floor(Math.random() * surnames.length)];
-        const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-        const baptismDate = new Date();
-        baptismDate.setFullYear(baptismDate.getFullYear() - Math.floor(Math.random() * 10));
-        baptismDate.setMonth(Math.floor(Math.random() * 12));
-        baptismDate.setDate(Math.floor(Math.random() * 28) + 1);
-        
-        members.push({
-          memberId: `M-${1000 + i}`,
-          name: `${firstName} ${surname}`,
-          phone: `01${Math.floor(Math.random() * 90000000 + 10000000)}`,
-          email: `${firstName.toLowerCase()}.${surname.toLowerCase()}@example.com`,
-          familyId: `F-${Math.floor(Math.random() * 30) + 100}`,
-          baptismDate: baptismDate,
-          status: statuses[Math.floor(Math.random() * statuses.length)]
-        });
-      }
-      
-      return members;
-    }
-    
-    function mockFamilies() {
-      const surnames = ['Rao', 'Kumar', 'Naidu', 'Reddy', 'Goud', 'Sharma', 'Patel'];
-      const areas = ['KL City', 'Petaling Jaya', 'Subang Jaya', 'Puchong', 'Cheras', 'Kepong'];
-      const families = [];
-      
-      for (let i = 0; i < 30; i++) {
-        const surname = surnames[Math.floor(Math.random() * surnames.length)];
-        families.push({
-          familyId: `F-${100 + i}`,
-          familyName: `${surname} Family`,
-          headOfFamily: `Brother ${surname}`,
-          address: `${Math.floor(Math.random() * 100) + 1} Jalan ${surname}, ${areas[Math.floor(Math.random() * areas.length)]}`,
-          phone: `03${Math.floor(Math.random() * 9000000 + 1000000)}`
-        });
-      }
-      
-      return families;
-    }
-    
-    function mockAttendance() {
-      const serviceTypes = ['Sunday Service', 'Bible Study', 'Prayer Meeting', 'Youth Service', 'Special Event'];
-      const attendance = [];
-      
-      for (let i = 0; i < 50; i++) {
-        const date = new Date();
-        date.setMonth(date.getMonth() - Math.floor(Math.random() * 12));
-        date.setDate(Math.floor(Math.random() * 28) + 1);
-        
-        attendance.push({
-          date: date,
-          serviceType: serviceTypes[Math.floor(Math.random() * serviceTypes.length)],
-          totalAttendance: Math.floor(Math.random() * 100) + 30,
-          firstTimers: Math.floor(Math.random() * 10),
-          children: Math.floor(Math.random() * 20)
-        });
-      }
-      
-      return attendance;
-    }
-    
     // ===== EXPORT FUNCTIONS =====
     function exportToCSV() {
       let dataToExport = filteredDonations;
@@ -1879,28 +1786,6 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    }
-    
-    // ===== PERFORMANCE MONITORING =====
-    function monitorPerformance() {
-      let frameCount = 0;
-      let lastTime = performance.now();
-      
-      function checkFrameRate() {
-        frameCount++;
-        const now = performance.now();
-        if (now >= lastTime + 1000) {
-          const fps = Math.round((frameCount * 1000) / (now - lastTime));
-          if (fps < 30) {
-            console.warn(`Low FPS: ${fps}. Consider optimizing your dashboard.`);
-          }
-          frameCount = 0;
-          lastTime = now;
-        }
-        requestAnimationFrame(checkFrameRate);
-      }
-      
-      checkFrameRate();
     }
     
     // ===== SEARCH OPTIMIZATION =====
