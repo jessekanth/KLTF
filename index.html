@@ -396,7 +396,10 @@ tr:hover td{background:rgba(255,255,255,.015)}
     <div class="kpi k-r"><div class="kpi-label">Total Expenses</div><div class="kpi-val" id="k-exp">RM —</div><div class="kpi-sub">Active year</div><div class="kpi-icon">📤</div></div>
     <div class="kpi k-b"><div class="kpi-label">Net Balance</div><div class="kpi-val" id="k-bal">RM —</div><div class="kpi-sub" id="k-bal-sub">—</div><div class="kpi-icon">📊</div></div>
     <div class="kpi k-a"><div class="kpi-label">DFCM Outstanding</div><div class="kpi-val" id="k-dfcm">RM —</div><div class="kpi-sub" id="k-dfcm-sub">—</div><div class="kpi-icon">🏛</div></div>
-  </div>
+      </div><!-- /ppf-balance -->
+    </div><!-- /right col -->
+  </div><!-- /grid -->
+
   <div class="chart-grid g2">
     <div class="chart-card"><h3>Monthly Offerings Trend</h3><div class="csub">Sunday Service + Special Offering · active year</div><div style="height:200px"><canvas id="ch-monthly"></canvas></div></div>
     <div class="chart-card">
@@ -429,14 +432,13 @@ tr:hover td{background:rgba(255,255,255,.015)}
             <select id="off-type">
               <option value="">— Select —</option>
               <option value="Sunday Service">Sunday Service</option>
-              <option value="Poor People Fund">Poor People Fund</option>
               <option value="Special Offering">Special Offering</option>
             </select>
           </div>
           <div class="field"><label>Counted By</label><input type="text" id="off-counters" placeholder="Treasurer name..."></div>
         </div>
         <div style="background:rgba(34,211,170,.06);border:1px solid rgba(34,211,170,.15);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--g);margin-top:2px;">
-          <strong>Service:</strong> Telugu &nbsp;·&nbsp; <strong>Note:</strong> Poor People Fund is tracked separately — not included in DFCM calculations.
+          <strong>Service:</strong> Telugu &nbsp;·&nbsp; <strong>Note:</strong> For <strong>Poor People Fund</strong> collections → use the <strong>PPF Overview</strong> page in the sidebar. PPF is tracked separately — not included in DFCM calculations.
         </div>
       </div>
     </div>
@@ -518,7 +520,45 @@ tr:hover td{background:rgba(255,255,255,.015)}
       <button class="btn b-amber" onclick="go('ppf-claim', document.querySelector('.ppf-btn:nth-child(2)'))">+ New Claim</button>
     </div>
   </div>
-  <div class="ppf-balance" id="ppf-balance">
+
+  <!-- Two-column layout: left=entry form, right=summary -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;" id="ppf-entry-grid">
+    <!-- LEFT: Collection Entry -->
+    <div>
+      <div class="slip-card" style="margin-bottom:10px;">
+        <div class="slip-hdr" style="background:linear-gradient(90deg,#1a1200,#2a1f00);">
+          <h2 style="color:var(--amber);">📋 Record PPF Collection</h2>
+          <span style="font-size:11px;color:var(--muted)">Poor People Fund</span>
+        </div>
+        <div class="slip-body">
+          <div class="frow c2" style="margin-bottom:10px;">
+            <div class="field"><label>Date of Service</label><input type="date" id="ppf-off-date"></div>
+            <div class="field"><label>Counted By</label><input type="text" id="ppf-off-counters" placeholder="Treasurer name..."></div>
+          </div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;padding-bottom:6px;border-bottom:1px solid var(--bdr);margin-bottom:8px;">🗒 Notes (Currency)</div>
+          <div class="denom-hdr"><span>Denomination</span><span style="text-align:center">Qty</span><span style="text-align:right">Total (RM)</span></div>
+          <div id="ppf-notes-wrap"></div>
+          <div class="subtotal" style="margin-bottom:10px;"><span>Sub-Total (Notes)</span><strong id="ppf-st-notes">RM 0.00</strong></div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;padding-bottom:6px;border-bottom:1px solid var(--bdr);margin-bottom:8px;">🪙 Coins</div>
+          <div class="denom-hdr"><span>Denomination</span><span style="text-align:center">Qty</span><span style="text-align:right">Total (RM)</span></div>
+          <div id="ppf-coins-wrap"></div>
+          <div class="subtotal" style="margin-bottom:10px;"><span>Sub-Total (Coins)</span><strong id="ppf-st-coins">RM 0.00</strong></div>
+          <div class="grand-total" style="margin-bottom:12px;border-color:rgba(245,158,11,.3);background:linear-gradient(90deg,rgba(245,158,11,.1),rgba(245,158,11,.04));">
+            <div class="gt-label">GRAND TOTAL<small>Notes + Coins</small></div>
+            <div class="gt-val" id="ppf-grand-total" style="color:var(--amber);">RM 0.00</div>
+          </div>
+          <div class="field" style="margin-bottom:12px;"><label>Remarks (optional)</label><input type="text" id="ppf-off-notes" placeholder="e.g. 1st Sunday collection..."></div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn b-amber" id="ppf-off-btn" onclick="submitPPFCollection()">✓ Submit Collection</button>
+            <button class="btn b-ghost" onclick="clearPPFSlip()">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Balance summary -->
+    <div>
+      <div class="ppf-balance" id="ppf-balance" style="grid-template-columns:1fr;margin-bottom:10px;">
     <div class="ppf-stat"><div class="label">Total Collected</div><div class="val" id="ppf-collected">RM —</div><div class="note">Active year</div></div>
     <div class="ppf-stat"><div class="label">Total Claimed</div><div class="val" id="ppf-claimed">RM —</div><div class="note">Disbursements</div></div>
     <div class="ppf-stat"><div class="label">Available Balance</div><div class="val" id="ppf-bal">RM —</div><div class="note">Collected − Claimed</div></div>
@@ -765,18 +805,46 @@ tr:hover td{background:rgba(255,255,255,.015)}
 // For GitHub Pages: paste your Apps Script Web App URL here
 // For Apps Script hosted mode: leave as null
 // ══════════════════════════════════════════════════════
-let API_URL ='https://script.google.com/macros/s/AKfycbyUe4Cv-9GOSjMGnQoX1KA2jTVeGzDYsRME1WWEstIGtYm05BCX1u9Viej0tM9OwN707Q/exec';
+let API_URL = localStorage.getItem('kltf_api_url') || null;
 
 // ── API call helper ────────────────────────────────────
 async function api(action, data) {
   if (!API_URL) {
-    throw new Error('API URL not configured. Go to Settings and paste your Apps Script Web App URL.');
+    throw new Error('API URL not configured. Go to Settings → paste your Apps Script Web App URL.');
   }
-  let url = API_URL + '?action=' + action;
+  // Apps Script always does a 302 redirect to googleusercontent.com — this is normal.
+  // We must use redirect:'follow' and muteHttpExceptions must be true on the Apps Script side.
+  let url = API_URL + '?action=' + encodeURIComponent(action);
   if (data) url += '&data=' + encodeURIComponent(JSON.stringify(data));
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error('HTTP ' + resp.status);
-  return resp.json();
+
+  let resp;
+  try {
+    resp = await fetch(url, {
+      method: 'GET',
+      redirect: 'follow',
+      // Do NOT set mode:'no-cors' — that returns an opaque response we can't read
+    });
+  } catch (networkErr) {
+    // Likely a CORS block — guide user to fix
+    throw new Error(
+      'Network error (CORS). Make sure your Apps Script is deployed as:\n' +
+      '• Execute as: Me\n• Who has access: Anyone\n\nThen create a NEW deployment and update the URL in Settings.'
+    );
+  }
+
+  // Apps Script returns 200 after the redirect if everything is working
+  if (!resp.ok) {
+    throw new Error('Server returned ' + resp.status + '. Redeploy the Apps Script and update the URL in Settings.');
+  }
+
+  const text = await resp.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    // Apps Script returned HTML instead of JSON — means action param wasn't received
+    console.error('Non-JSON response:', text.substring(0, 300));
+    throw new Error('Got HTML instead of JSON. Make sure the NEW deployment URL is used (not the old one).');
+  }
 }
 
 // ── Navigation ─────────────────────────────────────────
@@ -787,7 +855,7 @@ function go(name, btn) {
   if (btn) btn.classList.add('active');
   // Load data for page
   if (name === 'dashboard')     loadDashboard();
-  if (name === 'ppf')           loadPPF();
+  if (name === 'ppf')           { loadPPF(); buildPPFDenoms(); const t=document.getElementById('ppf-off-date'); if(t&&!t.value) t.value=new Date().toISOString().split('T')[0]; }
   if (name === 'records')       loadRecords();
   if (name === 'settings')      loadSettings();
   if (name === 'members')       loadMembers();
@@ -858,6 +926,91 @@ function clearSlip() {
   document.getElementById('off-counters').value='';
   calcTotals();
 }
+// ── PPF Denomination inputs (separate IDs from main offering) ──
+function buildPPFDenoms() {
+  const nw = document.getElementById('ppf-notes-wrap');
+  if (!nw || nw.children.length > 0) return; // already built
+  NOTES_DENOMS.forEach(d => {
+    const row = document.createElement('div'); row.className = 'denom-row';
+    row.innerHTML = `<span class="denom-label">${d.l}</span>
+      <input class="d-input" type="number" id="ppfn${d.v}" min="0" step="1" placeholder="0" oninput="calcPPFTotals()">
+      <div class="d-calc" id="ppfc-n${d.v}">—</div>`;
+    nw.appendChild(row);
+  });
+  const cw = document.getElementById('ppf-coins-wrap');
+  COIN_DENOMS.forEach(d => {
+    const id = 'ppfc' + String(d.v).replace('.','_');
+    const row = document.createElement('div'); row.className = 'denom-row';
+    row.innerHTML = `<span class="denom-label">${d.l}</span>
+      <input class="d-input" type="number" id="${id}" min="0" step="1" placeholder="0" oninput="calcPPFTotals()">
+      <div class="d-calc" id="ppfcalc-${id}">—</div>`;
+    cw.appendChild(row);
+  });
+}
+
+function calcPPFTotals() {
+  let nt = 0;
+  NOTES_DENOMS.forEach(d => {
+    const q = parseInt(document.getElementById('ppfn'+d.v).value)||0, a = q*d.v;
+    nt += a;
+    const el = document.getElementById('ppfc-n'+d.v);
+    el.textContent = q>0 ? fmt(a) : '—'; el.className='d-calc'+(q>0?' on':'');
+  });
+  let ct = 0;
+  COIN_DENOMS.forEach(d => {
+    const id='ppfc'+String(d.v).replace('.','_'), q=parseInt(document.getElementById(id).value)||0;
+    const a = parseFloat((q*d.v).toFixed(2)); ct+=a;
+    const el = document.getElementById('ppfcalc-ppfc'+String(d.v).replace('.','_'));
+    if(el){ el.textContent = q>0 ? fmt(a) : '—'; el.className='d-calc'+(q>0?' on':''); }
+  });
+  const g = parseFloat((nt+ct).toFixed(2));
+  document.getElementById('ppf-st-notes').textContent = fmt(nt);
+  document.getElementById('ppf-st-coins').textContent = fmt(ct);
+  document.getElementById('ppf-grand-total').textContent = fmt(g);
+}
+
+function clearPPFSlip() {
+  NOTES_DENOMS.forEach(d => { const el=document.getElementById('ppfn'+d.v); if(el) el.value=''; });
+  COIN_DENOMS.forEach(d => { const el=document.getElementById('ppfc'+String(d.v).replace('.','_')); if(el) el.value=''; });
+  const n=document.getElementById('ppf-off-notes'); if(n) n.value='';
+  const c=document.getElementById('ppf-off-counters'); if(c) c.value='';
+  calcPPFTotals();
+}
+
+async function submitPPFCollection() {
+  const date     = document.getElementById('ppf-off-date').value;
+  const counters = document.getElementById('ppf-off-counters').value;
+  const notes    = document.getElementById('ppf-off-notes').value;
+  const grandEl  = document.getElementById('ppf-grand-total');
+  const grand    = parseFloat(grandEl.textContent.replace('RM ','').replace(/,/g,''))||0;
+
+  if (!date) { toast('Please enter a date.','err'); return; }
+  if (grand <= 0) { toast('Enter at least one denomination amount.','err'); return; }
+
+  const d = { date, offeringType: 'Poor People Fund', counters, notes, grandTotal: grand.toFixed(2) };
+  let nt=0;
+  NOTES_DENOMS.forEach(dd => { const q=parseInt(document.getElementById('ppfn'+dd.v).value)||0; d['rm'+dd.v]=q; nt+=q*dd.v; });
+  let ct=0;
+  COIN_DENOMS.forEach(dd => { const id='ppfc'+String(dd.v).replace('.','_'); const q=parseInt(document.getElementById(id).value)||0; d['coins'+String(Math.round(dd.v*100))]=q; ct+=parseFloat((q*dd.v).toFixed(2)); });
+  d.totalNotes = nt.toFixed(2); d.totalCoins = ct.toFixed(2);
+
+  const btn = document.getElementById('ppf-off-btn');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Saving...';
+  try {
+    const res = await api('submitOffering', d);
+    btn.disabled=false; btn.textContent='✓ Submit Collection';
+    if (res.ok) {
+      toast(res.msg,'ok');
+      clearPPFSlip();
+      loadPPF(); // refresh PPF balance
+    } else toast(res.msg,'err');
+  } catch(e) {
+    btn.disabled=false; btn.textContent='✓ Submit Collection';
+    toast(e.message,'err');
+  }
+}
+
+
 
 // ── Submit Offering ────────────────────────────────────
 async function submitOffering() {
