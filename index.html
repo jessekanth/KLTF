@@ -1,1848 +1,1361 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>KL Telugu Fellowship Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    :root {
-      --deep-blue: #0a2463;
-      --gold: #d4af37;
-      --light-blue: #3e92cc;
-      --white: #fff;
-      --light-gray: #f5f7fa;
-      --dark-gray: #333;
-      --error-red: #e74c3c;
-      --success-green: #2ecc71;
-      --teal: #1abc9c;
-      --purple: #9b59b6;
-    }
-    
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: var(--light-gray);
-      color: var(--dark-gray);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-    
-    /* Header and Navigation */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 15px;
-      background-color: var(--deep-blue);
-      color: white;
-    }
-    
-    .church-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .church-logo img {
-      height: 40px;
-      width: auto;
-    }
-    
-    .view-toggle {
-      display: flex;
-      background-color: var(--deep-blue);
-      border-radius: 5px;
-      overflow: hidden;
-      margin: 15px;
-    }
-    
-    .view-btn {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      background-color: var(--deep-blue);
-      color: var(--white);
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    
-    .view-btn.active {
-      background-color: var(--gold);
-      color: var(--deep-blue);
-    }
-    
-    .view-btn:focus {
-      outline: 2px solid var(--gold);
-      outline-offset: -2px;
-    }
-    
-    /* Card Styles */
-    .card-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 10px;
-      margin: 15px;
-    }
-    
-    .card {
-      background: var(--white);
-      border-radius: 5px;
-      padding: 12px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      border-left: 3px solid var(--gold);
-    }
-    
-    .card.teal {
-      border-left-color: var(--teal);
-    }
-    
-    .card.purple {
-      border-left-color: var(--purple);
-    }
-    
-    .card h3 {
-      margin: 0 0 5px 0;
-      color: var(--deep-blue);
-      font-size: 0.9rem;
-    }
-    
-    .card .value {
-      font-size: 1.3rem;
-      font-weight: bold;
-      margin: 5px 0;
-      color: var(--deep-blue);
-    }
-    
-    /* Chart Container */
-    .chart-container {
-      background: var(--white);
-      border-radius: 5px;
-      padding: 15px;
-      margin: 15px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      position: relative;
-      height: 300px;
-    }
-    
-    /* Table Styles */
-    table {
-      width: calc(100% - 30px);
-      margin: 15px;
-      border-collapse: collapse;
-      background: var(--white);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      border-radius: 5px;
-      overflow: hidden;
-    }
-    
-    th, td {
-      padding: 10px 12px;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-    }
-    
-    th {
-      background-color: var(--deep-blue);
-      color: var(--white);
-      position: sticky;
-      top: 0;
-    }
-    
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-    
-    /* Monthly Table Styles */
-    .monthly-table-container {
-      margin: 15px;
-      background: var(--white);
-      border-radius: 5px;
-      padding: 15px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      overflow-x: auto;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>KLTF Finance System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+/* ═══════════════════════════════ TOKENS */
+:root{
+  --bg:    #080d14; --bg2:#0e1623; --bg3:#152236;
+  --card:  #111c2d; --card2:#162034;
+  --bdr:   #1e3250; --bdr2:#2a4470;
+  --g:     #22d3aa; --g2:#16a97e; --g3:#0d7a59;
+  --blue:  #4f90f5; --amber:#f59e0b; --red:#f2554a; --purple:#a78bfa;
+  --txt:   #dce8f5; --muted:#6a85a8; --muted2:#3a5070;
+  --r:10px; --r2:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px}
 
-    .monthly-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+/* ═══════════════════════════════ LAYOUT */
+.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
-    .monthly-table th {
-      background-color: var(--deep-blue);
-      color: var(--white);
-      padding: 10px 12px;
-      text-align: left;
-    }
+/* ═══════════════════════════════ SIDEBAR */
+.sidebar{
+  position:fixed;left:0;top:0;bottom:0;width:220px;
+  background:var(--bg2);border-right:1px solid var(--bdr);
+  display:flex;flex-direction:column;z-index:100;
+  transition:transform .25s;
+}
+.brand{padding:20px 16px 16px;border-bottom:1px solid var(--bdr);}
+.brand-logo{
+  width:40px;height:40px;border-radius:10px;
+  background:linear-gradient(135deg,var(--g),var(--blue));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#000;
+  margin-bottom:10px;
+}
+.brand-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:#fff;}
+.brand-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.fy-pill{
+  margin:12px 16px 0;background:rgba(34,211,170,.1);
+  border:1px solid rgba(34,211,170,.25);border-radius:20px;
+  padding:5px 12px;font-size:11px;font-weight:600;color:var(--g);
+  display:inline-block;
+}
+.nav{flex:1;padding:12px 8px;overflow-y:auto;}
+.nav-section{font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.8px;padding:8px 8px 4px;}
+.nav-btn{
+  display:flex;align-items:center;gap:9px;width:100%;
+  background:transparent;border:none;color:var(--muted);
+  padding:9px 10px;border-radius:8px;cursor:pointer;
+  font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;
+  transition:all .15s;text-align:left;margin-bottom:2px;
+}
+.nav-btn svg{width:15px;height:15px;flex-shrink:0}
+.nav-btn:hover{background:var(--bg3);color:var(--txt)}
+.nav-btn.active{background:rgba(34,211,170,.12);color:var(--g);border:1px solid rgba(34,211,170,.2);}
+.nav-btn .badge{
+  margin-left:auto;background:var(--red);color:#fff;
+  border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;
+}
+.nav-btn.ppf-btn.active{background:rgba(245,158,11,.12);color:var(--amber);border-color:rgba(245,158,11,.25);}
+.nav-btn.mem-btn.active{background:rgba(79,144,245,.12);color:var(--blue);border-color:rgba(79,144,245,.25);}
 
-    .monthly-table td {
-      padding: 8px 12px;
-      border-bottom: 1px solid #eee;
-    }
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--bdr);font-size:11px;color:var(--muted2);}
 
-    .monthly-table tr.month-total-row {
-      background-color: var(--light-blue);
-      color: var(--white);
-      font-weight: bold;
-    }
+/* ═══════════════════════════════ MAIN AREA */
+.content{margin-left:220px;flex:1;overflow-y:auto;min-height:100vh;}
+.page{display:none;padding:24px;}
+.page.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-    .monthly-table .amount-column {
-      text-align: right;
-      min-width: 100px;
-    }
+/* ═══════════════════════════════ TOP HEADER */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+.ph-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:#fff;}
+.ph-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.ph-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 
-    .monthly-table .type-column {
-      padding-left: 20px;
-    }
-    
-    /* Loading and Error States */
-    .loading-container, .error-container {
-      text-align: center;
-      padding: 40px 20px;
-      margin: 15px;
-      background: var(--white);
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    
-    .loading-spinner {
-      font-size: 24px;
-      color: var(--gold);
-      margin-bottom: 10px;
-      animation: spin 1s linear infinite;
-    }
-    
-    .error-message {
-      color: var(--error-red);
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    /* Input and Button Styles */
-    select, button, input {
-      padding: 8px 12px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-      font-family: inherit;
-      font-size: inherit;
-    }
-    
-    button {
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    
-    button.primary {
-      background-color: var(--gold);
-      color: var(--deep-blue);
-      border: none;
-      font-weight: bold;
-    }
-    
-    button.primary:hover {
-      background-color: #e6c44d;
-    }
-    
-    button.secondary {
-      background-color: var(--light-blue);
-      color: white;
-      border: none;
-    }
-    
-    button.secondary:hover {
-      background-color: #4a9fd6;
-    }
-    
-    .input-group {
-      margin: 15px;
-      display: flex;
-      gap: 10px;
-    }
-    
-    /* Toolbar Styles */
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 15px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    
-    /* Search Input */
-    .search-input {
-      flex: 1;
-      min-width: 200px;
-      padding: 8px 12px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-    }
-    
-    /* Tabs for additional views */
-    .tab-container {
-      margin: 15px;
-    }
-    
-    .tab-buttons {
-      display: flex;
-      border-bottom: 1px solid #ddd;
-    }
-    
-    .tab-btn {
-      padding: 10px 15px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-    }
-    
-    .tab-btn.active {
-      border-bottom-color: var(--gold);
-      font-weight: bold;
-    }
-    
-    .tab-content {
-      display: none;
-      padding: 15px 0;
-    }
-    
-    .tab-content.active {
-      display: block;
-    }
-    
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .card-container {
-        grid-template-columns: 1fr 1fr;
-      }
-      
-      .input-group {
-        flex-direction: column;
-      }
-      
-      .chart-container {
-        height: 250px;
-      }
-      
-      .tab-buttons {
-        overflow-x: auto;
-        white-space: nowrap;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .card-container {
-        grid-template-columns: 1fr;
-      }
-      
-      table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-      }
-      
-      .toolbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      
-      .church-logo h1 {
-        font-size: 1rem;
-      }
-    }
-    
-    /* Print Styles */
-    @media print {
-      body {
-        background-color: white !important;
-        color: black !important;
-        font-size: 12pt !important;
-      }
-      
-      .header, .view-toggle, .input-group, button {
-        display: none !important;
-      }
-      
-      .card-container {
-        grid-template-columns: 1fr 1fr !important;
-        page-break-inside: avoid;
-      }
-      
-      .chart-container, .monthly-table-container {
-        page-break-inside: avoid;
-        break-inside: avoid;
-        height: auto !important;
-        margin: 10px 0 !important;
-        padding: 10px !important;
-        box-shadow: none !important;
-      }
-      
-      table, .monthly-table {
-        font-size: 10pt !important;
-        width: 100% !important;
-        margin: 10px 0 !important;
-      }
-      
-      .monthly-table tr.month-total-row {
-        background-color: var(--light-blue) !important;
-        color: var(--white) !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-      
-      #pieChart, #expenseChart {
-        max-height: 250px !important;
-        max-width: 100% !important;
-      }
-      
-      @page {
-        size: auto;
-        margin: 10mm;
-      }
-    }
-  </style>
+/* ═══════════════════════════════ KPI CARDS */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.kpi{
+  background:var(--card);border:1px solid var(--bdr);
+  border-radius:var(--r2);padding:16px 18px;position:relative;overflow:hidden;
+}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--k-color,var(--g));}
+.kpi-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
+.kpi-val{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:#fff;line-height:1;}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:5px;}
+.kpi-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:24px;opacity:.15;}
+.k-g{--k-color:var(--g)}.k-b{--k-color:var(--blue)}.k-r{--k-color:var(--red)}.k-a{--k-color:var(--amber)}.k-p{--k-color:var(--purple)}
+
+/* ═══════════════════════════════ CHART CARDS */
+.chart-grid{display:grid;gap:14px;margin-bottom:18px;}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:2fr 1fr}
+.chart-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);padding:18px;}
+.chart-card h3{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:3px;}
+.chart-card .csub{font-size:11px;color:var(--muted);margin-bottom:14px;}
+
+/* ═══════════════════════════════ CAT BARS */
+.cat-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(30,50,80,.6);}
+.cat-row:last-child{border-bottom:none}
+.cat-name{font-size:12px;color:var(--txt);min-width:130px;flex-shrink:0;}
+.cat-track{flex:1;height:4px;background:var(--bg2);border-radius:2px;overflow:hidden;}
+.cat-fill{height:100%;background:var(--g);border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+.cat-amt{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:#fff;min-width:90px;text-align:right;}
+
+/* ═══════════════════════════════ SLIP FORM */
+.slip-wrap{max-width:680px;}
+.slip-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);overflow:hidden;margin-bottom:14px;}
+.slip-hdr{
+  background:linear-gradient(90deg,#0a1628,#132240);
+  border-bottom:1px solid var(--bdr);padding:13px 20px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.slip-hdr h2{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--g);}
+.slip-body{padding:18px 20px;}
+
+.frow{display:grid;gap:12px;margin-bottom:12px;}
+.frow.c2{grid-template-columns:1fr 1fr}
+.frow.c3{grid-template-columns:1fr 1fr 1fr}
+.frow.c4{grid-template-columns:1fr 1fr 1fr 1fr}
+.field label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.field input,.field select,.field textarea{
+  width:100%;background:var(--bg2);border:1px solid var(--bdr);
+  border-radius:7px;padding:8px 11px;color:var(--txt);font-size:13px;
+  font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--g);box-shadow:0 0 0 2px rgba(34,211,170,.1);}
+.field select option{background:#132240}
+.field textarea{resize:vertical;min-height:60px;}
+
+/* Denomination grid */
+.denom-hdr{display:grid;grid-template-columns:120px 90px 1fr;gap:8px;margin-bottom:6px;}
+.denom-hdr span{font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;}
+.denom-row{display:grid;grid-template-columns:120px 90px 1fr;gap:8px;align-items:center;margin-bottom:5px;}
+.denom-label{font-size:13px;color:var(--txt);font-weight:500;}
+.d-input{
+  background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;
+  padding:7px;color:var(--txt);font-size:13px;text-align:center;
+  width:100%;outline:none;transition:border-color .15s;
+}
+.d-input:focus{border-color:var(--g);}
+.d-calc{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--muted2);text-align:right;}
+.d-calc.on{color:var(--g);}
+
+.subtotal{
+  background:var(--bg2);border:1px solid var(--bdr2);border-radius:8px;
+  padding:9px 14px;display:flex;justify-content:space-between;
+  align-items:center;margin:8px 0;
+}
+.subtotal span{font-size:12px;color:var(--muted);}
+.subtotal strong{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;color:var(--txt);}
+
+.grand-total{
+  background:linear-gradient(90deg,rgba(34,211,170,.1),rgba(79,144,245,.07));
+  border:1px solid rgba(34,211,170,.3);border-radius:10px;
+  padding:14px 20px;display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:14px;
+}
+.gt-label{font-size:13px;font-weight:600;color:var(--txt);}
+.gt-label small{display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:1px;}
+.gt-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:700;color:var(--g);}
+
+/* ═══════════════════════════════ DIVIDER */
+hr{border:none;border-top:1px solid var(--bdr);margin:14px 0;}
+
+/* ═══════════════════════════════ TABLE */
+.tbl-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);overflow:hidden;margin-bottom:18px;}
+.tbl-hdr{padding:13px 18px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center;}
+.tbl-hdr h3{font-size:14px;font-weight:600;color:var(--txt);}
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{padding:9px 14px;background:var(--bg2);color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:left;border-bottom:1px solid var(--bdr);}
+td{padding:10px 14px;border-bottom:1px solid rgba(30,50,80,.4);vertical-align:top;}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.015)}
+.amt{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:#fff;}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;}
+.tag-new{background:rgba(34,211,170,.1);color:var(--g)}
+.tag-old{background:rgba(245,158,11,.1);color:var(--amber)}
+.tag-ss{background:rgba(79,144,245,.1);color:var(--blue)}
+.tag-so{background:rgba(167,139,250,.1);color:var(--purple)}
+.tag-ppf{background:rgba(245,158,11,.1);color:var(--amber)}
+
+/* ═══════════════════════════════ BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:7px;border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap;}
+.btn svg{width:14px;height:14px;}
+.b-green{background:var(--g);color:#000}
+.b-green:hover{background:var(--g2)}
+.b-blue{background:var(--blue);color:#fff}
+.b-blue:hover{background:#3a7de0}
+.b-amber{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.b-amber:hover{background:rgba(245,158,11,.25)}
+.b-red{background:rgba(242,85,74,.12);color:var(--red);border:1px solid rgba(242,85,74,.25)}
+.b-red:hover{background:rgba(242,85,74,.22)}
+.b-ghost{background:transparent;color:var(--muted);border:1px solid var(--bdr2)}
+.b-ghost:hover{background:var(--bg3);color:var(--txt)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ═══════════════════════════════ MEMBER CARDS */
+.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:18px;}
+.mem-card{
+  background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);
+  padding:16px;cursor:pointer;transition:border-color .15s;position:relative;
+}
+.mem-card:hover{border-color:var(--bdr2);}
+.mem-card.selected{border-color:var(--blue);background:rgba(79,144,245,.05);}
+.mem-avatar{
+  width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#fff;
+  flex-shrink:0;
+}
+.mem-name{font-size:15px;font-weight:600;color:#fff;}
+.mem-detail{font-size:12px;color:var(--muted);margin-top:2px;}
+.mem-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+.skill-tag{background:var(--bg3);color:var(--muted);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:600;}
+.baptism-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;
+}
+.bap-yes{background:rgba(34,211,170,.1);color:var(--g);}
+.bap-no{background:rgba(242,85,74,.1);color:var(--red);}
+
+/* ═══════════════════════════════ MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(3px);
+  z-index:1000;display:flex;align-items:flex-start;justify-content:center;
+  padding:24px 16px;overflow-y:auto;
+}
+.modal-overlay.hidden{display:none}
+.modal{
+  background:var(--bg2);border:1px solid var(--bdr);border-radius:16px;
+  width:100%;max-width:760px;padding:24px;
+  animation:slideUp .2s ease;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.modal-hdr h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#fff;}
+.modal-close{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:20px;padding:4px;line-height:1;}
+.modal-close:hover{color:var(--txt)}
+.modal-section{margin-bottom:18px;}
+.modal-section-title{
+  font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;
+  padding-bottom:8px;border-bottom:1px solid var(--bdr);margin-bottom:12px;
+  display:flex;align-items:center;gap:6px;
+}
+.modal-section-title::before{content:'';width:3px;height:12px;background:var(--g);border-radius:2px;display:block;}
+
+/* ═══════════════════════════════ SEARCH */
+.search-bar{
+  width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;
+  padding:9px 14px 9px 36px;color:var(--txt);font-size:13px;outline:none;
+  font-family:'DM Sans',sans-serif;
+}
+.search-bar:focus{border-color:var(--g);}
+.search-wrap{position:relative;margin-bottom:14px;}
+.search-wrap::before{
+  content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  font-size:12px;pointer-events:none;
+}
+
+/* ═══════════════════════════════ PPF BALANCE CARD */
+.ppf-balance{
+  background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(245,158,11,.04));
+  border:1px solid rgba(245,158,11,.3);border-radius:var(--r2);
+  padding:20px;margin-bottom:18px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;
+}
+.ppf-stat .label{font-size:10px;font-weight:700;color:rgba(245,158,11,.7);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px;}
+.ppf-stat .val{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:var(--amber);}
+.ppf-stat .note{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* ═══════════════════════════════ SETTINGS */
+.settings-group{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);margin-bottom:14px;overflow:hidden;}
+.settings-group-hdr{background:var(--bg2);padding:12px 18px;border-bottom:1px solid var(--bdr);font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.settings-group-body{padding:18px;}
+.info-box{background:rgba(79,144,245,.07);border:1px solid rgba(79,144,245,.2);border-radius:8px;padding:11px 14px;font-size:12px;color:#93c5fd;margin-bottom:14px;}
+.warn-box{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:11px 14px;font-size:12px;color:#fcd34d;margin-bottom:14px;}
+
+/* ═══════════════════════════════ TOAST */
+.toast{
+  position:fixed;bottom:20px;right:20px;
+  padding:13px 18px;border-radius:10px;font-size:13px;font-weight:500;
+  z-index:9999;opacity:0;transform:translateY(8px);transition:all .22s;
+  pointer-events:none;max-width:360px;border-left:3px solid;
+}
+.toast.show{opacity:1;transform:none}
+.t-ok{background:#071f14;color:#4ade80;border-color:var(--g)}
+.t-err{background:#1f0707;color:#f87171;border-color:var(--red)}
+.t-info{background:#07111f;color:#93c5fd;border-color:var(--blue)}
+
+/* ═══════════════════════════════ SPINNER */
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:currentColor;border-radius:50%;animation:rot .5s linear infinite;}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* ═══════════════════════════════ RESPONSIVE */
+@media(max-width:900px){.kpi-row{grid-template-columns:1fr 1fr}.g2,.g3{grid-template-columns:1fr}}
+@media(max-width:640px){
+  .sidebar{transform:translateX(-100%)} .sidebar.open{transform:none}
+  .content{margin-left:0}.kpi-row{grid-template-columns:1fr}
+  .frow.c2,.frow.c3,.frow.c4{grid-template-columns:1fr}
+  .ppf-balance{grid-template-columns:1fr}
+}
+.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:200;
+  background:var(--card);border:1px solid var(--bdr);border-radius:8px;
+  padding:7px;cursor:pointer;color:var(--txt);}
+@media(max-width:640px){.hamburger{display:flex}}
+</style>
 </head>
 <body>
-  <div class="header">
-    <div class="church-logo">
-      <img src="kltf-logo.png" alt="KL Telugu Fellowship Logo">
-      <h1 style="margin:0;font-size:1.2rem;color:var(--gold)">
-        KL Telugu Fellowship Dashboard
-      </h1>
-    </div>
-    <button id="printBtn" class="secondary" aria-label="Print dashboard">
-      <i class="fas fa-print"></i> Print
-    </button>
+<!-- ══ HAMBURGER (mobile) ══ -->
+<button class="hamburger" onclick="toggleSidebar()">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+</button>
+
+<div class="app">
+<!-- ══════════════════ SIDEBAR ══════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-logo">KL</div>
+    <div class="brand-name">KLTF Finance</div>
+    <div class="brand-sub">TMC KL Telugu Fellowship</div>
   </div>
-  
-  <div class="view-toggle">
-    <button class="view-btn active" id="summaryBtn" aria-pressed="true">
-      <i class="fas fa-chart-pie" aria-hidden="true"></i> Summary
+  <div class="fy-pill" id="fy-pill">Loading...</div>
+
+  <nav class="nav">
+    <div class="nav-section">Finance</div>
+    <button class="nav-btn active" onclick="go('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
     </button>
-    <button class="view-btn" id="transactionsBtn" aria-pressed="false">
-      <i class="fas fa-list" aria-hidden="true"></i> Transactions
+    <button class="nav-btn" onclick="go('offering',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      Record Offering
     </button>
-    <button class="view-btn" id="expensesBtn" aria-pressed="false">
-      <i class="fas fa-receipt" aria-hidden="true"></i> Expenses
+    <button class="nav-btn" onclick="go('expense',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      Record Expense
     </button>
-    <button class="view-btn" id="membersBtn" aria-pressed="false">
-      <i class="fas fa-users" aria-hidden="true"></i> Members
+
+    <div class="nav-section">Poor People Fund</div>
+    <button class="nav-btn ppf-btn" onclick="go('ppf',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      PPF Overview
     </button>
+    <button class="nav-btn ppf-btn" onclick="go('ppf-claim',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      PPF Claims
+    </button>
+
+    <div class="nav-section">Members</div>
+    <button class="nav-btn mem-btn" onclick="go('members',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Member List
+    </button>
+    <button class="nav-btn mem-btn" onclick="go('mem-dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Member Insights
+    </button>
+
+    <div class="nav-section">Admin</div>
+    <button class="nav-btn" onclick="go('records',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Records
+    </button>
+    <button class="nav-btn" onclick="go('settings',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
+    </button>
+  </nav>
+  <div class="sidebar-footer">KLTF Finance v2.0</div>
+</aside>
+
+<!-- ══════════════════ CONTENT ══════════════════ -->
+<div class="content">
+
+<!-- ━━━━ DASHBOARD ━━━━ -->
+<div id="page-dashboard" class="page active">
+  <div class="page-header">
+    <div><div class="ph-title" id="dash-title">Finance Dashboard</div><div class="ph-sub" id="dash-sub">Loading...</div></div>
+    <div class="ph-actions">
+      <button class="btn b-ghost" onclick="loadDashboard()">↻ Refresh</button>
+      <button class="btn b-red" onclick="confirmRollover()">📅 Year Rollover</button>
+    </div>
   </div>
-  
-  <!-- Loading State -->
-  <div id="loading" class="loading-container" style="display:none;">
-    <div class="loading-spinner">
-      <i class="fas fa-spinner"></i>
-    </div>
-    <p>Loading church data...</p>
+  <div class="kpi-row">
+    <div class="kpi k-g"><div class="kpi-label">Total Offerings</div><div class="kpi-val" id="k-off">RM —</div><div class="kpi-sub" id="k-off-sub">—</div><div class="kpi-icon">💰</div></div>
+    <div class="kpi k-r"><div class="kpi-label">Total Expenses</div><div class="kpi-val" id="k-exp">RM —</div><div class="kpi-sub">Active year</div><div class="kpi-icon">📤</div></div>
+    <div class="kpi k-b"><div class="kpi-label">Net Balance</div><div class="kpi-val" id="k-bal">RM —</div><div class="kpi-sub" id="k-bal-sub">—</div><div class="kpi-icon">📊</div></div>
+    <div class="kpi k-a"><div class="kpi-label">DFCM Outstanding</div><div class="kpi-val" id="k-dfcm">RM —</div><div class="kpi-sub" id="k-dfcm-sub">—</div><div class="kpi-icon">🏛</div></div>
   </div>
-  
-  <!-- Error State -->
-  <div id="error" class="error-container" style="display:none;">
-    <div class="error-message">
-      <i class="fas fa-exclamation-triangle"></i>
-      <p id="errorText">Failed to load data. Please try again later.</p>
+  <div class="chart-grid g2">
+    <div class="chart-card"><h3>Monthly Offerings Trend</h3><div class="csub">Sunday Service + Special Offering · active year</div><div style="height:200px"><canvas id="ch-monthly"></canvas></div></div>
+    <div class="chart-card">
+      <h3>Offerings by Type</h3><div class="csub">Sunday Service vs Special Offering</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;">
+        <div style="height:180px"><canvas id="ch-type"></canvas></div>
+        <div id="type-legend"></div>
+      </div>
     </div>
-    <button onclick="loadData()" class="primary" style="margin-top:10px;">
-      <i class="fas fa-sync-alt"></i> Retry
-    </button>
   </div>
-  
-  <!-- Main Content -->
-  <div id="content" style="display:none;">
-    <!-- Summary Page -->
-    <div id="summaryPage">
-      <div class="toolbar">
-        <div class="input-group">
-          <select id="yearSelect" aria-label="Select year">
-            <!-- Years populated dynamically -->
-          </select>
-          <select id="monthSelect" aria-label="Select month">
-            <option value="">All Months</option>
-            <option value="01">January</option>
-            <option value="02">February</option>
-            <option value="03">March</option>
-            <option value="04">April</option>
-            <option value="05">May</option>
-            <option value="06">June</option>
-            <option value="07">July</option>
-            <option value="08">August</option>
-            <option value="09">September</option>
-            <option value="10">October</option>
-            <option value="11">November</option>
-            <option value="12">December</option>
-          </select>
-          <button onclick="applyFilters('summary')" class="primary">
-            <i class="fas fa-filter"></i> Apply
-          </button>
+  <div class="chart-grid g3">
+    <div class="chart-card"><h3>Offerings vs Expenses</h3><div class="csub">Monthly comparison</div><div style="height:190px"><canvas id="ch-compare"></canvas></div></div>
+    <div class="chart-card"><h3>Expenses by Category</h3><div class="csub">Active year breakdown</div><div id="cat-bars" style="margin-top:4px;"></div></div>
+  </div>
+  <div class="info-box">⚠️ <strong>Poor People Fund (PPF) is excluded from above totals.</strong> PPF has its own separate balance and claims tracking — view under the PPF section.</div>
+</div>
+
+<!-- ━━━━ OFFERING ENTRY ━━━━ -->
+<div id="page-offering" class="page">
+  <div class="page-header">
+    <div><div class="ph-title">Cash Collection Slip</div><div class="ph-sub">Telugu Service · denomination-level entry</div></div>
+  </div>
+  <div class="slip-wrap">
+    <div class="slip-card">
+      <div class="slip-hdr"><h2>📋 TMCKL — Summary of Cash Collection</h2><span style="font-size:11px;color:var(--muted)">Telugu Fellowship</span></div>
+      <div class="slip-body">
+        <div class="frow c3">
+          <div class="field"><label>Date of Service</label><input type="date" id="off-date"></div>
+          <div class="field"><label>Offering Type</label>
+            <select id="off-type">
+              <option value="">— Select —</option>
+              <option value="Sunday Service">Sunday Service</option>
+              <option value="Poor People Fund">Poor People Fund</option>
+              <option value="Special Offering">Special Offering</option>
+            </select>
+          </div>
+          <div class="field"><label>Counted By</label><input type="text" id="off-counters" placeholder="Treasurer name..."></div>
         </div>
-        <button onclick="exportToCSV()" class="secondary">
-          <i class="fas fa-file-csv"></i> Export CSV
-        </button>
-      </div>
-      
-      <div class="card-container">
-        <div class="card">
-          <h3>Total Offerings</h3>
-          <div class="value" id="totalOfferings">RM0.00</div>
-          <div class="subtext" id="offeringPeriod">All Time</div>
-        </div>
-        <div class="card">
-          <h3>Average Offering</h3>
-          <div class="value" id="avgOffering">RM0.00</div>
-          <div class="subtext" id="avgPeriod">Per service</div>
-        </div>
-        <div class="card">
-          <h3>Services Recorded</h3>
-          <div class="value" id="serviceCount">0</div>
-          <div class="subtext" id="servicePeriod">All Time</div>
-        </div>
-        <div class="card teal">
-          <h3>Total Expenses</h3>
-          <div class="value" id="totalExpenses">RM0.00</div>
-          <div class="subtext" id="expensePeriod">All Time</div>
-        </div>
-        <div class="card purple">
-          <h3>Registered Members</h3>
-          <div class="value" id="memberCount">0</div>
-          <div class="subtext">Active members</div>
-        </div>
-      </div>
-      
-      <div class="chart-container">
-        <h3 style="margin-top:0;color:var(--deep-blue)">Donation Type Breakdown</h3>
-        <canvas id="pieChart" height="200" aria-label="Donation type breakdown chart"></canvas>
-      </div>
-      
-      <div id="monthlyView">
-        <div class="monthly-table-container">
-          <h3 style="margin-top:0;color:var(--deep-blue)">Monthly Donations</h3>
-          <table class="monthly-table" id="monthlyDonationsTable">
-            <thead>
-              <tr>
-                <th>Month</th>
-                <th>Donation Type</th>
-                <th class="amount-column">Amount (RM)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Data will be inserted here -->
-            </tbody>
-          </table>
+        <div style="background:rgba(34,211,170,.06);border:1px solid rgba(34,211,170,.15);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--g);margin-top:2px;">
+          <strong>Service:</strong> Telugu &nbsp;·&nbsp; <strong>Note:</strong> Poor People Fund is tracked separately — not included in DFCM calculations.
         </div>
       </div>
     </div>
-    
-    <!-- Transactions Page -->
-    <div id="transactionsPage" style="display:none;">
-      <div class="toolbar">
-        <div class="input-group">
-          <select id="yearSelectTransactions" aria-label="Select year">
-            <!-- Years populated dynamically -->
-          </select>
-          <select id="monthSelectTransactions" aria-label="Select month">
-            <option value="">All Months</option>
-            <option value="01">January</option>
-            <option value="02">February</option>
-            <option value="03">March</option>
-            <option value="04">April</option>
-            <option value="05">May</option>
-            <option value="06">June</option>
-            <option value="07">July</option>
-            <option value="08">August</option>
-            <option value="09">September</option>
-            <option value="10">October</option>
-            <option value="11">November</option>
-            <option value="12">December</option>
-          </select>
-          <button onclick="applyFilters('transactions')" class="primary">
-            <i class="fas fa-filter"></i> Apply
-          </button>
-        </div>
-        <input type="text" id="searchInput" class="search-input" placeholder="Search transactions..." aria-label="Search transactions">
-        <button onclick="exportToCSV()" class="secondary">
-          <i class="fas fa-file-csv"></i> Export CSV
-        </button>
+
+    <div class="slip-card">
+      <div class="slip-hdr"><h2>🗒 Notes (Currency)</h2></div>
+      <div class="slip-body">
+        <div class="denom-hdr"><span>Denomination</span><span style="text-align:center">Qty</span><span style="text-align:right">Total (RM)</span></div>
+        <div id="notes-wrap"></div>
+        <div class="subtotal"><span>Sub-Total (Notes)</span><strong id="st-notes">RM 0.00</strong></div>
       </div>
-      
-      <div class="chart-container" style="height:auto;padding:0;">
-        <div style="overflow-x:auto;">
-          <table id="donationsTable">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Amount (RM)</th>
-                <th>Type</th>
-                <th>Attended</th>
-                <th>Counters</th>
-                <th>Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Data will be inserted here -->
-            </tbody>
-          </table>
-        </div>
-        <div style="text-align:center;margin-top:10px;">
-          <button id="loadMoreBtn" onclick="loadMoreTransactions()" class="secondary" style="display:none;">
-            <i class="fas fa-plus"></i> Load More
-          </button>
+    </div>
+
+    <div class="slip-card">
+      <div class="slip-hdr"><h2>🪙 Coins</h2></div>
+      <div class="slip-body">
+        <div class="denom-hdr"><span>Denomination</span><span style="text-align:center">Qty</span><span style="text-align:right">Total (RM)</span></div>
+        <div id="coins-wrap"></div>
+        <div class="subtotal"><span>Sub-Total (Coins)</span><strong id="st-coins">RM 0.00</strong></div>
+      </div>
+    </div>
+
+    <div class="grand-total">
+      <div class="gt-label">GRAND TOTAL<small>Notes + Coins</small></div>
+      <div class="gt-val" id="grand-total">RM 0.00</div>
+    </div>
+
+    <div class="slip-card">
+      <div class="slip-body">
+        <div class="field" style="margin-bottom:13px;"><label>Remarks (optional)</label><input type="text" id="off-notes" placeholder="e.g. Harvest Sunday, special circumstances..."></div>
+        <div style="display:flex;gap:9px;flex-wrap:wrap;">
+          <button class="btn b-green" id="off-btn" onclick="submitOffering()">✓ Submit Collection</button>
+          <button class="btn b-ghost" onclick="clearSlip()">Clear</button>
         </div>
       </div>
     </div>
-    
-    <!-- Expenses Page -->
-    <div id="expensesPage" style="display:none;">
-      <div class="toolbar">
-        <div class="input-group">
-          <select id="yearSelectExpenses" aria-label="Select year">
-            <!-- Years populated dynamically -->
-          </select>
-          <select id="monthSelectExpenses" aria-label="Select month">
-            <option value="">All Months</option>
-            <option value="01">January</option>
-            <option value="02">February</option>
-            <option value="03">March</option>
-            <option value="04">April</option>
-            <option value="05">May</option>
-            <option value="06">June</option>
-            <option value="07">July</option>
-            <option value="08">August</option>
-            <option value="09">September</option>
-            <option value="10">October</option>
-            <option value="11">November</option>
-            <option value="12">December</option>
-          </select>
-          <button onclick="applyFilters('expenses')" class="primary">
-            <i class="fas fa-filter"></i> Apply
-          </button>
+  </div>
+</div>
+
+<!-- ━━━━ EXPENSE ENTRY ━━━━ -->
+<div id="page-expense" class="page">
+  <div class="page-header"><div><div class="ph-title">Record Expense</div><div class="ph-sub">Church operational and ministry expenses</div></div></div>
+  <div style="max-width:580px;">
+    <div class="slip-card">
+      <div class="slip-hdr"><h2>📤 New Expense</h2></div>
+      <div class="slip-body">
+        <div class="frow c2">
+          <div class="field"><label>Date</label><input type="date" id="exp-date"></div>
+          <div class="field"><label>Category</label>
+            <select id="exp-cat">
+              <option value="">— Select —</option>
+              <option>Ministry</option><option>Worship</option><option>Administration</option>
+              <option>Maintenance</option><option>Outreach</option><option>Fellowship</option>
+              <option>DFCM Remittance</option><option>Other</option>
+            </select>
+          </div>
         </div>
-        <input type="text" id="searchInputExpenses" class="search-input" placeholder="Search expenses..." aria-label="Search expenses">
-        <button onclick="exportExpensesToCSV()" class="secondary">
-          <i class="fas fa-file-csv"></i> Export CSV
-        </button>
-      </div>
-      
-      <div class="chart-container">
-        <h3 style="margin-top:0;color:var(--deep-blue)">Expense Categories</h3>
-        <canvas id="expenseChart" height="200" aria-label="Expense categories chart"></canvas>
-      </div>
-      
-      <div class="chart-container" style="height:auto;padding:0;">
-        <div style="overflow-x:auto;">
-          <table id="expensesTable">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Amount (RM)</th>
-                <th>Category</th>
-                <th>Description</th>
-                <th>Approved By</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Data will be inserted here -->
-            </tbody>
-          </table>
+        <div class="frow c2">
+          <div class="field" style="grid-column:1/-1;"><label>Description</label><input type="text" id="exp-desc" placeholder="Brief description..."></div>
         </div>
-        <div style="text-align:center;margin-top:10px;">
-          <button id="loadMoreExpensesBtn" onclick="loadMoreExpenses()" class="secondary" style="display:none;">
-            <i class="fas fa-plus"></i> Load More
-          </button>
+        <div class="frow c2">
+          <div class="field"><label>Amount (RM)</label><input type="number" id="exp-amt" placeholder="0.00" min="0" step="0.01"></div>
+          <div class="field"><label>Receipt / Reference</label><input type="text" id="exp-ref" placeholder="e.g. RCP-001"></div>
+        </div>
+        <div style="margin-top:16px;">
+          <button class="btn b-blue" id="exp-btn" onclick="submitExpense()">✓ Submit Expense</button>
         </div>
       </div>
     </div>
-    
-    <!-- Members Page -->
-    <div id="membersPage" style="display:none;">
-      <div class="tab-container">
-        <div class="tab-buttons">
-          <button class="tab-btn active" data-tab="membersList">Members List</button>
-          <button class="tab-btn" data-tab="families">Families</button>
-          <button class="tab-btn" data-tab="attendance">Attendance</button>
-        </div>
-        
-        <div class="tab-content active" id="membersListTab">
-          <div class="toolbar">
-            <input type="text" id="searchMembersInput" class="search-input" placeholder="Search members..." aria-label="Search members">
-            <button onclick="exportMembersToCSV()" class="secondary">
-              <i class="fas fa-file-csv"></i> Export CSV
-            </button>
-          </div>
-          
-          <div class="chart-container" style="height:auto;padding:0;">
-            <div style="overflow-x:auto;">
-              <table id="membersTable">
-                <thead>
-                  <tr>
-                    <th>Member ID</th>
-                    <th>Name</th>
-                    <th>Phone</th>
-                    <th>Email</th>
-                    <th>Family</th>
-                    <th>Baptism Date</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Data will be inserted here -->
-                </tbody>
-              </table>
-            </div>
-            <div style="text-align:center;margin-top:10px;">
-              <button id="loadMoreMembersBtn" onclick="loadMoreMembers()" class="secondary" style="display:none;">
-                <i class="fas fa-plus"></i> Load More
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        <div class="tab-content" id="familiesTab">
-          <div class="toolbar">
-            <input type="text" id="searchFamiliesInput" class="search-input" placeholder="Search families..." aria-label="Search families">
-          </div>
-          
-          <div class="chart-container" style="height:auto;padding:0;">
-            <div style="overflow-x:auto;">
-              <table id="familiesTable">
-                <thead>
-                  <tr>
-                    <th>Family ID</th>
-                    <th>Family Name</th>
-                    <th>Head of Family</th>
-                    <th>Members</th>
-                    <th>Address</th>
-                    <th>Phone</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Data will be inserted here -->
-                </tbody>
-              </table>
-            </div>
+  </div>
+</div>
+
+<!-- ━━━━ PPF OVERVIEW ━━━━ -->
+<div id="page-ppf" class="page">
+  <div class="page-header">
+    <div><div class="ph-title">Poor People Fund</div><div class="ph-sub">Separate fund · No DFCM · Independent balance tracking</div></div>
+    <div class="ph-actions">
+      <button class="btn b-ghost" onclick="loadPPF()">↻ Refresh</button>
+      <button class="btn b-amber" onclick="go('ppf-claim', document.querySelector('.ppf-btn:nth-child(2)'))">+ New Claim</button>
+    </div>
+  </div>
+  <div class="ppf-balance" id="ppf-balance">
+    <div class="ppf-stat"><div class="label">Total Collected</div><div class="val" id="ppf-collected">RM —</div><div class="note">Active year</div></div>
+    <div class="ppf-stat"><div class="label">Total Claimed</div><div class="val" id="ppf-claimed">RM —</div><div class="note">Disbursements</div></div>
+    <div class="ppf-stat"><div class="label">Available Balance</div><div class="val" id="ppf-bal">RM —</div><div class="note">Collected − Claimed</div></div>
+  </div>
+  <div class="chart-grid g2">
+    <div class="chart-card"><h3>Monthly PPF Collections</h3><div class="csub">Amount received each month</div><div style="height:190px"><canvas id="ch-ppf-monthly"></canvas></div></div>
+    <div class="chart-card"><h3>Claims by Purpose</h3><div class="csub">How PPF funds were used</div><div id="ppf-claim-bars" style="margin-top:4px;"></div></div>
+  </div>
+  <div class="tbl-card">
+    <div class="tbl-hdr"><h3>Recent Claims</h3></div>
+    <div class="tbl-wrap">
+      <table id="tbl-ppf-claims">
+        <thead><tr><th>Date</th><th>Beneficiary</th><th>Purpose</th><th>Description</th><th>Amount</th><th>Source</th></tr></thead>
+        <tbody><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━━ PPF CLAIM ENTRY ━━━━ -->
+<div id="page-ppf-claim" class="page">
+  <div class="page-header"><div><div class="ph-title">PPF Claim Entry</div><div class="ph-sub">Record a disbursement from Poor People Fund</div></div></div>
+  <div style="max-width:580px;">
+    <div class="warn-box">⚠️ Claims reduce the PPF balance. This amount is separate from the main church fund and DFCM calculations.</div>
+    <div class="slip-card">
+      <div class="slip-hdr"><h2>❤️ New PPF Claim</h2></div>
+      <div class="slip-body">
+        <div class="frow c2">
+          <div class="field"><label>Date of Claim</label><input type="date" id="ppf-date"></div>
+          <div class="field"><label>Purpose / Category</label>
+            <select id="ppf-purpose">
+              <option value="">— Select —</option>
+              <option>Medical Assistance</option><option>Food Aid</option><option>Education Support</option>
+              <option>Emergency Relief</option><option>Funeral Assistance</option><option>Other</option>
+            </select>
           </div>
         </div>
-        
-        <div class="tab-content" id="attendanceTab">
-          <div class="toolbar">
-            <div class="input-group">
-              <select id="yearSelectAttendance" aria-label="Select year">
-                <!-- Years populated dynamically -->
-              </select>
-              <select id="monthSelectAttendance" aria-label="Select month">
-                <option value="">All Months</option>
-                <option value="01">January</option>
-                <option value="02">February</option>
-                <option value="03">March</option>
-                <option value="04">April</option>
-                <option value="05">May</option>
-                <option value="06">June</option>
-                <option value="07">July</option>
-                <option value="08">August</option>
-                <option value="09">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
-              </select>
-              <button onclick="applyFilters('attendance')" class="primary">
-                <i class="fas fa-filter"></i> Apply
-              </button>
-            </div>
-          </div>
-          
-          <div class="chart-container" style="height:auto;padding:0;">
-            <div style="overflow-x:auto;">
-              <table id="attendanceTable">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Service Type</th>
-                    <th>Total Attendance</th>
-                    <th>First Timers</th>
-                    <th>Children</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Data will be inserted here -->
-                </tbody>
-              </table>
-            </div>
-          </div>
+        <div class="frow c2">
+          <div class="field"><label>Beneficiary Name</label><input type="text" id="ppf-bene" placeholder="Full name of recipient..."></div>
+          <div class="field"><label>Amount (RM)</label><input type="number" id="ppf-amt" placeholder="0.00" min="0" step="0.01"></div>
         </div>
+        <div class="frow c2">
+          <div class="field" style="grid-column:1/-1;"><label>Description / Notes</label><input type="text" id="ppf-desc" placeholder="Brief description of the need..."></div>
+        </div>
+        <div class="field" style="margin-bottom:16px;"><label>Reference / Voucher No.</label><input type="text" id="ppf-ref" placeholder="e.g. PPF-2024-001"></div>
+        <button class="btn b-amber" id="ppf-btn" onclick="submitPPFClaim()">✓ Submit PPF Claim</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━━ MEMBER LIST ━━━━ -->
+<div id="page-members" class="page">
+  <div class="page-header">
+    <div><div class="ph-title">Church Members</div><div class="ph-sub" id="mem-count-sub">Loading...</div></div>
+    <div class="ph-actions">
+      <button class="btn b-ghost" onclick="loadMembers()">↻ Refresh</button>
+      <button class="btn b-blue" onclick="openMemberModal(null)">+ Add Member</button>
+    </div>
+  </div>
+  <div class="search-wrap"><input class="search-bar" type="text" id="mem-search" placeholder="Search by name, phone, email, skills..." oninput="filterMembers()"></div>
+  <div class="member-grid" id="member-grid"><div style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1">Loading members...</div></div>
+</div>
+
+<!-- ━━━━ MEMBER DASHBOARD ━━━━ -->
+<div id="page-mem-dashboard" class="page">
+  <div class="page-header">
+    <div><div class="ph-title">Member Insights</div><div class="ph-sub">Fellowship demographics and statistics</div></div>
+    <button class="btn b-ghost" onclick="loadMemberDashboard()">↻ Refresh</button>
+  </div>
+  <div class="kpi-row" id="mem-kpi-row">
+    <div class="kpi k-b"><div class="kpi-label">Total Members</div><div class="kpi-val" id="mk-total">—</div><div class="kpi-sub">Registered</div><div class="kpi-icon">👥</div></div>
+    <div class="kpi k-g"><div class="kpi-label">Baptized</div><div class="kpi-val" id="mk-bap">—</div><div class="kpi-sub" id="mk-bap-pct">—</div><div class="kpi-icon">✝</div></div>
+    <div class="kpi k-p"><div class="kpi-label">Families</div><div class="kpi-val" id="mk-fam">—</div><div class="kpi-sub">With spouse listed</div><div class="kpi-icon">🏠</div></div>
+    <div class="kpi k-a"><div class="kpi-label">Children Registered</div><div class="kpi-val" id="mk-child">—</div><div class="kpi-sub">Total children listed</div><div class="kpi-icon">👶</div></div>
+  </div>
+  <div class="chart-grid g2">
+    <div class="chart-card"><h3>Baptism Status</h3><div class="csub">Members vs non-baptized</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:center;"><div style="height:180px"><canvas id="ch-bap"></canvas></div><div id="bap-legend"></div></div></div>
+    <div class="chart-card"><h3>Membership by Join Year</h3><div class="csub">New members added per year</div><div style="height:180px"><canvas id="ch-join"></canvas></div></div>
+  </div>
+  <div class="chart-card" style="margin-bottom:18px;"><h3>Skills & Interests</h3><div class="csub">Top skills across fellowship</div><div id="skills-cloud" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;padding-top:4px;"></div></div>
+</div>
+
+<!-- ━━━━ RECORDS ━━━━ -->
+<div id="page-records" class="page">
+  <div class="page-header">
+    <div><div class="ph-title">Transaction Records</div><div class="ph-sub">Last 20 entries per category</div></div>
+    <button class="btn b-ghost" onclick="loadRecords()">↻ Refresh</button>
+  </div>
+  <div class="tbl-card">
+    <div class="tbl-hdr"><h3>Recent Offerings (Sunday Service + Special)</h3></div>
+    <div class="tbl-wrap">
+      <table id="tbl-off"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Year</th><th>Source</th><th>Denominations</th></tr></thead>
+      <tbody><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Loading...</td></tr></tbody></table>
+    </div>
+  </div>
+  <div class="tbl-card">
+    <div class="tbl-hdr"><h3>Recent Expenses</h3></div>
+    <div class="tbl-wrap">
+      <table id="tbl-exp"><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Year</th><th>Source</th></tr></thead>
+      <tbody><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Loading...</td></tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━━ SETTINGS ━━━━ -->
+<div id="page-settings" class="page">
+  <div class="page-header"><div><div class="ph-title">Settings</div><div class="ph-sub">Configure API, financial year, and DFCM</div></div></div>
+
+  <div class="settings-group">
+    <div class="settings-group-hdr">🔗 API Configuration (GitHub Pages Mode)</div>
+    <div class="settings-group-body">
+      <div class="info-box">Paste your Google Apps Script Web App URL here. Get it from: Apps Script → Deploy → Manage Deployments → Copy Web App URL</div>
+      <div class="frow c2">
+        <div class="field" style="grid-column:1/-1;"><label>Apps Script Web App URL</label><input type="text" id="s-api-url" placeholder="https://script.google.com/macros/s/YOUR_ID/exec"></div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:9px;flex-wrap:wrap;">
+        <button class="btn b-green" onclick="saveApiUrl()">Save API URL</button>
+        <button class="btn b-ghost" onclick="testConnection()">Test Connection</button>
       </div>
     </div>
   </div>
 
-  <script>
-    // ===== CONFIGURATION =====
-    const API_URL = "https://script.google.com/macros/s/AKfycby-88C1Qb64FO3rrqKnURcuvojY1rzMxnAv9D0K3TlczkRyLi4F3G_zBU2oaz4ghHUm/exec";
-    const TRANSACTIONS_PER_PAGE = 50;
-    const EXPENSES_PER_PAGE = 50;
-    const MEMBERS_PER_PAGE = 50;
-    const DEBOUNCE_DELAY = 300;
-    
-    // ===== STATE MANAGEMENT =====
-    let allDonations = [];
-    let allExpenses = [];
-    let allMembers = [];
-    let allFamilies = [];
-    let allAttendance = [];
-    let filteredDonations = [];
-    let filteredExpenses = [];
-    let filteredMembers = [];
-    let filteredAttendance = [];
-    let pieChart = null;
-    let expenseChart = null;
-    let currentTransactionPage = 1;
-    let currentExpensePage = 1;
-    let currentMemberPage = 1;
-    let currentSearchTerm = '';
-    let currentView = 'summary';
-    let searchIndex = new Map();
-    
-    // ===== DOM ELEMENTS =====
-    const elements = {
-      // Views
-      summaryBtn: document.getElementById('summaryBtn'),
-      transactionsBtn: document.getElementById('transactionsBtn'),
-      expensesBtn: document.getElementById('expensesBtn'),
-      membersBtn: document.getElementById('membersBtn'),
-      summaryPage: document.getElementById('summaryPage'),
-      transactionsPage: document.getElementById('transactionsPage'),
-      expensesPage: document.getElementById('expensesPage'),
-      membersPage: document.getElementById('membersPage'),
-      
-      // Loading/Error
-      loading: document.getElementById('loading'),
-      error: document.getElementById('error'),
-      errorText: document.getElementById('errorText'),
-      content: document.getElementById('content'),
-      
-      // Search
-      searchInput: document.getElementById('searchInput'),
-      searchExpensesInput: document.getElementById('searchInputExpenses'),
-      searchMembersInput: document.getElementById('searchMembersInput'),
-      searchFamiliesInput: document.getElementById('searchFamiliesInput'),
-      
-      // Pagination
-      loadMoreBtn: document.getElementById('loadMoreBtn'),
-      loadMoreExpensesBtn: document.getElementById('loadMoreExpensesBtn'),
-      loadMoreMembersBtn: document.getElementById('loadMoreMembersBtn'),
-      
-      // Print
-      printBtn: document.getElementById('printBtn'),
-      
-      // Summary Cards
-      totalOfferings: document.getElementById('totalOfferings'),
-      avgOffering: document.getElementById('avgOffering'),
-      serviceCount: document.getElementById('serviceCount'),
-      totalExpenses: document.getElementById('totalExpenses'),
-      memberCount: document.getElementById('memberCount'),
-      offeringPeriod: document.getElementById('offeringPeriod'),
-      avgPeriod: document.getElementById('avgPeriod'),
-      servicePeriod: document.getElementById('servicePeriod'),
-      expensePeriod: document.getElementById('expensePeriod'),
-      
-      // Tables
-      monthlyDonationsTable: document.getElementById('monthlyDonationsTable').querySelector('tbody'),
-      donationsTable: document.getElementById('donationsTable').querySelector('tbody'),
-      expensesTable: document.getElementById('expensesTable').querySelector('tbody'),
-      membersTable: document.getElementById('membersTable').querySelector('tbody'),
-      familiesTable: document.getElementById('familiesTable').querySelector('tbody'),
-      attendanceTable: document.getElementById('attendanceTable').querySelector('tbody'),
-      
-      // Selectors
-      yearSelect: document.getElementById('yearSelect'),
-      monthSelect: document.getElementById('monthSelect'),
-      yearSelectTransactions: document.getElementById('yearSelectTransactions'),
-      monthSelectTransactions: document.getElementById('monthSelectTransactions'),
-      yearSelectExpenses: document.getElementById('yearSelectExpenses'),
-      monthSelectExpenses: document.getElementById('monthSelectExpenses'),
-      yearSelectAttendance: document.getElementById('yearSelectAttendance'),
-      monthSelectAttendance: document.getElementById('monthSelectAttendance'),
-      
-      // Tabs
-      tabButtons: document.querySelectorAll('.tab-btn'),
-      tabContents: document.querySelectorAll('.tab-content')
-    };
-    
-    // ===== INITIALIZATION =====
-    document.addEventListener('DOMContentLoaded', () => {
-      setupEventListeners();
-      setDefaultDateFilters();
-      loadData();
+  <div class="settings-group">
+    <div class="settings-group-hdr">⚙️ Financial Settings</div>
+    <div class="settings-group-body">
+      <div class="frow c2">
+        <div class="field"><label>Active Financial Year</label><input type="number" id="s-year" min="2000" max="2099"></div>
+        <div class="field"><label>DFCM Percentage (%)</label><input type="number" id="s-dfcm" min="0" max="100" step="0.1"></div>
+        <div class="field"><label>Opening Balance (RM) — Main Fund</label><input type="number" id="s-opening" min="0" step="0.01"></div>
+        <div class="field"><label>Closing Balance (RM) — auto</label><input type="number" id="s-closing" disabled style="opacity:.5"></div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:9px;">
+        <button class="btn b-green" onclick="saveSettings()">Save Settings</button>
+        <button class="btn b-ghost" onclick="loadSettings()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-group-hdr">🚀 First-Time Setup</div>
+    <div class="settings-group-body">
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">Creates all required Google Sheets (Settings, Combined_Offerings, Combined_Expenses, PPF_Collections, PPF_Claims, Members, Audit_Log). Safe to run — existing sheets are not modified.</p>
+      <button class="btn b-ghost" onclick="runSetup()">Run Initial Setup</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /app -->
+
+<!-- ══════════════════ MEMBER MODAL ══════════════════ -->
+<div class="modal-overlay hidden" id="mem-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2 id="modal-title">Add Member</h2>
+      <button class="modal-close" onclick="closeMemberModal()">✕</button>
+    </div>
+
+    <input type="hidden" id="m-sno">
+
+    <div class="modal-section">
+      <div class="modal-section-title">Primary Member</div>
+      <div class="frow c3">
+        <div class="field" style="grid-column:1/-1;"><label>Full Name *</label><input type="text" id="m-name" placeholder="Full name..."></div>
+      </div>
+      <div class="frow c3">
+        <div class="field"><label>Date of Birth</label><input type="date" id="m-dob"></div>
+        <div class="field"><label>Phone Number</label><input type="text" id="m-phone" placeholder="+60..."></div>
+        <div class="field"><label>Email ID</label><input type="email" id="m-email" placeholder="email@..."></div>
+      </div>
+      <div class="frow c3">
+        <div class="field" style="grid-column:1/3;"><label>Skills / Interests</label><input type="text" id="m-skills" placeholder="e.g. Music, Teaching, IT..."></div>
+        <div class="field"><label>Baptized?</label>
+          <select id="m-baptism"><option value="No">No</option><option value="Yes">Yes</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title" style="--g:var(--blue)">Spouse (if applicable)</div>
+      <div class="frow c3">
+        <div class="field" style="grid-column:1/-1;"><label>Spouse Full Name</label><input type="text" id="m-spname" placeholder="Spouse name..."></div>
+      </div>
+      <div class="frow c3">
+        <div class="field"><label>Spouse DOB</label><input type="date" id="m-spdob"></div>
+        <div class="field"><label>Spouse Phone</label><input type="text" id="m-spphone" placeholder="+60..."></div>
+        <div class="field"><label>Spouse Email</label><input type="email" id="m-spemail"></div>
+      </div>
+      <div class="frow c3">
+        <div class="field" style="grid-column:1/3;"><label>Spouse Skills / Interests</label><input type="text" id="m-spskills"></div>
+        <div class="field"><label>Spouse Baptized?</label>
+          <select id="m-spbaptism"><option value="No">No</option><option value="Yes">Yes</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title" style="--g:var(--amber)">Children</div>
+      <div class="frow c3">
+        <div class="field" style="grid-column:1/3;"><label>Child 1 Name</label><input type="text" id="m-c1" placeholder="Child 1 name..."></div>
+        <div class="field"><label>Child 1 DOB</label><input type="date" id="m-c1dob"></div>
+      </div>
+      <div class="frow c3">
+        <div class="field" style="grid-column:1/3;"><label>Child 2 Name</label><input type="text" id="m-c2" placeholder="Child 2 name..."></div>
+        <div class="field"><label>Child 2 DOB</label><input type="date" id="m-c2dob"></div>
+      </div>
+      <div class="frow c3">
+        <div class="field" style="grid-column:1/3;"><label>Child 3 Name</label><input type="text" id="m-c3" placeholder="Child 3 name..."></div>
+        <div class="field"><label>Child 3 DOB</label><input type="date" id="m-c3dob"></div>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Additional Info</div>
+      <div class="frow c3">
+        <div class="field" style="grid-column:1/-1;"><label>Address</label><textarea id="m-address" placeholder="Full address..."></textarea></div>
+      </div>
+      <div class="frow c3">
+        <div class="field"><label>Year Joined</label><input type="number" id="m-joined" min="2000" max="2099"></div>
+        <div class="field"><label>Status</label>
+          <select id="m-status"><option value="Active">Active</option><option value="Inactive">Inactive</option><option value="Transferred">Transferred</option></select>
+        </div>
+        <div class="field"><label>Notes</label><input type="text" id="m-notes" placeholder="Any notes..."></div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+      <div>
+        <button class="btn b-blue" onclick="saveMember()">Save Member</button>
+        <button class="btn b-ghost" style="margin-left:8px;" onclick="closeMemberModal()">Cancel</button>
+      </div>
+      <button class="btn b-red" id="del-btn" onclick="deleteMember()" style="display:none;">Delete Member</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════ JAVASCRIPT ══════════════════ -->
+<script>
+// ══════════════════════════════════════════════════════
+// CONFIGURATION
+// For GitHub Pages: paste your Apps Script Web App URL here
+// For Apps Script hosted mode: leave as null
+// ══════════════════════════════════════════════════════
+let API_URL = localStorage.getItem('kltf_api_url') || null;
+
+// ── API call helper ────────────────────────────────────
+async function api(action, data) {
+  if (!API_URL) {
+    throw new Error('API URL not configured. Go to Settings and paste your Apps Script Web App URL.');
+  }
+  let url = API_URL + '?action=' + action;
+  if (data) url += '&data=' + encodeURIComponent(JSON.stringify(data));
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  return resp.json();
+}
+
+// ── Navigation ─────────────────────────────────────────
+function go(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  // Load data for page
+  if (name === 'dashboard')     loadDashboard();
+  if (name === 'ppf')           loadPPF();
+  if (name === 'records')       loadRecords();
+  if (name === 'settings')      loadSettings();
+  if (name === 'members')       loadMembers();
+  if (name === 'mem-dashboard') loadMemberDashboard();
+  // Close sidebar on mobile
+  document.getElementById('sidebar').classList.remove('open');
+}
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+// ── Toast ──────────────────────────────────────────────
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast t-' + (type||'ok') + ' show';
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+function fmt(n) { return 'RM ' + parseFloat(n||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+// ── Denominations ──────────────────────────────────────
+const NOTES_DENOMS = [{l:'RM 1',v:1},{l:'RM 5',v:5},{l:'RM 10',v:10},{l:'RM 20',v:20},{l:'RM 50',v:50},{l:'RM 100',v:100}];
+const COIN_DENOMS  = [{l:'5 sen',v:0.05},{l:'10 sen',v:0.10},{l:'20 sen',v:0.20},{l:'50 sen',v:0.50}];
+
+function buildDenoms() {
+  const nw = document.getElementById('notes-wrap');
+  NOTES_DENOMS.forEach(d => {
+    const row = document.createElement('div'); row.className = 'denom-row';
+    row.innerHTML = `<span class="denom-label">${d.l}</span>
+      <input class="d-input" type="number" id="n${d.v}" min="0" step="1" placeholder="0" oninput="calcTotals()">
+      <div class="d-calc" id="c-n${d.v}">—</div>`;
+    nw.appendChild(row);
+  });
+  const cw = document.getElementById('coins-wrap');
+  COIN_DENOMS.forEach(d => {
+    const id = 'c' + String(d.v).replace('.','_');
+    const row = document.createElement('div'); row.className = 'denom-row';
+    row.innerHTML = `<span class="denom-label">${d.l}</span>
+      <input class="d-input" type="number" id="${id}" min="0" step="1" placeholder="0" oninput="calcTotals()">
+      <div class="d-calc" id="calc-${id}">—</div>`;
+    cw.appendChild(row);
+  });
+}
+
+function calcTotals() {
+  let nt = 0;
+  NOTES_DENOMS.forEach(d => {
+    const q = parseInt(document.getElementById('n'+d.v).value)||0, a = q*d.v;
+    nt += a;
+    const el = document.getElementById('c-n'+d.v);
+    el.textContent = q>0 ? fmt(a) : '—'; el.className='d-calc'+(q>0?' on':'');
+  });
+  let ct = 0;
+  COIN_DENOMS.forEach(d => {
+    const id='c'+String(d.v).replace('.','_'), q=parseInt(document.getElementById(id).value)||0;
+    const a = parseFloat((q*d.v).toFixed(2)); ct+=a;
+    const el = document.getElementById('calc-'+id);
+    el.textContent = q>0 ? fmt(a) : '—'; el.className='d-calc'+(q>0?' on':'');
+  });
+  const g = parseFloat((nt+ct).toFixed(2));
+  document.getElementById('st-notes').textContent = fmt(nt);
+  document.getElementById('st-coins').textContent = fmt(ct);
+  document.getElementById('grand-total').textContent = fmt(g);
+}
+
+function clearSlip() {
+  NOTES_DENOMS.forEach(d => { document.getElementById('n'+d.v).value=''; });
+  COIN_DENOMS.forEach(d => { document.getElementById('c'+String(d.v).replace('.','_')).value=''; });
+  document.getElementById('off-notes').value='';
+  document.getElementById('off-counters').value='';
+  calcTotals();
+}
+
+// ── Submit Offering ────────────────────────────────────
+async function submitOffering() {
+  const date    = document.getElementById('off-date').value;
+  const offType = document.getElementById('off-type').value;
+  const counters= document.getElementById('off-counters').value;
+  const notes   = document.getElementById('off-notes').value;
+  const grand   = parseFloat(document.getElementById('grand-total').textContent.replace('RM ','').replace(/,/g,''))||0;
+
+  if (!date) { toast('Please enter a date.','err'); return; }
+  if (!offType) { toast('Please select an offering type.','err'); return; }
+  if (grand <= 0) { toast('Enter at least one denomination.','err'); return; }
+
+  const d = { date, offeringType: offType, counters, notes, grandTotal: grand.toFixed(2) };
+  let nt=0;
+  NOTES_DENOMS.forEach(dd => { const q=parseInt(document.getElementById('n'+dd.v).value)||0; d['rm'+dd.v]=q; nt+=q*dd.v; });
+  let ct=0;
+  COIN_DENOMS.forEach(dd => { const id='c'+String(dd.v).replace('.','_'); const q=parseInt(document.getElementById(id).value)||0; d['coins'+String(dd.v*100).replace('.','')]=q; ct+=parseFloat((q*dd.v).toFixed(2)); });
+  d.totalNotes = nt.toFixed(2); d.totalCoins = ct.toFixed(2);
+
+  const btn = document.getElementById('off-btn');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Saving...';
+  try {
+    const res = await api('submitOffering', d);
+    btn.disabled=false; btn.textContent='✓ Submit Collection';
+    if (res.ok) { toast(res.msg,'ok'); clearSlip(); }
+    else toast(res.msg,'err');
+  } catch(e) { btn.disabled=false; btn.textContent='✓ Submit Collection'; toast(e.message,'err'); }
+}
+
+// ── Submit Expense ─────────────────────────────────────
+async function submitExpense() {
+  const d = {
+    date:       document.getElementById('exp-date').value,
+    category:   document.getElementById('exp-cat').value,
+    description:document.getElementById('exp-desc').value,
+    amount:     document.getElementById('exp-amt').value,
+    reference:  document.getElementById('exp-ref').value,
+  };
+  const btn = document.getElementById('exp-btn');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Saving...';
+  try {
+    const res = await api('submitExpense', d);
+    btn.disabled=false; btn.textContent='✓ Submit Expense';
+    if (res.ok) {
+      toast(res.msg,'ok');
+      ['exp-date','exp-cat','exp-desc','exp-amt','exp-ref'].forEach(id => { document.getElementById(id).value=''; });
+      document.getElementById('exp-date').value = new Date().toISOString().split('T')[0];
+    } else toast(res.msg,'err');
+  } catch(e) { btn.disabled=false; btn.textContent='✓ Submit Expense'; toast(e.message,'err'); }
+}
+
+// ── Submit PPF Claim ───────────────────────────────────
+async function submitPPFClaim() {
+  const d = {
+    date:       document.getElementById('ppf-date').value,
+    purpose:    document.getElementById('ppf-purpose').value,
+    beneficiary:document.getElementById('ppf-bene').value,
+    amount:     document.getElementById('ppf-amt').value,
+    description:document.getElementById('ppf-desc').value,
+    reference:  document.getElementById('ppf-ref').value,
+  };
+  const btn = document.getElementById('ppf-btn');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Saving...';
+  try {
+    const res = await api('submitPPFClaim', d);
+    btn.disabled=false; btn.textContent='✓ Submit PPF Claim';
+    if (res.ok) {
+      toast(res.msg,'ok');
+      ['ppf-date','ppf-purpose','ppf-bene','ppf-amt','ppf-desc','ppf-ref'].forEach(id => { document.getElementById(id).value=''; });
+      document.getElementById('ppf-date').value = new Date().toISOString().split('T')[0];
+    } else toast(res.msg,'err');
+  } catch(e) { btn.disabled=false; btn.textContent='✓ Submit PPF Claim'; toast(e.message,'err'); }
+}
+
+// ── CHARTS (shared instances) ──────────────────────────
+let charts = {};
+function destroyChart(key) { if (charts[key]) { charts[key].destroy(); delete charts[key]; } }
+
+const PALETTE = ['#22d3aa','#4f90f5','#f59e0b','#a78bfa','#f2554a','#06b6d4','#ec4899','#10b981'];
+const CHART_DEFAULTS = {
+  scales: {
+    x: { grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#6a85a8',font:{size:11}} },
+    y: { grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#6a85a8',font:{size:11},callback:v=>'RM'+v.toLocaleString()} }
+  }
+};
+
+// ── Dashboard ──────────────────────────────────────────
+async function loadDashboard() {
+  document.getElementById('dash-sub').textContent = 'Loading...';
+  try {
+    const s = await api('getSummary');
+    document.getElementById('fy-pill').textContent = 'FY ' + s.activeYear;
+    document.getElementById('dash-title').textContent = 'Finance Dashboard — ' + s.activeYear;
+    document.getElementById('dash-sub').textContent =
+      'DFCM Rate: ' + s.dfcmPct + '%  ·  Opening Balance: ' + fmt(s.openingBalance) +
+      '  ·  ' + (s.sundayCount||0) + ' Sunday services';
+
+    document.getElementById('k-off').textContent = fmt(s.totalOfferings);
+    document.getElementById('k-exp').textContent = fmt(s.totalExpenses);
+    document.getElementById('k-bal').textContent = fmt(s.netBalance);
+    document.getElementById('k-dfcm').textContent = fmt(s.dfcmOutstanding);
+    document.getElementById('k-off-sub').textContent = 'Sunday Service + Special Offering';
+    document.getElementById('k-bal-sub').innerHTML = s.netBalance>=0
+      ? '<span style="color:var(--g)">▲ Surplus</span>'
+      : '<span style="color:var(--red)">▼ Deficit</span>';
+    document.getElementById('k-dfcm-sub').innerHTML = s.dfcmOutstanding<=0
+      ? '<span style="color:var(--g)">✓ Fully paid</span>'
+      : '<span style="color:var(--amber)">⚠ Outstanding</span>';
+
+    const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    destroyChart('monthly');
+    charts['monthly'] = new Chart(document.getElementById('ch-monthly'), {
+      type:'bar', data:{labels:months,datasets:[{label:'Offerings',data:s.monthly,
+        backgroundColor:'rgba(34,211,170,.2)',borderColor:'#22d3aa',borderWidth:2,borderRadius:5}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},...CHART_DEFAULTS}
     });
-    
-    // ===== EVENT HANDLERS =====
-    function setupEventListeners() {
-      // View toggle
-      elements.summaryBtn.addEventListener('click', () => switchView('summary'));
-      elements.transactionsBtn.addEventListener('click', () => switchView('transactions'));
-      elements.expensesBtn.addEventListener('click', () => switchView('expenses'));
-      elements.membersBtn.addEventListener('click', () => switchView('members'));
-      
-      // Search
-      elements.searchInput.addEventListener('input', debounce(handleSearch, DEBOUNCE_DELAY));
-      elements.searchExpensesInput.addEventListener('input', debounce(handleExpenseSearch, DEBOUNCE_DELAY));
-      elements.searchMembersInput.addEventListener('input', debounce(handleMemberSearch, DEBOUNCE_DELAY));
-      elements.searchFamiliesInput.addEventListener('input', debounce(handleFamilySearch, DEBOUNCE_DELAY));
-      
-      // Print
-      elements.printBtn.addEventListener('click', handlePrint);
-      
-      // Tabs
-      elements.tabButtons.forEach(btn => {
-        btn.addEventListener('click', () => activateTab(btn.dataset.tab));
-      });
-      
-      // Window resize
-      window.addEventListener('resize', debounce(handleResize, 200));
-    }
-    
-    // ===== CORE FUNCTIONS =====
-    async function loadData() {
-      showLoading();
-      hideError();
-      hideContent();
-      
-      try {
-        const startTime = performance.now();
-        const response = await fetch(API_URL);
-        
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        
-        const result = await response.json();
 
-if (result.status !== "success") throw new Error(result.message || "Data loading failed");
+    const typeLabels = Object.keys(s.byType||{});
+    const typeData   = Object.values(s.byType||{});
+    destroyChart('type');
+    charts['type'] = new Chart(document.getElementById('ch-type'), {
+      type:'doughnut', data:{labels:typeLabels,datasets:[{data:typeData,backgroundColor:PALETTE,borderWidth:2,borderColor:'#111c2d'}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false}}}
+    });
+    const typeTotal = typeData.reduce((a,b)=>a+b,0);
+    document.getElementById('type-legend').innerHTML = typeLabels.map((l,i)=>`
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px;">
+        <span style="width:10px;height:10px;border-radius:2px;background:${PALETTE[i]};flex-shrink:0"></span>
+        <span style="font-size:12px;color:var(--txt);flex:1">${l}</span>
+        <span style="font-family:Syne,sans-serif;font-weight:600;font-size:13px;color:#fff">${typeTotal>0?Math.round(typeData[i]/typeTotal*100):0}%</span>
+      </div>`).join('');
 
-// === Transform incoming JSON keys to match what the dashboard expects ===
-result.donations = (result.donations || []).map(d => ({
-  date: d.Date,
-  amount: d.Amount,
-  type: d.Type,
-  envelope: (d.Envelope || "").toLowerCase() === "yes",
-  staff1: d["Counter 1"] || "",
-  staff2: d["Counter 2"] || "",
-  notes: d.Notes || ""
-}));
+    destroyChart('compare');
+    charts['compare'] = new Chart(document.getElementById('ch-compare'), {
+      type:'line', data:{labels:months,datasets:[
+        {label:'Offerings',data:s.monthly,borderColor:'#22d3aa',backgroundColor:'rgba(34,211,170,.08)',borderWidth:2,tension:.4,fill:true,pointBackgroundColor:'#22d3aa',pointRadius:3},
+        {label:'Expenses',data:s.expMonthly,borderColor:'#f2554a',backgroundColor:'rgba(242,85,74,.08)',borderWidth:2,tension:.4,fill:true,pointBackgroundColor:'#f2554a',pointRadius:3},
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#6a85a8',font:{size:11},boxWidth:10}}},...CHART_DEFAULTS}
+    });
 
-result.expenses = (result.expenses || []).map(e => ({
-  date: e.Date,
-  amount: e.Amount,
-  category: e.Category,
-  description: e.Description,
-  approvedBy: e["Approved By"] || ""
-}));
+    const cats = s.expByCategory||{};
+    const catMax = Math.max(...Object.values(cats),1);
+    document.getElementById('cat-bars').innerHTML = Object.keys(cats).length===0
+      ? '<div style="color:var(--muted);font-size:12px;padding:10px 0">No expenses yet.</div>'
+      : Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+          <div class="cat-row">
+            <span class="cat-name">${k}</span>
+            <div class="cat-track"><div class="cat-fill" style="width:${Math.round(v/catMax*100)}%"></div></div>
+            <span class="cat-amt">${fmt(v)}</span>
+          </div>`).join('');
+  } catch(e) {
+    document.getElementById('dash-sub').textContent = 'Error loading data';
+    toast(e.message, 'err');
+  }
+}
 
-result.members = (result.members || []).map(m => ({
-  memberId: m.MemberID,
-  name: m.Name,
-  phone: m.Phone ? m.Phone.toString() : "",
-  email: m.Email,
-  familyId: m.FamilyID,
-  baptismDate: m["Baptism Date"],
-  status: m.Status
-}));
+// ── PPF ────────────────────────────────────────────────
+let ppfChart = null;
+async function loadPPF() {
+  try {
+    const [s, claims] = await Promise.all([api('getPPFSummary'), api('getPPFClaims')]);
+    document.getElementById('ppf-collected').textContent = fmt(s.totalCollected);
+    document.getElementById('ppf-claimed').textContent   = fmt(s.totalClaimed);
+    document.getElementById('ppf-bal').textContent       = fmt(s.balance);
 
-result.families = (result.families || []).map(f => ({
-  familyId: f.FamilyID,
-  familyName: f["Family Name"],
-  headOfFamily: f["Head of Family"],
-  address: f.Address,
-  phone: f.Phone ? f.Phone.toString() : ""
-}));
+    const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    destroyChart('ppf-m');
+    charts['ppf-m'] = new Chart(document.getElementById('ch-ppf-monthly'), {
+      type:'bar', data:{labels:months,datasets:[{label:'Collections',data:s.monthly,
+        backgroundColor:'rgba(245,158,11,.2)',borderColor:'#f59e0b',borderWidth:2,borderRadius:5}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a85a8',font:{size:11}}},
+          y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a85a8',font:{size:11},callback:v=>'RM'+v.toLocaleString()}}}}
+    });
 
-result.attendance = (result.attendance || []).map(a => ({
-  date: a.Date,
-  serviceType: a["Service Type"],
-  totalAttendance: a["Total Attendance"],
-  firstTimers: a["First Timers"],
-  children: a.Children
-}));
+    const cp = s.claimsByPurpose||{};
+    const cMax = Math.max(...Object.values(cp),1);
+    document.getElementById('ppf-claim-bars').innerHTML = Object.keys(cp).length===0
+      ? '<div style="color:var(--muted);font-size:12px;padding:10px 0">No claims yet.</div>'
+      : Object.entries(cp).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+          <div class="cat-row">
+            <span class="cat-name">${k}</span>
+            <div class="cat-track"><div class="cat-fill" style="width:${Math.round(v/cMax*100)}%;background:var(--amber)"></div></div>
+            <span class="cat-amt">${fmt(v)}</span>
+          </div>`).join('');
 
-// === Now process with your existing functions ===
-allDonations = processDonations(result.donations || []);
-allExpenses = processExpenses(result.expenses || []);
-allMembers = processMembers(result.members || []);
-allFamilies = processFamilies(result.families || []);
-allAttendance = processAttendance(result.attendance || []);
-        
-        // Build search index
-        buildSearchIndex();
-        
-        // Update UI
-        populateYearSelectors();
-        applyFilters(currentView);
-        showContent();
-        
-        console.log(`Data loaded in ${(performance.now() - startTime).toFixed(2)}ms`);
-      } catch (error) {
-        console.error("Error loading data:", error);
-        showError(error.message || "Failed to load data. Please try again later.");
-      } finally {
-        hideLoading();
-      }
-    }
-    
-    function processDonations(data) {
-      return data.map(d => ({
-        ...d,
-        amount: parseFloat(d.amount) || 0,
-        envelope: d.envelope ? 'Yes' : 'No',
-        date: parseDate(d.date),
-        type: d.type || 'Unknown',
-        staff1: d.staff1 || '',
-        staff2: d.staff2 || '',
-        notes: d.notes || ''
-      }));
-    }
-    
-    function processExpenses(data) {
-      return data.map(e => ({
-        ...e,
-        amount: parseFloat(e.amount) || 0,
-        date: parseDate(e.date),
-        category: e.category || 'General',
-        description: e.description || '',
-        approvedBy: e.approvedBy || ''
-      }));
-    }
-    
-    function processMembers(data) {
-      return data.map(m => ({
-        ...m,
-        memberId: m.memberId || '',
-        name: m.name || '',
-        phone: m.phone || '',
-        email: m.email || '',
-        familyId: m.familyId || '',
-        baptismDate: parseDate(m.baptismDate),
-        status: m.status || 'Active'
-      }));
-    }
-    
-    function processFamilies(data) {
-      return data.map(f => ({
-        ...f,
-        familyId: f.familyId || '',
-        familyName: f.familyName || '',
-        headOfFamily: f.headOfFamily || '',
-        address: f.address || '',
-        phone: f.phone || ''
-      }));
-    }
-    
-    function processAttendance(data) {
-      return data.map(a => ({
-        ...a,
-        date: parseDate(a.date),
-        serviceType: a.serviceType || 'Sunday Service',
-        totalAttendance: parseInt(a.totalAttendance) || 0,
-        firstTimers: parseInt(a.firstTimers) || 0,
-        children: parseInt(a.children) || 0
-      }));
-    }
-    
-    function buildSearchIndex() {
-      searchIndex.clear();
-      allDonations.forEach((d, index) => {
-        const searchString = [
-          d.type, 
-          d.notes || '', 
-          d.staff1, 
-          d.staff2, 
-          d.amount.toString()
-        ].join(' ').toLowerCase();
-        
-        searchIndex.set(index, searchString);
-      });
-    }
-    
-    function populateYearSelectors() {
-      const years = new Set();
-      
-      // Collect years from all data sources
-      [allDonations, allExpenses, allAttendance].forEach(data => {
-        data.forEach(item => {
-          if (!isNaN(item.date.getTime())) {
-            years.add(item.date.getFullYear());
-          }
-        });
-      });
-      
-      // Update all year selectors
-      const yearSelects = [
-        elements.yearSelect,
-        elements.yearSelectTransactions,
-        elements.yearSelectExpenses,
-        elements.yearSelectAttendance
-      ];
-      
-      yearSelects.forEach(select => {
-        select.innerHTML = '<option value="">All Years</option>';
-        
-        Array.from(years).sort((a,b) => b - a).forEach(year => {
-          const option = document.createElement('option');
-          option.value = year;
-          option.textContent = year;
-          select.appendChild(option);
-        });
-        
-        const currentYear = new Date().getFullYear();
-        if (years.has(currentYear)) {
-          select.value = currentYear;
-        }
-      });
-    }
-    
-    function applyFilters(view) {
-      currentView = view;
-      
-      switch (view) {
-        case 'summary':
-        case 'transactions':
-          filterDonations();
-          break;
-        case 'expenses':
-          filterExpenses();
-          break;
-        case 'members':
-          filterMembers();
-          break;
-        case 'attendance':
-          filterAttendance();
-          break;
-      }
-    }
-    
-    function filterDonations() {
-      const year = currentView === 'summary' 
-        ? elements.yearSelect.value 
-        : elements.yearSelectTransactions.value;
-      
-      const month = currentView === 'summary'
-        ? elements.monthSelect.value
-        : elements.monthSelectTransactions.value;
-      
-      filteredDonations = allDonations.filter(d => {
-        if (isNaN(d.date.getTime())) return false;
-        const matchesYear = !year || d.date.getFullYear() == year;
-        const matchesMonth = !month || 
-          (d.date.getMonth() + 1).toString().padStart(2, '0') === month;
-        return matchesYear && matchesMonth;
-      });
-      
-      updateSummaryCards();
-      updatePieChart();
-      updateMonthlyView();
-      updateRecentDonations();
-    }
-    
-    function filterExpenses() {
-      const year = elements.yearSelectExpenses.value;
-      const month = elements.monthSelectExpenses.value;
-      
-      filteredExpenses = allExpenses.filter(e => {
-        if (isNaN(e.date.getTime())) return false;
-        const matchesYear = !year || e.date.getFullYear() == year;
-        const matchesMonth = !month || 
-          (e.date.getMonth() + 1).toString().padStart(2, '0') === month;
-        return matchesYear && matchesMonth;
-      });
-      
-      updateExpenseSummary();
-      updateExpenseChart();
-      updateRecentExpenses();
-    }
-    
-    function filterMembers() {
-      filteredMembers = [...allMembers];
-      updateMembersSummary();
-      updateMembersList();
-    }
-    
-    function filterAttendance() {
-      const year = elements.yearSelectAttendance.value;
-      const month = elements.monthSelectAttendance.value;
-      
-      filteredAttendance = allAttendance.filter(a => {
-        if (isNaN(a.date.getTime())) return false;
-        const matchesYear = !year || a.date.getFullYear() == year;
-        const matchesMonth = !month || 
-          (a.date.getMonth() + 1).toString().padStart(2, '0') === month;
-        return matchesYear && matchesMonth;
-      });
-      
-      updateAttendanceTable();
-    }
-    
-    // ===== UI UPDATES =====
-    function updateSummaryCards() {
-      const totalServices = filteredDonations.length;
-      const totalOfferings = filteredDonations.reduce((sum, d) => sum + d.amount, 0);
-      const avgOffering = totalServices > 0 ? totalOfferings / totalServices : 0;
-      const totalExpenses = allExpenses.reduce((sum, e) => sum + e.amount, 0);
-      const activeMembers = allMembers.filter(m => m.status === 'Active').length;
-      
-      // Get period text
-      let periodText = "All Time";
-      const yearSelect = elements.yearSelect;
-      const monthSelect = elements.monthSelect;
-      
-      if (yearSelect.value && monthSelect.value) {
-        const monthNames = ["January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"];
-        periodText = `${monthNames[parseInt(monthSelect.value) - 1]} ${yearSelect.value}`;
-      } else if (yearSelect.value) {
-        periodText = `Year ${yearSelect.value}`;
-      }
-      
-      // Batch DOM updates
-      requestAnimationFrame(() => {
-        elements.totalOfferings.textContent = `RM${totalOfferings.toFixed(2)}`;
-        elements.avgOffering.textContent = `RM${avgOffering.toFixed(2)}`;
-        elements.serviceCount.textContent = totalServices;
-        elements.totalExpenses.textContent = `RM${totalExpenses.toFixed(2)}`;
-        elements.memberCount.textContent = activeMembers;
-        elements.offeringPeriod.textContent = periodText;
-        elements.avgPeriod.textContent = periodText === "All Time" ? "Per service" : periodText;
-        elements.servicePeriod.textContent = periodText;
-        elements.expensePeriod.textContent = periodText;
-      });
-    }
-    
-    function updateExpenseSummary() {
-      const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
-      
-      let periodText = "All Time";
-      const yearSelect = elements.yearSelectExpenses;
-      const monthSelect = elements.monthSelectExpenses;
-      
-      if (yearSelect.value && monthSelect.value) {
-        const monthNames = ["January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"];
-        periodText = `${monthNames[parseInt(monthSelect.value) - 1]} ${yearSelect.value}`;
-      } else if (yearSelect.value) {
-        periodText = `Year ${yearSelect.value}`;
-      }
-      
-      requestAnimationFrame(() => {
-        elements.totalExpenses.textContent = `RM${totalExpenses.toFixed(2)}`;
-        elements.expensePeriod.textContent = periodText;
-      });
-    }
-    
-    function updateMembersSummary() {
-      const activeMembers = allMembers.filter(m => m.status === 'Active').length;
-      requestAnimationFrame(() => {
-        elements.memberCount.textContent = activeMembers;
-      });
-    }
-    
-    function updatePieChart() {
-      const typeData = {};
-      
-      filteredDonations.forEach(d => {
-        if (!typeData[d.type]) typeData[d.type] = 0;
-        typeData[d.type] += d.amount;
-      });
-      
-      if (!pieChart) {
-        const ctx = document.getElementById('pieChart').getContext('2d');
-        pieChart = new Chart(ctx, {
-          type: 'pie',
-          data: {
-            labels: Object.keys(typeData),
-            datasets: [{
-              data: Object.values(typeData),
-              backgroundColor: [
-                '#0a2463', '#3e92cc', '#d4af37', '#2ecc71', '#e74c3c', '#9b59b6',
-                '#1abc9c', '#f39c12', '#3498db', '#e67e22', '#34495e', '#16a085'
-              ],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'bottom',
-                labels: {
-                  boxWidth: 12,
-                  font: { size: 10 }
-                }
-              },
-              tooltip: {
-                callbacks: {
-                  label: function(context) {
-                    const label = context.label || '';
-                    const value = context.raw || 0;
-                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                    const percentage = Math.round((value / total) * 100);
-                    return `${label}: RM${value.toFixed(2)} (${percentage}%)`;
-                  }
-                }
-              }
-            }
-          }
-        });
+    const tb = document.querySelector('#tbl-ppf-claims tbody');
+    tb.innerHTML = claims.length===0
+      ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">No claims recorded.</td></tr>'
+      : claims.map(r=>`<tr>
+          <td>${r.date}</td><td>${r.beneficiary}</td>
+          <td><span class="tag tag-ppf">${r.purpose}</span></td>
+          <td style="color:var(--muted);font-size:12px">${r.description||''}</td>
+          <td class="amt">${fmt(r.amount)}</td>
+          <td><span class="tag ${r.source==='NEW_ENTRY'?'tag-new':'tag-old'}">${r.source}</span></td>
+        </tr>`).join('');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+// ── Records ────────────────────────────────────────────
+async function loadRecords() {
+  try {
+    const [offs, exps] = await Promise.all([api('getRecentOfferings'), api('getRecentExpenses')]);
+    document.querySelector('#tbl-off tbody').innerHTML = offs.length===0
+      ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">No offerings yet.</td></tr>'
+      : offs.map(r=>`<tr>
+          <td>${r.date}</td>
+          <td><span class="tag ${r.offeringType==='Sunday Service'?'tag-ss':r.offeringType==='Poor People Fund'?'tag-ppf':'tag-so'}">${r.offeringType}</span></td>
+          <td class="amt">${fmt(r.amount)}</td><td>${r.year}</td>
+          <td><span class="tag ${r.source==='NEW_ENTRY'?'tag-new':'tag-old'}">${r.source}</span></td>
+          <td style="color:var(--muted);font-size:11px">${r.denoms||r.ref||''}</td>
+        </tr>`).join('');
+
+    document.querySelector('#tbl-exp tbody').innerHTML = exps.length===0
+      ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">No expenses yet.</td></tr>'
+      : exps.map(r=>`<tr>
+          <td>${r.date}</td><td>${r.category}</td><td>${r.description}</td>
+          <td class="amt">${fmt(r.amount)}</td><td>${r.year}</td>
+          <td><span class="tag ${r.source==='NEW_ENTRY'?'tag-new':'tag-old'}">${r.source}</span></td>
+        </tr>`).join('');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+// ── Settings ───────────────────────────────────────────
+function loadSettings() {
+  const saved = localStorage.getItem('kltf_api_url')||'';
+  document.getElementById('s-api-url').value = saved;
+  if (!saved) { toast('No API URL configured. Please add your Apps Script URL.','info'); return; }
+  api('getSettings').then(s => {
+    document.getElementById('s-year').value    = s['Active Financial Year']||'';
+    document.getElementById('s-dfcm').value    = s['DFCM Percentage']||10;
+    document.getElementById('s-opening').value = s['Opening Balance']||0;
+    document.getElementById('s-closing').value = s['Closing Balance']||'';
+  }).catch(e => toast(e.message,'err'));
+}
+
+function saveApiUrl() {
+  const url = document.getElementById('s-api-url').value.trim();
+  if (!url) { toast('Please enter the Apps Script URL.','err'); return; }
+  localStorage.setItem('kltf_api_url', url);
+  API_URL = url;
+  toast('API URL saved. Testing connection...','info');
+  testConnection();
+}
+
+function testConnection() {
+  const url = document.getElementById('s-api-url').value.trim() || API_URL;
+  if (!url) { toast('No API URL to test.','err'); return; }
+  API_URL = url;
+  api('getSettings')
+    .then(() => toast('✓ Connection successful!','ok'))
+    .catch(e  => toast('Connection failed: ' + e.message,'err'));
+}
+
+function saveSettings() {
+  const d = { year: document.getElementById('s-year').value, dfcm: document.getElementById('s-dfcm').value, opening: document.getElementById('s-opening').value };
+  if (!d.year) { toast('Year is required.','err'); return; }
+  api('saveSettings', d).then(r => r.ok ? toast('Settings saved.','ok') : toast(r.msg,'err')).catch(e=>toast(e.message,'err'));
+}
+
+function runSetup() {
+  if (!confirm('Create all required sheets in your Google Sheet?\n\nExisting sheets will NOT be modified.')) return;
+  api('initialSetup').then(r => toast(r.msg||'Setup complete.','ok')).catch(e=>toast(e.message,'err'));
+}
+
+// ── Year Rollover ──────────────────────────────────────
+async function confirmRollover() {
+  try {
+    const s = await api('getSummary');
+    if (!confirm('YEAR-END ROLLOVER\n\nClose FY ' + s.activeYear + ' → Open FY ' + (s.activeYear+1) +
+      '\n\nClosing Balance: ' + fmt(s.netBalance) + '\n\nAll data is preserved. Continue?')) return;
+    const res = await api('doYearRollover');
+    toast('FY ' + (res.newYear-1) + ' closed. FY ' + res.newYear + ' is now active.','ok');
+    loadDashboard();
+  } catch(e) { toast(e.message,'err'); }
+}
+
+// ══════════════════════════════════════════════════════
+// MEMBERS
+// ══════════════════════════════════════════════════════
+let allMembers = [];
+
+async function loadMembers() {
+  document.getElementById('member-grid').innerHTML =
+    '<div style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1">Loading...</div>';
+  try {
+    allMembers = await api('getMembers');
+    document.getElementById('mem-count-sub').textContent =
+      allMembers.length + ' registered members · click a card to edit';
+    renderMemberCards(allMembers);
+  } catch(e) { toast(e.message,'err'); }
+}
+
+function renderMemberCards(members) {
+  const grid = document.getElementById('member-grid');
+  if (!members.length) {
+    grid.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1">No members yet. Click <strong>+ Add Member</strong> to get started.</div>';
+    return;
+  }
+  grid.innerHTML = members.map(m => {
+    const initials = (m.name||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    const skills = (m.skills||'').split(',').map(s=>s.trim()).filter(Boolean);
+    return `<div class="mem-card" onclick="openMemberModal(${m.sno})">
+      <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;">
+        <div class="mem-avatar">${initials}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="mem-name">${m.name}</div>
+          <div class="mem-detail">${m.phone||'—'} · ${m.email||'—'}</div>
+          <div class="mem-detail" style="margin-top:2px;">DOB: ${m.dob||'—'}</div>
+        </div>
+        <span class="baptism-badge ${m.baptism==='Yes'?'bap-yes':'bap-no'}">${m.baptism==='Yes'?'✓ Baptized':'Unbaptized'}</span>
+      </div>
+      ${m.spouseName ? `<div style="font-size:11px;color:var(--muted);margin-bottom:6px;">👫 ${m.spouseName}</div>` : ''}
+      ${(m.child1||m.child2||m.child3) ? `<div style="font-size:11px;color:var(--muted);margin-bottom:6px;">👶 ${[m.child1,m.child2,m.child3].filter(Boolean).join(', ')}</div>` : ''}
+      <div class="mem-tags">
+        ${skills.slice(0,4).map(s=>`<span class="skill-tag">${s}</span>`).join('')}
+        ${skills.length>4?`<span class="skill-tag">+${skills.length-4}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterMembers() {
+  const q = document.getElementById('mem-search').value.toLowerCase();
+  if (!q) { renderMemberCards(allMembers); return; }
+  renderMemberCards(allMembers.filter(m =>
+    (m.name+m.phone+m.email+m.skills+m.spouseName+m.address).toLowerCase().includes(q)
+  ));
+}
+
+function openMemberModal(sno) {
+  const overlay = document.getElementById('mem-modal');
+  const isNew   = !sno;
+  document.getElementById('modal-title').textContent = isNew ? 'Add New Member' : 'Edit Member';
+  document.getElementById('del-btn').style.display   = isNew ? 'none' : 'inline-flex';
+
+  const fields = ['sno','name','dob','phone','email','skills','baptism',
+    'spname','spdob','spphone','spemail','spskills','spbaptism',
+    'c1','c1dob','c2','c2dob','c3','c3dob','address','joined','status','notes'];
+  const mFields = ['sno','name','dob','phone','email','skills','baptism',
+    'spouseName','spouseDob','spousePhone','spouseEmail','spouseSkills','spouseBaptism',
+    'child1','child1Dob','child2','child2Dob','child3','child3Dob','address','joinedYear','status','notes'];
+
+  if (isNew) {
+    fields.forEach(f => { const el=document.getElementById('m-'+f); if(el) el.value=''; });
+    document.getElementById('m-joined').value = new Date().getFullYear();
+  } else {
+    const m = allMembers.find(x => String(x.sno)===String(sno));
+    if (!m) { toast('Member not found.','err'); return; }
+    fields.forEach((f,i) => {
+      const el = document.getElementById('m-'+f);
+      if (!el) return;
+      const val = m[mFields[i]]||'';
+      // Convert dd/MM/yyyy dates to YYYY-MM-DD for input[type=date]
+      if (el.type==='date' && val && val.includes('/')) {
+        const [d,mo,y] = val.split('/');
+        el.value = y+'-'+mo+'-'+d;
       } else {
-        pieChart.data.labels = Object.keys(typeData);
-        pieChart.data.datasets[0].data = Object.values(typeData);
-        pieChart.update();
+        el.value = val;
       }
-    }
-    
-    function updateExpenseChart() {
-      const categoryData = {};
-      
-      filteredExpenses.forEach(e => {
-        if (!categoryData[e.category]) categoryData[e.category] = 0;
-        categoryData[e.category] += e.amount;
+    });
+  }
+  overlay.classList.remove('hidden');
+}
+
+function closeMemberModal() { document.getElementById('mem-modal').classList.add('hidden'); }
+
+async function saveMember() {
+  const d = {
+    sno:          document.getElementById('m-sno').value,
+    name:         document.getElementById('m-name').value,
+    dob:          document.getElementById('m-dob').value,
+    phone:        document.getElementById('m-phone').value,
+    email:        document.getElementById('m-email').value,
+    skills:       document.getElementById('m-skills').value,
+    baptism:      document.getElementById('m-baptism').value,
+    spouseName:   document.getElementById('m-spname').value,
+    spouseDob:    document.getElementById('m-spdob').value,
+    spousePhone:  document.getElementById('m-spphone').value,
+    spouseEmail:  document.getElementById('m-spemail').value,
+    spouseSkills: document.getElementById('m-spskills').value,
+    spouseBaptism:document.getElementById('m-spbaptism').value,
+    child1:       document.getElementById('m-c1').value,
+    child1Dob:    document.getElementById('m-c1dob').value,
+    child2:       document.getElementById('m-c2').value,
+    child2Dob:    document.getElementById('m-c2dob').value,
+    child3:       document.getElementById('m-c3').value,
+    child3Dob:    document.getElementById('m-c3dob').value,
+    address:      document.getElementById('m-address').value,
+    joinedYear:   document.getElementById('m-joined').value,
+    status:       document.getElementById('m-status').value,
+    notes:        document.getElementById('m-notes').value,
+  };
+  if (!d.name) { toast('Name is required.','err'); return; }
+  try {
+    const res = await api('saveMember', d);
+    if (res.ok) { toast(res.msg,'ok'); closeMemberModal(); loadMembers(); }
+    else toast(res.msg,'err');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+async function deleteMember() {
+  const sno = document.getElementById('m-sno').value;
+  const name= document.getElementById('m-name').value;
+  if (!confirm('Delete member: ' + name + '?\n\nThis cannot be undone.')) return;
+  try {
+    const res = await api('deleteMember', {sno});
+    if (res.ok) { toast(res.msg,'ok'); closeMemberModal(); loadMembers(); }
+    else toast(res.msg,'err');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+// ── Member Dashboard ───────────────────────────────────
+async function loadMemberDashboard() {
+  try {
+    const members = allMembers.length ? allMembers : await api('getMembers');
+    allMembers = members;
+
+    const total  = members.length;
+    const bap    = members.filter(m=>m.baptism==='Yes').length;
+    const fams   = members.filter(m=>m.spouseName).length;
+    const children = members.reduce((n,m)=>{
+      return n + (m.child1?1:0) + (m.child2?1:0) + (m.child3?1:0);
+    }, 0);
+
+    document.getElementById('mk-total').textContent = total;
+    document.getElementById('mk-bap').textContent   = bap;
+    document.getElementById('mk-bap-pct').textContent = total>0 ? Math.round(bap/total*100)+'% baptized' : '—';
+    document.getElementById('mk-fam').textContent   = fams;
+    document.getElementById('mk-child').textContent = children;
+
+    // Baptism donut
+    destroyChart('bap');
+    charts['bap'] = new Chart(document.getElementById('ch-bap'), {
+      type:'doughnut',
+      data:{labels:['Baptized','Unbaptized'],datasets:[{data:[bap,total-bap],backgroundColor:['#22d3aa','#f2554a'],borderWidth:2,borderColor:'#111c2d'}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false}}}
+    });
+    document.getElementById('bap-legend').innerHTML = [['Baptized',bap,'#22d3aa'],['Unbaptized',total-bap,'#f2554a']].map(([l,v,c])=>`
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px;">
+        <span style="width:10px;height:10px;border-radius:2px;background:${c};flex-shrink:0"></span>
+        <span style="font-size:12px;color:var(--txt);flex:1">${l}</span>
+        <span style="font-family:Syne,sans-serif;font-weight:600;font-size:14px;color:#fff">${v}</span>
+      </div>`).join('');
+
+    // Join year bar
+    const joinYears = {};
+    members.forEach(m => { if(m.joinedYear) joinYears[m.joinedYear]=(joinYears[m.joinedYear]||0)+1; });
+    const sortedYears = Object.keys(joinYears).sort();
+    destroyChart('join');
+    charts['join'] = new Chart(document.getElementById('ch-join'), {
+      type:'bar',
+      data:{labels:sortedYears,datasets:[{label:'Members',data:sortedYears.map(y=>joinYears[y]),backgroundColor:'rgba(79,144,245,.3)',borderColor:'#4f90f5',borderWidth:2,borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a85a8',font:{size:11}}},
+          y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a85a8',font:{size:11},stepSize:1}}}}
+    });
+
+    // Skills cloud
+    const skillCount = {};
+    members.forEach(m => {
+      (m.skills||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(s => {
+        skillCount[s] = (skillCount[s]||0)+1;
       });
-      
-      if (!expenseChart) {
-        const ctx = document.getElementById('expenseChart').getContext('2d');
-        expenseChart = new Chart(ctx, {
-          type: 'pie',
-          data: {
-            labels: Object.keys(categoryData),
-            datasets: [{
-              data: Object.values(categoryData),
-              backgroundColor: [
-                '#0a2463', '#3e92cc', '#d4af37', '#2ecc71', '#e74c3c', '#9b59b6',
-                '#1abc9c', '#f39c12', '#3498db', '#e67e22', '#34495e', '#16a085'
-              ],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'bottom',
-                labels: {
-                  boxWidth: 12,
-                  font: { size: 10 }
-                }
-              },
-              tooltip: {
-                callbacks: {
-                  label: function(context) {
-                    const label = context.label || '';
-                    const value = context.raw || 0;
-                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                    const percentage = Math.round((value / total) * 100);
-                    return `${label}: RM${value.toFixed(2)} (${percentage}%)`;
-                  }
-                }
-              }
-            }
-          }
-        });
-      } else {
-        expenseChart.data.labels = Object.keys(categoryData);
-        expenseChart.data.datasets[0].data = Object.values(categoryData);
-        expenseChart.update();
-      }
-    }
-    
-    function updateMonthlyView() {
-      const monthlyData = {};
-      
-      filteredDonations.forEach(d => {
-        if (isNaN(d.date.getTime())) return;
-        
-        const monthYear = `${d.date.getFullYear()}-${(d.date.getMonth()+1).toString().padStart(2, '0')}`;
-        const monthName = d.date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-        
-        if (!monthlyData[monthYear]) {
-          monthlyData[monthYear] = {
-            name: monthName,
-            types: {},
-            total: 0,
-            timestamp: d.date.getTime()
-          };
-        }
-        
-        if (!monthlyData[monthYear].types[d.type]) {
-          monthlyData[monthYear].types[d.type] = 0;
-        }
-        
-        monthlyData[monthYear].types[d.type] += d.amount;
-        monthlyData[monthYear].total += d.amount;
-      });
-      
-      const fragment = document.createDocumentFragment();
-      const sortedMonths = Object.entries(monthlyData)
-        .sort((a, b) => b[1].timestamp - a[1].timestamp);
-      
-      if (sortedMonths.length === 0) {
-        fragment.appendChild(createTableRow(['No data available for selected period'], 3));
-      } else {
-        sortedMonths.forEach(([key, month]) => {
-          // Month total row
-          const monthTotalRow = document.createElement('tr');
-          monthTotalRow.className = 'month-total-row';
-          monthTotalRow.innerHTML = `
-            <td>${month.name}</td>
-            <td>Total</td>
-            <td class="amount-column">${month.total.toFixed(2)}</td>
-          `;
-          fragment.appendChild(monthTotalRow);
-          
-          // Type rows
-          Object.entries(month.types)
-            .sort((a, b) => a[0].localeCompare(b[0]))
-            .forEach(([type, amount]) => {
-              const row = document.createElement('tr');
-              row.innerHTML = `
-                <td></td>
-                <td class="type-column">${type}</td>
-                <td class="amount-column">${amount.toFixed(2)}</td>
-              `;
-              fragment.appendChild(row);
-            });
-        });
-      }
-      
-      elements.monthlyDonationsTable.innerHTML = '';
-      elements.monthlyDonationsTable.appendChild(fragment);
-    }
-    
-    function updateRecentDonations() {
-      const fragment = document.createDocumentFragment();
-      const startIdx = 0;
-      const endIdx = currentTransactionPage * TRANSACTIONS_PER_PAGE;
-      
-      filteredDonations
-        .slice(startIdx, endIdx)
-        .forEach(d => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${formatDate(d.date)}</td>
-            <td>${d.amount.toFixed(2)}</td>
-            <td>${d.type}</td>
-            <td>${d.envelope === 'Yes' ? '✓' : '✗'}</td>
-            <td>${d.staff1}${d.staff2 ? ' & ' + d.staff2 : ''}</td>
-            <td>${d.notes || ''}</td>
-          `;
-          fragment.appendChild(row);
-        });
-      
-      elements.donationsTable.innerHTML = '';
-      elements.donationsTable.appendChild(fragment);
-      elements.loadMoreBtn.style.display = 
-        filteredDonations.length > endIdx ? 'inline-block' : 'none';
-    }
-    
-    function updateRecentExpenses() {
-      const fragment = document.createDocumentFragment();
-      const startIdx = 0;
-      const endIdx = currentExpensePage * EXPENSES_PER_PAGE;
-      
-      filteredExpenses
-        .slice(startIdx, endIdx)
-        .forEach(e => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${formatDate(e.date)}</td>
-            <td>${e.amount.toFixed(2)}</td>
-            <td>${e.category}</td>
-            <td>${e.description}</td>
-            <td>${e.approvedBy}</td>
-          `;
-          fragment.appendChild(row);
-        });
-      
-      elements.expensesTable.innerHTML = '';
-      elements.expensesTable.appendChild(fragment);
-      elements.loadMoreExpensesBtn.style.display = 
-        filteredExpenses.length > endIdx ? 'inline-block' : 'none';
-    }
-    
-    function updateMembersList() {
-      const fragment = document.createDocumentFragment();
-      const startIdx = 0;
-      const endIdx = currentMemberPage * MEMBERS_PER_PAGE;
-      
-      filteredMembers
-        .slice(startIdx, endIdx)
-        .forEach(m => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${m.memberId}</td>
-            <td>${m.name}</td>
-            <td>${m.phone}</td>
-            <td>${m.email}</td>
-            <td>${m.familyId}</td>
-            <td>${m.baptismDate ? formatDate(m.baptismDate) : ''}</td>
-            <td>${m.status}</td>
-          `;
-          fragment.appendChild(row);
-        });
-      
-      elements.membersTable.innerHTML = '';
-      elements.membersTable.appendChild(fragment);
-      elements.loadMoreMembersBtn.style.display = 
-        filteredMembers.length > endIdx ? 'inline-block' : 'none';
-    }
-    
-    function updateFamiliesTable() {
-      const fragment = document.createDocumentFragment();
-      
-      allFamilies.forEach(f => {
-        const memberCount = allMembers.filter(m => m.familyId === f.familyId).length;
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${f.familyId}</td>
-          <td>${f.familyName}</td>
-          <td>${f.headOfFamily}</td>
-          <td>${memberCount} members</td>
-          <td>${f.address}</td>
-          <td>${f.phone}</td>
-        `;
-        fragment.appendChild(row);
-      });
-      
-      elements.familiesTable.innerHTML = '';
-      elements.familiesTable.appendChild(fragment);
-    }
-    
-    function updateAttendanceTable() {
-      const fragment = document.createDocumentFragment();
-      
-      filteredAttendance.forEach(a => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${formatDate(a.date)}</td>
-          <td>${a.serviceType}</td>
-          <td>${a.totalAttendance}</td>
-          <td>${a.firstTimers}</td>
-          <td>${a.children}</td>
-        `;
-        fragment.appendChild(row);
-      });
-      
-      elements.attendanceTable.innerHTML = '';
-      elements.attendanceTable.appendChild(fragment);
-    }
-    
-    // ===== VIEW MANAGEMENT =====
-    function switchView(view) {
-      currentView = view;
-      
-      // Update active button
-      elements.summaryBtn.classList.toggle('active', view === 'summary');
-      elements.transactionsBtn.classList.toggle('active', view === 'transactions');
-      elements.expensesBtn.classList.toggle('active', view === 'expenses');
-      elements.membersBtn.classList.toggle('active', view === 'members');
-      
-      // Update aria-pressed
-      elements.summaryBtn.setAttribute('aria-pressed', view === 'summary');
-      elements.transactionsBtn.setAttribute('aria-pressed', view === 'transactions');
-      elements.expensesBtn.setAttribute('aria-pressed', view === 'expenses');
-      elements.membersBtn.setAttribute('aria-pressed', view === 'members');
-      
-      // Show/hide pages
-      elements.summaryPage.style.display = view === 'summary' ? 'block' : 'none';
-      elements.transactionsPage.style.display = view === 'transactions' ? 'block' : 'none';
-      elements.expensesPage.style.display = view === 'expenses' ? 'block' : 'none';
-      elements.membersPage.style.display = view === 'members' ? 'block' : 'none';
-      
-      // Reset pagination
-      currentTransactionPage = 1;
-      currentExpensePage = 1;
-      currentMemberPage = 1;
-      
-      // Apply filters for the current view
-      applyFilters(view);
-    }
-    
-    function activateTab(tabId) {
-      // Update tab buttons
-      elements.tabButtons.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tab === tabId);
-      });
-      
-      // Update tab contents
-      elements.tabContents.forEach(content => {
-        content.classList.toggle('active', content.id === `${tabId}Tab`);
-      });
-      
-      // Update data if needed
-      if (tabId === 'families') {
-        updateFamiliesTable();
-      } else if (tabId === 'attendance') {
-        updateAttendanceTable();
-      }
-    }
-    
-    // ===== UTILITY FUNCTIONS =====
-    function parseDate(dateString) {
-      if (!dateString) return new Date(NaN);
-      const date = new Date(dateString);
-      if (!isNaN(date)) return date;
-      
-      const parts = dateString.split(/[-/]/);
-      if (parts.length === 3) {
-        const dayFirst = new Date(parts[2], parts[1]-1, parts[0]);
-        if (!isNaN(dayFirst)) return dayFirst;
-        
-        const monthFirst = new Date(parts[2], parts[0]-1, parts[1]);
-        if (!isNaN(monthFirst)) return monthFirst;
-      }
-      
-      return new Date(NaN);
-    }
-    
-    function formatDate(date) {
-      if (isNaN(date.getTime())) return 'Invalid date';
-      return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-    }
-    
-    function debounce(func, wait) {
-      let timeout;
-      return function() {
-        const context = this, args = arguments;
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          func.apply(context, args);
-        }, wait);
-      };
-    }
-    
-    function setDefaultDateFilters() {
-      const currentDate = new Date();
-      const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-      
-      elements.monthSelect.value = currentMonth;
-      elements.monthSelectTransactions.value = currentMonth;
-      elements.monthSelectExpenses.value = currentMonth;
-      elements.monthSelectAttendance.value = currentMonth;
-    }
-    
-    function showLoading() {
-      elements.loading.style.display = 'block';
-    }
-    
-    function hideLoading() {
-      elements.loading.style.display = 'none';
-    }
-    
-    function showError(message) {
-      elements.errorText.textContent = message;
-      elements.error.style.display = 'block';
-    }
-    
-    function hideError() {
-      elements.error.style.display = 'none';
-    }
-    
-    function showContent() {
-      elements.content.style.display = 'block';
-    }
-    
-    function hideContent() {
-      elements.content.style.display = 'none';
-    }
-    
-    function createTableRow(content, colspan = 1) {
-      const row = document.createElement('tr');
-      const cell = document.createElement('td');
-      cell.textContent = content;
-      cell.colSpan = colspan;
-      row.appendChild(cell);
-      return row;
-    }
-    
-    // ===== EVENT HANDLERS =====
-    function handleSearch() {
-      currentSearchTerm = elements.searchInput.value.toLowerCase();
-      currentTransactionPage = 1;
-      updateRecentDonations();
-    }
-    
-    function handleExpenseSearch() {
-      currentSearchTerm = elements.searchExpensesInput.value.toLowerCase();
-      currentExpensePage = 1;
-      updateRecentExpenses();
-    }
-    
-    function handleMemberSearch() {
-      currentSearchTerm = elements.searchMembersInput.value.toLowerCase();
-      currentMemberPage = 1;
-      updateMembersList();
-    }
-    
-    function handleFamilySearch() {
-      currentSearchTerm = elements.searchFamiliesInput.value.toLowerCase();
-      updateFamiliesTable();
-    }
-    
-    function handlePrint() {
-      window.print();
-    }
-    
-    function handleResize() {
-      if (pieChart) pieChart.resize();
-      if (expenseChart) expenseChart.resize();
-    }
-    
-    function loadMoreTransactions() {
-      currentTransactionPage++;
-      updateRecentDonations();
-    }
-    
-    function loadMoreExpenses() {
-      currentExpensePage++;
-      updateRecentExpenses();
-    }
-    
-    function loadMoreMembers() {
-      currentMemberPage++;
-      updateMembersList();
-    }
-    
-    // ===== EXPORT FUNCTIONS =====
-    function exportToCSV() {
-      let dataToExport = filteredDonations;
-      const year = elements.yearSelect.value;
-      const month = elements.monthSelect.value;
-      
-      if (currentSearchTerm) {
-        dataToExport = searchDonationsOptimized(currentSearchTerm);
-      }
-      
-      exportDataAsCSV(dataToExport, 'donations', year, month);
-    }
-    
-    function exportExpensesToCSV() {
-      let dataToExport = filteredExpenses;
-      const year = elements.yearSelectExpenses.value;
-      const month = elements.monthSelectExpenses.value;
-      
-      if (currentSearchTerm) {
-        dataToExport = filteredExpenses.filter(e => 
-          e.category.toLowerCase().includes(currentSearchTerm) ||
-          (e.description && e.description.toLowerCase().includes(currentSearchTerm)) ||
-          e.approvedBy.toLowerCase().includes(currentSearchTerm) ||
-          e.amount.toString().includes(currentSearchTerm)
-        );
-      }
-      
-      exportDataAsCSV(dataToExport, 'expenses', year, month);
-    }
-    
-    function exportMembersToCSV() {
-      let dataToExport = filteredMembers;
-      
-      if (currentSearchTerm) {
-        dataToExport = filteredMembers.filter(m => 
-          m.name.toLowerCase().includes(currentSearchTerm) ||
-          m.memberId.toLowerCase().includes(currentSearchTerm) ||
-          (m.phone && m.phone.includes(currentSearchTerm)) ||
-          (m.email && m.email.toLowerCase().includes(currentSearchTerm)) ||
-          (m.familyId && m.familyId.toLowerCase().includes(currentSearchTerm)) ||
-          m.status.toLowerCase().includes(currentSearchTerm)
-        );
-      }
-      
-      exportDataAsCSV(dataToExport, 'members');
-    }
-    
-    function exportDataAsCSV(data, type, year, month) {
-      let headers, rows;
-      
-      switch (type) {
-        case 'donations':
-          headers = ['Date', 'Amount (RM)', 'Type', 'Attended', 'Counter 1', 'Counter 2', 'Notes'];
-          rows = data.map(d => [
-            formatDate(d.date),
-            d.amount.toFixed(2),
-            `"${d.type.replace(/"/g, '""')}"`,
-            d.envelope,
-            `"${d.staff1.replace(/"/g, '""')}"`,
-            `"${d.staff2.replace(/"/g, '""')}"`,
-            `"${(d.notes || '').replace(/"/g, '""')}"`
-          ]);
-          break;
-          
-        case 'expenses':
-          headers = ['Date', 'Amount (RM)', 'Category', 'Description', 'Approved By'];
-          rows = data.map(e => [
-            formatDate(e.date),
-            e.amount.toFixed(2),
-            `"${e.category.replace(/"/g, '""')}"`,
-            `"${(e.description || '').replace(/"/g, '""')}"`,
-            `"${e.approvedBy.replace(/"/g, '""')}"`
-          ]);
-          break;
-          
-        case 'members':
-          headers = ['Member ID', 'Name', 'Phone', 'Email', 'Family ID', 'Baptism Date', 'Status'];
-          rows = data.map(m => [
-            m.memberId,
-            `"${m.name.replace(/"/g, '""')}"`,
-            m.phone,
-            m.email,
-            m.familyId,
-            m.baptismDate ? formatDate(m.baptismDate) : '',
-            m.status
-          ]);
-          break;
-      }
-      
-      const csvContent = [
-        headers.join(','),
-        ...rows.map(row => row.join(','))
-      ].join('\n');
-      
-      let filename = type;
-      if (year && month) {
-        const monthNames = ["January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"];
-        filename += `_${monthNames[parseInt(month) - 1]}_${year}`;
-      } else if (year) {
-        filename += `_year_${year}`;
-      }
-      
-      if (currentSearchTerm) {
-        filename += `_search_${currentSearchTerm.substring(0, 20)}`;
-      }
-      
-      downloadCSV(csvContent, `${filename}.csv`);
-    }
-    
-    function downloadCSV(content, filename) {
-      const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-    
-    // ===== SEARCH OPTIMIZATION =====
-    function searchDonationsOptimized(term) {
-      const results = [];
-      for (const [index, text] of searchIndex.entries()) {
-        if (text.includes(term)) {
-          results.push(allDonations[index]);
-        }
-      }
-      return results;
-    }
-  </script>
+    });
+    const maxSkill = Math.max(...Object.values(skillCount),1);
+    document.getElementById('skills-cloud').innerHTML = Object.entries(skillCount)
+      .sort((a,b)=>b[1]-a[1]).slice(0,20)
+      .map(([s,c]) => {
+        const size = 11 + Math.round((c/maxSkill)*8);
+        return `<span style="background:var(--bg3);color:var(--txt);border-radius:6px;padding:4px 10px;font-size:${size}px;font-weight:600;cursor:default;" title="${c} member(s)">${s} <span style="color:var(--muted);font-size:10px">${c}</span></span>`;
+      }).join('');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  buildDenoms();
+  const today = new Date().toISOString().split('T')[0];
+  ['off-date','exp-date','ppf-date'].forEach(id => { document.getElementById(id).value = today; });
+  document.getElementById('m-joined').value = new Date().getFullYear();
+
+  if (!API_URL) {
+    document.getElementById('fy-pill').textContent = 'Configure API';
+    document.getElementById('dash-sub').textContent = 'Go to Settings and add your Apps Script Web App URL to begin.';
+    document.getElementById('k-off').textContent =
+    document.getElementById('k-exp').textContent =
+    document.getElementById('k-bal').textContent =
+    document.getElementById('k-dfcm').textContent = 'RM —';
+    toast('Welcome! Go to Settings to configure the API URL.','info');
+  } else {
+    loadDashboard();
+  }
+});
+</script>
 </body>
 </html>
