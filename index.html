@@ -4,1510 +4,660 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>KLTF Finance System</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
-/* ═══════════════════════════════ TOKENS */
-:root{
-  --bg:    #080d14; --bg2:#0e1623; --bg3:#152236;
-  --card:  #111c2d; --card2:#162034;
-  --bdr:   #1e3250; --bdr2:#2a4470;
-  --g:     #22d3aa; --g2:#16a97e; --g3:#0d7a59;
-  --blue:  #4f90f5; --amber:#f59e0b; --red:#f2554a; --purple:#a78bfa;
-  --txt:   #dce8f5; --muted:#6a85a8; --muted2:#3a5070;
-  --r:10px; --r2:14px;
-}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px}
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:var(--bg2)}
-::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px}
-
-/* ═══════════════════════════════ LAYOUT */
-.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
-
-/* ═══════════════════════════════ SIDEBAR */
-.sidebar{
-  position:fixed;left:0;top:0;bottom:0;width:220px;
-  background:var(--bg2);border-right:1px solid var(--bdr);
-  display:flex;flex-direction:column;z-index:100;
-  transition:transform .25s;
-}
-.brand{padding:20px 16px 16px;border-bottom:1px solid var(--bdr);}
-.brand-logo{
-  width:40px;height:40px;border-radius:10px;
-  background:linear-gradient(135deg,var(--g),var(--blue));
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#000;
-  margin-bottom:10px;
-}
-.brand-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:#fff;}
-.brand-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-.fy-pill{
-  margin:12px 16px 0;background:rgba(34,211,170,.1);
-  border:1px solid rgba(34,211,170,.25);border-radius:20px;
-  padding:5px 12px;font-size:11px;font-weight:600;color:var(--g);
-  display:inline-block;
-}
-.nav{flex:1;padding:12px 8px;overflow-y:auto;}
-.nav-section{font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.8px;padding:8px 8px 4px;}
-.nav-btn{
-  display:flex;align-items:center;gap:9px;width:100%;
-  background:transparent;border:none;color:var(--muted);
-  padding:9px 10px;border-radius:8px;cursor:pointer;
-  font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;
-  transition:all .15s;text-align:left;margin-bottom:2px;
-}
-.nav-btn svg{width:15px;height:15px;flex-shrink:0}
-.nav-btn:hover{background:var(--bg3);color:var(--txt)}
-.nav-btn.active{background:rgba(34,211,170,.12);color:var(--g);border:1px solid rgba(34,211,170,.2);}
-.nav-btn .badge{
-  margin-left:auto;background:var(--red);color:#fff;
-  border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;
-}
-.nav-btn.ppf-btn.active{background:rgba(245,158,11,.12);color:var(--amber);border-color:rgba(245,158,11,.25);}
-.nav-btn.mem-btn.active{background:rgba(79,144,245,.12);color:var(--blue);border-color:rgba(79,144,245,.25);}
-
-.sidebar-footer{padding:12px 16px;border-top:1px solid var(--bdr);font-size:11px;color:var(--muted2);}
-
-/* ═══════════════════════════════ MAIN AREA */
-.content{margin-left:220px;flex:1;overflow-y:auto;min-height:100vh;}
-.page{display:none;padding:24px;}
-.page.active{display:block;animation:fadeIn .2s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-
-/* ═══════════════════════════════ TOP HEADER */
-.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
-.ph-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:#fff;}
-.ph-sub{font-size:12px;color:var(--muted);margin-top:3px;}
-.ph-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-
-/* ═══════════════════════════════ KPI CARDS */
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
-.kpi{
-  background:var(--card);border:1px solid var(--bdr);
-  border-radius:var(--r2);padding:16px 18px;position:relative;overflow:hidden;
-}
-.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--k-color,var(--g));}
-.kpi-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
-.kpi-val{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:#fff;line-height:1;}
-.kpi-sub{font-size:11px;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:5px;}
-.kpi-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:24px;opacity:.15;}
-.k-g{--k-color:var(--g)}.k-b{--k-color:var(--blue)}.k-r{--k-color:var(--red)}.k-a{--k-color:var(--amber)}.k-p{--k-color:var(--purple)}
-
-/* ═══════════════════════════════ CHART CARDS */
-.chart-grid{display:grid;gap:14px;margin-bottom:18px;}
-.g2{grid-template-columns:1fr 1fr}
-.g3{grid-template-columns:2fr 1fr}
-.chart-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);padding:18px;}
-.chart-card h3{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:3px;}
-.chart-card .csub{font-size:11px;color:var(--muted);margin-bottom:14px;}
-
-/* ═══════════════════════════════ CAT BARS */
-.cat-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(30,50,80,.6);}
-.cat-row:last-child{border-bottom:none}
-.cat-name{font-size:12px;color:var(--txt);min-width:130px;flex-shrink:0;}
-.cat-track{flex:1;height:4px;background:var(--bg2);border-radius:2px;overflow:hidden;}
-.cat-fill{height:100%;background:var(--g);border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1);}
-.cat-amt{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:#fff;min-width:90px;text-align:right;}
-
-/* ═══════════════════════════════ SLIP FORM */
-.slip-wrap{max-width:680px;}
-.slip-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);overflow:hidden;margin-bottom:14px;}
-.slip-hdr{
-  background:linear-gradient(90deg,#0a1628,#132240);
-  border-bottom:1px solid var(--bdr);padding:13px 20px;
-  display:flex;justify-content:space-between;align-items:center;
-}
-.slip-hdr h2{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--g);}
-.slip-body{padding:18px 20px;}
-
-.frow{display:grid;gap:12px;margin-bottom:12px;}
-.frow.c2{grid-template-columns:1fr 1fr}
-.frow.c3{grid-template-columns:1fr 1fr 1fr}
-.frow.c4{grid-template-columns:1fr 1fr 1fr 1fr}
-.field label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
-.field input,.field select,.field textarea{
-  width:100%;background:var(--bg2);border:1px solid var(--bdr);
-  border-radius:7px;padding:8px 11px;color:var(--txt);font-size:13px;
-  font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s;
-}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--g);box-shadow:0 0 0 2px rgba(34,211,170,.1);}
-.field select option{background:#132240}
-.field textarea{resize:vertical;min-height:60px;}
-
-/* Denomination grid */
-.denom-hdr{display:grid;grid-template-columns:120px 90px 1fr;gap:8px;margin-bottom:6px;}
-.denom-hdr span{font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;}
-.denom-row{display:grid;grid-template-columns:120px 90px 1fr;gap:8px;align-items:center;margin-bottom:5px;}
-.denom-label{font-size:13px;color:var(--txt);font-weight:500;}
-.d-input{
-  background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;
-  padding:7px;color:var(--txt);font-size:13px;text-align:center;
-  width:100%;outline:none;transition:border-color .15s;
-}
-.d-input:focus{border-color:var(--g);}
-.d-calc{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--muted2);text-align:right;}
-.d-calc.on{color:var(--g);}
-
-.subtotal{
-  background:var(--bg2);border:1px solid var(--bdr2);border-radius:8px;
-  padding:9px 14px;display:flex;justify-content:space-between;
-  align-items:center;margin:8px 0;
-}
-.subtotal span{font-size:12px;color:var(--muted);}
-.subtotal strong{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;color:var(--txt);}
-
-.grand-total{
-  background:linear-gradient(90deg,rgba(34,211,170,.1),rgba(79,144,245,.07));
-  border:1px solid rgba(34,211,170,.3);border-radius:10px;
-  padding:14px 20px;display:flex;justify-content:space-between;
-  align-items:center;margin-bottom:14px;
-}
-.gt-label{font-size:13px;font-weight:600;color:var(--txt);}
-.gt-label small{display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:1px;}
-.gt-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:700;color:var(--g);}
-
-/* ═══════════════════════════════ DIVIDER */
-hr{border:none;border-top:1px solid var(--bdr);margin:14px 0;}
-
-/* ═══════════════════════════════ TABLE */
-.tbl-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);overflow:hidden;margin-bottom:18px;}
-.tbl-hdr{padding:13px 18px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center;}
-.tbl-hdr h3{font-size:14px;font-weight:600;color:var(--txt);}
-.tbl-wrap{overflow-x:auto;}
-table{width:100%;border-collapse:collapse;font-size:13px;}
-th{padding:9px 14px;background:var(--bg2);color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:left;border-bottom:1px solid var(--bdr);}
-td{padding:10px 14px;border-bottom:1px solid rgba(30,50,80,.4);vertical-align:top;}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(255,255,255,.015)}
-.amt{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:#fff;}
-.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;}
-.tag-new{background:rgba(34,211,170,.1);color:var(--g)}
-.tag-old{background:rgba(245,158,11,.1);color:var(--amber)}
-.tag-ss{background:rgba(79,144,245,.1);color:var(--blue)}
-.tag-so{background:rgba(167,139,250,.1);color:var(--purple)}
-.tag-ppf{background:rgba(245,158,11,.1);color:var(--amber)}
-
-/* ═══════════════════════════════ BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:7px;border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap;}
-.btn svg{width:14px;height:14px;}
-.b-green{background:var(--g);color:#000}
-.b-green:hover{background:var(--g2)}
-.b-blue{background:var(--blue);color:#fff}
-.b-blue:hover{background:#3a7de0}
-.b-amber{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
-.b-amber:hover{background:rgba(245,158,11,.25)}
-.b-red{background:rgba(242,85,74,.12);color:var(--red);border:1px solid rgba(242,85,74,.25)}
-.b-red:hover{background:rgba(242,85,74,.22)}
-.b-ghost{background:transparent;color:var(--muted);border:1px solid var(--bdr2)}
-.b-ghost:hover{background:var(--bg3);color:var(--txt)}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;background:#070c14;color:#dce8f5}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:#0e1623}::-webkit-scrollbar-thumb{background:#2a4470;border-radius:3px}
+:root{--bg:#070c14;--bg2:#0e1623;--bg3:#152236;--card:#111c2d;--bdr:#1e3250;--bdr2:#2a4470;--g:#22d3aa;--g2:#16a97e;--blue:#4f90f5;--amber:#f59e0b;--red:#f2554a;--purple:#a78bfa;--txt:#dce8f5;--muted:#6a85a8;--dim:#3a5070;--r:10px;--r2:14px}
+.app{display:flex;height:100vh;overflow:hidden}
+.sb{width:210px;background:var(--bg2);border-right:1px solid var(--bdr);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-brand{padding:18px 14px 14px;border-bottom:1px solid var(--bdr)}
+.sb-logo{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--g),var(--blue));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#000;margin-bottom:9px}
+.sb-name{font-size:16px;font-weight:700;color:#fff}
+.sb-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.fy-tag{margin:10px 14px 0;display:inline-block;background:rgba(34,211,170,.1);border:1px solid rgba(34,211,170,.25);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:600;color:var(--g)}
+.sb-nav{flex:1;padding:10px 7px}
+.sb-sec{font-size:9px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;padding:10px 8px 3px}
+.nb{width:100%;display:flex;align-items:center;gap:8px;background:transparent;border:none;color:var(--muted);padding:8px 9px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;font-family:inherit;transition:all .15s;text-align:left;margin-bottom:1px}
+.nb svg{width:14px;height:14px;flex-shrink:0;opacity:.7}
+.nb:hover{background:var(--bg3);color:var(--txt)}
+.nb.on{background:rgba(34,211,170,.1);color:var(--g);border:1px solid rgba(34,211,170,.2)}
+.nb.on-a{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.2)}
+.nb.on-b{background:rgba(79,144,245,.1);color:var(--blue);border:1px solid rgba(79,144,245,.2)}
+.main{flex:1;overflow-y:auto;background:var(--bg)}
+.pg{display:none;padding:22px 24px;animation:fi .18s ease}
+.pg.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.ph-t{font-size:22px;font-weight:700;color:#fff}
+.ph-s{font-size:12px;color:var(--muted);margin-top:3px}
+.ph-a{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.krow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);padding:15px 17px;position:relative;overflow:hidden}
+.kc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kc,var(--g))}
+.kc-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.kc-v{font-size:22px;font-weight:700;color:#fff;line-height:1}
+.kc-s{font-size:11px;color:var(--muted);margin-top:5px}
+.kc-i{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:22px;opacity:.12}
+.k-g{--kc:var(--g)}.k-r{--kc:var(--red)}.k-b{--kc:var(--blue)}.k-a{--kc:var(--amber)}.k-p{--kc:var(--purple)}
+.cg{display:grid;gap:13px;margin-bottom:16px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:2fr 1fr}
+.cc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);padding:16px 18px}
+.cc h3{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:2px}
+.cc-s{font-size:11px;color:var(--muted);margin-bottom:12px}
+.cb-row{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid rgba(30,50,80,.5)}
+.cb-row:last-child{border-bottom:none}
+.cb-name{font-size:12px;color:var(--txt);min-width:120px;flex-shrink:0}
+.cb-track{flex:1;height:4px;background:var(--bg2);border-radius:2px;overflow:hidden}
+.cb-fill{height:100%;border-radius:2px;transition:width .5s ease}
+.cb-amt{font-size:13px;font-weight:700;color:#fff;min-width:85px;text-align:right}
+.slip-wrap{max-width:660px}
+.sc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);overflow:hidden;margin-bottom:12px}
+.sh{background:linear-gradient(90deg,#0a1525,#112040);border-bottom:1px solid var(--bdr);padding:12px 18px;display:flex;justify-content:space-between;align-items:center}
+.sh h2{font-size:14px;font-weight:700;color:var(--g)}
+.sh.amber h2{color:var(--amber)}
+.sb2{padding:16px 18px}
+.fr{display:grid;gap:11px;margin-bottom:11px}
+.c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:1fr 1fr 1fr}.c4{grid-template-columns:repeat(4,1fr)}
+.f label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.f input,.f select,.f textarea{width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:7px;padding:8px 11px;color:var(--txt);font-size:13px;font-family:inherit;outline:none;transition:border-color .15s}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--g);box-shadow:0 0 0 2px rgba(34,211,170,.08)}
+.f select option{background:#0e1623}
+.f textarea{resize:vertical;min-height:56px}
+.dh{display:grid;grid-template-columns:115px 80px 1fr;gap:8px;margin-bottom:5px}
+.dh span{font-size:9px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.dr{display:grid;grid-template-columns:115px 80px 1fr;gap:8px;align-items:center;margin-bottom:4px}
+.dl{font-size:13px;color:var(--txt)}
+.di{background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;padding:7px;color:var(--txt);font-size:13px;text-align:center;width:100%;outline:none;transition:border-color .15s}
+.di:focus{border-color:var(--g)}
+.dc{font-size:12px;font-weight:600;color:var(--dim);text-align:right}
+.dc.hi{color:var(--g)}
+.stl{background:var(--bg2);border:1px solid var(--bdr2);border-radius:7px;padding:8px 13px;display:flex;justify-content:space-between;align-items:center;margin:7px 0}
+.stl span{font-size:12px;color:var(--muted)}
+.stl strong{font-size:14px;font-weight:700;color:var(--txt)}
+.gt{background:linear-gradient(90deg,rgba(34,211,170,.1),rgba(79,144,245,.06));border:1px solid rgba(34,211,170,.3);border-radius:10px;padding:13px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.gt.amber{background:linear-gradient(90deg,rgba(245,158,11,.1),rgba(245,158,11,.04));border-color:rgba(245,158,11,.3)}
+.gt-l{font-size:12px;font-weight:600;color:var(--txt)}
+.gt-l small{display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:1px}
+.gt-v{font-size:28px;font-weight:800;color:var(--g)}
+.gt-v.amber{color:var(--amber)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:all .15s;white-space:nowrap}
+.bg{background:var(--g);color:#000}.bg:hover{background:var(--g2)}
+.bb{background:var(--blue);color:#fff}.bb:hover{background:#3a7de0}
+.ba{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}.ba:hover{background:rgba(245,158,11,.25)}
+.br{background:rgba(242,85,74,.1);color:var(--red);border:1px solid rgba(242,85,74,.25)}.br:hover{background:rgba(242,85,74,.2)}
+.bgh{background:transparent;color:var(--muted);border:1px solid var(--bdr2)}.bgh:hover{background:var(--bg3);color:var(--txt)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-
-/* ═══════════════════════════════ MEMBER CARDS */
-.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:18px;}
-.mem-card{
-  background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);
-  padding:16px;cursor:pointer;transition:border-color .15s;position:relative;
-}
-.mem-card:hover{border-color:var(--bdr2);}
-.mem-card.selected{border-color:var(--blue);background:rgba(79,144,245,.05);}
-.mem-avatar{
-  width:44px;height:44px;border-radius:12px;
-  background:linear-gradient(135deg,var(--blue),var(--purple));
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#fff;
-  flex-shrink:0;
-}
-.mem-name{font-size:15px;font-weight:600;color:#fff;}
-.mem-detail{font-size:12px;color:var(--muted);margin-top:2px;}
-.mem-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
-.skill-tag{background:var(--bg3);color:var(--muted);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:600;}
-.baptism-badge{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;
-}
-.bap-yes{background:rgba(34,211,170,.1);color:var(--g);}
-.bap-no{background:rgba(242,85,74,.1);color:var(--red);}
-
-/* ═══════════════════════════════ MODAL */
-.modal-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(3px);
-  z-index:1000;display:flex;align-items:flex-start;justify-content:center;
-  padding:24px 16px;overflow-y:auto;
-}
-.modal-overlay.hidden{display:none}
-.modal{
-  background:var(--bg2);border:1px solid var(--bdr);border-radius:16px;
-  width:100%;max-width:760px;padding:24px;
-  animation:slideUp .2s ease;
-}
-@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
-.modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
-.modal-hdr h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#fff;}
-.modal-close{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:20px;padding:4px;line-height:1;}
-.modal-close:hover{color:var(--txt)}
-.modal-section{margin-bottom:18px;}
-.modal-section-title{
-  font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;
-  padding-bottom:8px;border-bottom:1px solid var(--bdr);margin-bottom:12px;
-  display:flex;align-items:center;gap:6px;
-}
-.modal-section-title::before{content:'';width:3px;height:12px;background:var(--g);border-radius:2px;display:block;}
-
-/* ═══════════════════════════════ SEARCH */
-.search-bar{
-  width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;
-  padding:9px 14px 9px 36px;color:var(--txt);font-size:13px;outline:none;
-  font-family:'DM Sans',sans-serif;
-}
-.search-bar:focus{border-color:var(--g);}
-.search-wrap{position:relative;margin-bottom:14px;}
-.search-wrap::before{
-  content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);
-  font-size:12px;pointer-events:none;
-}
-
-/* ═══════════════════════════════ PPF BALANCE CARD */
-.ppf-balance{
-  background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(245,158,11,.04));
-  border:1px solid rgba(245,158,11,.3);border-radius:var(--r2);
-  padding:20px;margin-bottom:18px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;
-}
-.ppf-stat .label{font-size:10px;font-weight:700;color:rgba(245,158,11,.7);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px;}
-.ppf-stat .val{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:var(--amber);}
-.ppf-stat .note{font-size:11px;color:var(--muted);margin-top:3px;}
-
-/* ═══════════════════════════════ SETTINGS */
-.settings-group{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);margin-bottom:14px;overflow:hidden;}
-.settings-group-hdr{background:var(--bg2);padding:12px 18px;border-bottom:1px solid var(--bdr);font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
-.settings-group-body{padding:18px;}
-.info-box{background:rgba(79,144,245,.07);border:1px solid rgba(79,144,245,.2);border-radius:8px;padding:11px 14px;font-size:12px;color:#93c5fd;margin-bottom:14px;}
-.warn-box{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:11px 14px;font-size:12px;color:#fcd34d;margin-bottom:14px;}
-
-/* ═══════════════════════════════ TOAST */
-.toast{
-  position:fixed;bottom:20px;right:20px;
-  padding:13px 18px;border-radius:10px;font-size:13px;font-weight:500;
-  z-index:9999;opacity:0;transform:translateY(8px);transition:all .22s;
-  pointer-events:none;max-width:360px;border-left:3px solid;
-}
-.toast.show{opacity:1;transform:none}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(0,0,0,.2);border-top-color:currentColor;border-radius:50%;animation:rot .5s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.tc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);overflow:hidden;margin-bottom:16px}
+.tc-h{padding:12px 16px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center}
+.tc-h h3{font-size:13px;font-weight:600;color:var(--txt)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:8px 13px;background:var(--bg2);color:var(--muted);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:left;border-bottom:1px solid var(--bdr)}
+td{padding:9px 13px;border-bottom:1px solid rgba(30,50,80,.35);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.01)}
+.amt{font-size:13px;font-weight:700;color:#fff}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase}
+.t-new{background:rgba(34,211,170,.1);color:var(--g)}.t-old{background:rgba(245,158,11,.1);color:var(--amber)}
+.t-ss{background:rgba(79,144,245,.1);color:var(--blue)}.t-so{background:rgba(167,139,250,.1);color:var(--purple)}.t-ppf{background:rgba(245,158,11,.12);color:var(--amber)}
+.ppf-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.02));border:1px solid rgba(245,158,11,.25);border-radius:var(--r2);padding:16px 18px;margin-bottom:16px}
+.ps-l{font-size:9px;font-weight:700;color:rgba(245,158,11,.6);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+.ps-v{font-size:22px;font-weight:800;color:var(--amber)}
+.ps-n{font-size:11px;color:var(--muted);margin-top:2px}
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:16px}
+.mc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);padding:14px;cursor:pointer;transition:border-color .15s}
+.mc:hover{border-color:var(--bdr2)}
+.mc-av{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
+.mc-n{font-size:14px;font-weight:600;color:#fff}
+.mc-d{font-size:11px;color:var(--muted);margin-top:2px}
+.bap{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700}
+.bap-y{background:rgba(34,211,170,.1);color:var(--g)}.bap-n{background:rgba(242,85,74,.1);color:var(--red)}
+.sk{background:var(--bg3);color:var(--muted);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:600}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(3px);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:20px 14px;overflow-y:auto}
+.ov.hide{display:none}
+.mo{background:var(--bg2);border:1px solid var(--bdr);border-radius:14px;width:100%;max-width:740px;padding:22px;animation:fi .2s ease}
+.mo-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.mo-h h2{font-size:17px;font-weight:700;color:#fff}
+.mo-x{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:3px;line-height:1}
+.mo-x:hover{color:var(--txt)}
+.ms{margin-bottom:16px}
+.ms-t{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;padding-bottom:7px;border-bottom:1px solid var(--bdr);margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.ms-t::before{content:'';width:3px;height:11px;background:var(--g);border-radius:2px;display:block}
+.srch{position:relative;margin-bottom:12px}
+.srch input{width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px 13px 8px 34px;color:var(--txt);font-size:13px;outline:none;font-family:inherit}
+.srch input:focus{border-color:var(--g)}
+.srch::before{content:'🔍';position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:12px;pointer-events:none}
+.sg{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);overflow:hidden;margin-bottom:12px}
+.sg-h{background:var(--bg2);padding:10px 16px;border-bottom:1px solid var(--bdr);font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.sg-b{padding:16px 18px}
+.ib{background:rgba(79,144,245,.07);border:1px solid rgba(79,144,245,.2);border-radius:7px;padding:10px 13px;font-size:12px;color:#93c5fd;margin-bottom:12px}
+.wb{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:7px;padding:10px 13px;font-size:12px;color:#fcd34d;margin-bottom:12px}
+.dt{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;padding-bottom:5px;border-bottom:1px solid var(--bdr);margin-bottom:7px;margin-top:2px}
+.toast{position:fixed;bottom:18px;right:18px;padding:12px 16px;border-radius:9px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transform:translateY(8px);transition:all .22s;pointer-events:none;max-width:340px;border-left:3px solid}
+.toast.on{opacity:1;transform:none}
 .t-ok{background:#071f14;color:#4ade80;border-color:var(--g)}
 .t-err{background:#1f0707;color:#f87171;border-color:var(--red)}
-.t-info{background:#07111f;color:#93c5fd;border-color:var(--blue)}
-
-/* ═══════════════════════════════ SPINNER */
-.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:currentColor;border-radius:50%;animation:rot .5s linear infinite;}
-@keyframes rot{to{transform:rotate(360deg)}}
-
-/* ═══════════════════════════════ RESPONSIVE */
-@media(max-width:900px){.kpi-row{grid-template-columns:1fr 1fr}.g2,.g3{grid-template-columns:1fr}}
-@media(max-width:640px){
-  .sidebar{transform:translateX(-100%)} .sidebar.open{transform:none}
-  .content{margin-left:0}.kpi-row{grid-template-columns:1fr}
-  .frow.c2,.frow.c3,.frow.c4{grid-template-columns:1fr}
-  .ppf-balance{grid-template-columns:1fr}
-}
-.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:200;
-  background:var(--card);border:1px solid var(--bdr);border-radius:8px;
-  padding:7px;cursor:pointer;color:var(--txt);}
-@media(max-width:640px){.hamburger{display:flex}}
+.t-inf{background:#07111f;color:#93c5fd;border-color:var(--blue)}
+@media(max-width:900px){.krow{grid-template-columns:1fr 1fr}.g2,.g3{grid-template-columns:1fr}.ppf-strip{grid-template-columns:1fr}}
+@media(max-width:640px){.sb{display:none}.krow{grid-template-columns:1fr}.c2,.c3,.c4{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<!-- ══ HAMBURGER (mobile) ══ -->
-<button class="hamburger" onclick="toggleSidebar()">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-</button>
-
 <div class="app">
-<!-- ══════════════════ SIDEBAR ══════════════════ -->
-<aside class="sidebar" id="sidebar">
-  <div class="brand">
-    <div class="brand-logo">KL</div>
-    <div class="brand-name">KLTF Finance</div>
-    <div class="brand-sub">TMC KL Telugu Fellowship</div>
+<aside class="sb">
+  <div class="sb-brand">
+    <div class="sb-logo">KL</div>
+    <div class="sb-name">KLTF Finance</div>
+    <div class="sb-sub">TMC KL Telugu Fellowship</div>
   </div>
-  <div class="fy-pill" id="fy-pill">Loading...</div>
-
-  <nav class="nav">
-    <div class="nav-section">Finance</div>
-    <button class="nav-btn active" onclick="go('dashboard',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      Dashboard
-    </button>
-    <button class="nav-btn" onclick="go('offering',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-      Record Offering
-    </button>
-    <button class="nav-btn" onclick="go('expense',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-      Record Expense
-    </button>
-
-    <div class="nav-section">Poor People Fund</div>
-    <button class="nav-btn ppf-btn" onclick="go('ppf',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-      PPF Overview
-    </button>
-    <button class="nav-btn ppf-btn" onclick="go('ppf-claim',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-      PPF Claims
-    </button>
-
-    <div class="nav-section">Members</div>
-    <button class="nav-btn mem-btn" onclick="go('members',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-      Member List
-    </button>
-    <button class="nav-btn mem-btn" onclick="go('mem-dashboard',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      Member Insights
-    </button>
-
-    <div class="nav-section">Admin</div>
-    <button class="nav-btn" onclick="go('records',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      Records
-    </button>
-    <button class="nav-btn" onclick="go('settings',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-      Settings
-    </button>
+  <div class="fy-tag" id="fy-tag">FY —</div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Finance</div>
+    <button class="nb on" onclick="go('dashboard',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</button>
+    <button class="nb" onclick="go('offering',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Record Offering</button>
+    <button class="nb" onclick="go('expense',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Record Expense</button>
+    <div class="sb-sec">Poor People Fund</div>
+    <button class="nb" data-grp="a" onclick="go('ppf',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>PPF Overview</button>
+    <button class="nb" data-grp="a" onclick="go('ppfclaim',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>PPF Claims</button>
+    <div class="sb-sec">Members</div>
+    <button class="nb" data-grp="b" onclick="go('members',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Member List</button>
+    <button class="nb" data-grp="b" onclick="go('memdash',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Member Insights</button>
+    <div class="sb-sec">Admin</div>
+    <button class="nb" onclick="go('records',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Records</button>
+    <button class="nb" onclick="go('settings',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</button>
   </nav>
-  <div class="sidebar-footer">KLTF Finance v2.0</div>
 </aside>
+<div class="main">
 
-<!-- ══════════════════ CONTENT ══════════════════ -->
-<div class="content">
-
-<!-- ━━━━ DASHBOARD ━━━━ -->
-<div id="page-dashboard" class="page active">
-  <div class="page-header">
-    <div><div class="ph-title" id="dash-title">Finance Dashboard</div><div class="ph-sub" id="dash-sub">Loading...</div></div>
-    <div class="ph-actions">
-      <button class="btn b-ghost" onclick="loadDashboard()">↻ Refresh</button>
-      <button class="btn b-red" onclick="confirmRollover()">📅 Year Rollover</button>
-    </div>
+<!-- DASHBOARD -->
+<div id="pg-dashboard" class="pg on">
+  <div class="ph">
+    <div><div class="ph-t" id="d-title">Finance Dashboard</div><div class="ph-s" id="d-sub">Loading…</div></div>
+    <div class="ph-a"><button class="btn bgh" onclick="loadDash()">↻ Refresh</button><button class="btn br" onclick="doRollover()">📅 Year Rollover</button></div>
   </div>
-  <div class="kpi-row">
-    <div class="kpi k-g"><div class="kpi-label">Total Offerings</div><div class="kpi-val" id="k-off">RM —</div><div class="kpi-sub" id="k-off-sub">—</div><div class="kpi-icon">💰</div></div>
-    <div class="kpi k-r"><div class="kpi-label">Total Expenses</div><div class="kpi-val" id="k-exp">RM —</div><div class="kpi-sub">Active year</div><div class="kpi-icon">📤</div></div>
-    <div class="kpi k-b"><div class="kpi-label">Net Balance</div><div class="kpi-val" id="k-bal">RM —</div><div class="kpi-sub" id="k-bal-sub">—</div><div class="kpi-icon">📊</div></div>
-    <div class="kpi k-a"><div class="kpi-label">DFCM Outstanding</div><div class="kpi-val" id="k-dfcm">RM —</div><div class="kpi-sub" id="k-dfcm-sub">—</div><div class="kpi-icon">🏛</div></div>
-      </div><!-- /ppf-balance -->
-    </div><!-- /right col -->
-  </div><!-- /grid -->
-
-  <div class="chart-grid g2">
-    <div class="chart-card"><h3>Monthly Offerings Trend</h3><div class="csub">Sunday Service + Special Offering · active year</div><div style="height:200px"><canvas id="ch-monthly"></canvas></div></div>
-    <div class="chart-card">
-      <h3>Offerings by Type</h3><div class="csub">Sunday Service vs Special Offering</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;">
-        <div style="height:180px"><canvas id="ch-type"></canvas></div>
-        <div id="type-legend"></div>
-      </div>
-    </div>
+  <div class="krow">
+    <div class="kc k-g"><div class="kc-l">Total Offerings</div><div class="kc-v" id="k-off">RM —</div><div class="kc-s">Sunday + Special</div><div class="kc-i">💰</div></div>
+    <div class="kc k-r"><div class="kc-l">Total Expenses</div><div class="kc-v" id="k-exp">RM —</div><div class="kc-s">Active year</div><div class="kc-i">📤</div></div>
+    <div class="kc k-b"><div class="kc-l">Net Balance</div><div class="kc-v" id="k-bal">RM —</div><div class="kc-s" id="k-bal-s">—</div><div class="kc-i">📊</div></div>
+    <div class="kc k-a"><div class="kc-l">DFCM Outstanding</div><div class="kc-v" id="k-dfcm">RM —</div><div class="kc-s" id="k-dfcm-s">—</div><div class="kc-i">🏛</div></div>
   </div>
-  <div class="chart-grid g3">
-    <div class="chart-card"><h3>Offerings vs Expenses</h3><div class="csub">Monthly comparison</div><div style="height:190px"><canvas id="ch-compare"></canvas></div></div>
-    <div class="chart-card"><h3>Expenses by Category</h3><div class="csub">Active year breakdown</div><div id="cat-bars" style="margin-top:4px;"></div></div>
+  <div class="cg g2">
+    <div class="cc"><h3>Monthly Offerings Trend</h3><div class="cc-s">Active year · Sunday + Special</div><div style="height:200px"><canvas id="ch-mon"></canvas></div></div>
+    <div class="cc"><h3>Offerings by Type</h3><div class="cc-s">Sunday Service vs Special</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center"><div style="height:180px"><canvas id="ch-typ"></canvas></div><div id="typ-leg"></div></div></div>
   </div>
-  <div class="info-box">⚠️ <strong>Poor People Fund (PPF) is excluded from above totals.</strong> PPF has its own separate balance and claims tracking — view under the PPF section.</div>
+  <div class="cg g3">
+    <div class="cc"><h3>Offerings vs Expenses</h3><div class="cc-s">Monthly comparison</div><div style="height:190px"><canvas id="ch-cmp"></canvas></div></div>
+    <div class="cc"><h3>Expenses by Category</h3><div class="cc-s">Active year</div><div id="cat-bars" style="margin-top:4px"></div></div>
+  </div>
+  <div class="ib" style="font-size:12px">⚠️ <strong>Poor People Fund (PPF)</strong> is excluded from the figures above. View PPF under its own section.</div>
 </div>
 
-<!-- ━━━━ OFFERING ENTRY ━━━━ -->
-<div id="page-offering" class="page">
-  <div class="page-header">
-    <div><div class="ph-title">Cash Collection Slip</div><div class="ph-sub">Telugu Service · denomination-level entry</div></div>
-  </div>
+<!-- OFFERING -->
+<div id="pg-offering" class="pg">
+  <div class="ph"><div><div class="ph-t">Cash Collection Slip</div><div class="ph-s">Telugu Service · Sunday Service &amp; Special Offering</div></div></div>
   <div class="slip-wrap">
-    <div class="slip-card">
-      <div class="slip-hdr"><h2>📋 TMCKL — Summary of Cash Collection</h2><span style="font-size:11px;color:var(--muted)">Telugu Fellowship</span></div>
-      <div class="slip-body">
-        <div class="frow c3">
-          <div class="field"><label>Date of Service</label><input type="date" id="off-date"></div>
-          <div class="field"><label>Offering Type</label>
-            <select id="off-type">
-              <option value="">— Select —</option>
-              <option value="Sunday Service">Sunday Service</option>
-              <option value="Special Offering">Special Offering</option>
-            </select>
-          </div>
-          <div class="field"><label>Counted By</label><input type="text" id="off-counters" placeholder="Treasurer name..."></div>
+    <div class="sc">
+      <div class="sh"><h2>📋 TMCKL — Summary of Cash Collection</h2><span style="font-size:11px;color:var(--muted)">Telugu Fellowship</span></div>
+      <div class="sb2">
+        <div class="fr c3">
+          <div class="f"><label>Date of Service</label><input type="date" id="o-date"></div>
+          <div class="f"><label>Offering Type</label><select id="o-type"><option value="">— Select —</option><option value="Sunday Service">Sunday Service</option><option value="Special Offering">Special Offering</option></select></div>
+          <div class="f"><label>Counted By</label><input type="text" id="o-ctr" placeholder="Treasurer name…"></div>
         </div>
-        <div style="background:rgba(34,211,170,.06);border:1px solid rgba(34,211,170,.15);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--g);margin-top:2px;">
-          <strong>Service:</strong> Telugu &nbsp;·&nbsp; <strong>Note:</strong> For <strong>Poor People Fund</strong> collections → use the <strong>PPF Overview</strong> page in the sidebar. PPF is tracked separately — not included in DFCM calculations.
-        </div>
+        <div style="background:rgba(34,211,170,.06);border:1px solid rgba(34,211,170,.15);border-radius:7px;padding:8px 12px;font-size:12px;color:var(--g)">Service: Telugu · For <strong>Poor People Fund</strong> use the PPF section in sidebar.</div>
       </div>
     </div>
-
-    <div class="slip-card">
-      <div class="slip-hdr"><h2>🗒 Notes (Currency)</h2></div>
-      <div class="slip-body">
-        <div class="denom-hdr"><span>Denomination</span><span style="text-align:center">Qty</span><span style="text-align:right">Total (RM)</span></div>
-        <div id="notes-wrap"></div>
-        <div class="subtotal"><span>Sub-Total (Notes)</span><strong id="st-notes">RM 0.00</strong></div>
-      </div>
-    </div>
-
-    <div class="slip-card">
-      <div class="slip-hdr"><h2>🪙 Coins</h2></div>
-      <div class="slip-body">
-        <div class="denom-hdr"><span>Denomination</span><span style="text-align:center">Qty</span><span style="text-align:right">Total (RM)</span></div>
-        <div id="coins-wrap"></div>
-        <div class="subtotal"><span>Sub-Total (Coins)</span><strong id="st-coins">RM 0.00</strong></div>
-      </div>
-    </div>
-
-    <div class="grand-total">
-      <div class="gt-label">GRAND TOTAL<small>Notes + Coins</small></div>
-      <div class="gt-val" id="grand-total">RM 0.00</div>
-    </div>
-
-    <div class="slip-card">
-      <div class="slip-body">
-        <div class="field" style="margin-bottom:13px;"><label>Remarks (optional)</label><input type="text" id="off-notes" placeholder="e.g. Harvest Sunday, special circumstances..."></div>
-        <div style="display:flex;gap:9px;flex-wrap:wrap;">
-          <button class="btn b-green" id="off-btn" onclick="submitOffering()">✓ Submit Collection</button>
-          <button class="btn b-ghost" onclick="clearSlip()">Clear</button>
-        </div>
-      </div>
-    </div>
+    <div class="sc"><div class="sh"><h2>🗒 Notes (Currency)</h2></div><div class="sb2"><div class="dh"><span>Denomination</span><span style="text-align:center">Qty</span><span style="text-align:right">Total (RM)</span></div><div id="o-notes"></div><div class="stl"><span>Sub-Total (Notes)</span><strong id="o-stn">RM 0.00</strong></div></div></div>
+    <div class="sc"><div class="sh"><h2>🪙 Coins</h2></div><div class="sb2"><div class="dh"><span>Denomination</span><span style="text-align:center">Qty</span><span style="text-align:right">Total (RM)</span></div><div id="o-coins"></div><div class="stl"><span>Sub-Total (Coins)</span><strong id="o-stc">RM 0.00</strong></div></div></div>
+    <div class="gt"><div class="gt-l">GRAND TOTAL <small>Notes + Coins</small></div><div class="gt-v" id="o-gt">RM 0.00</div></div>
+    <div class="sc"><div class="sb2"><div class="f" style="margin-bottom:12px"><label>Remarks (optional)</label><input type="text" id="o-rem" placeholder="e.g. Harvest Sunday…"></div><div style="display:flex;gap:8px"><button class="btn bg" id="o-btn" onclick="submitOffering()">✓ Submit Collection</button><button class="btn bgh" onclick="clearOff()">Clear</button></div></div></div>
   </div>
 </div>
 
-<!-- ━━━━ EXPENSE ENTRY ━━━━ -->
-<div id="page-expense" class="page">
-  <div class="page-header"><div><div class="ph-title">Record Expense</div><div class="ph-sub">Church operational and ministry expenses</div></div></div>
-  <div style="max-width:580px;">
-    <div class="slip-card">
-      <div class="slip-hdr"><h2>📤 New Expense</h2></div>
-      <div class="slip-body">
-        <div class="frow c2">
-          <div class="field"><label>Date</label><input type="date" id="exp-date"></div>
-          <div class="field"><label>Category</label>
-            <select id="exp-cat">
-              <option value="">— Select —</option>
-              <option>Ministry</option><option>Worship</option><option>Administration</option>
-              <option>Maintenance</option><option>Outreach</option><option>Fellowship</option>
-              <option>DFCM Remittance</option><option>Other</option>
-            </select>
-          </div>
-        </div>
-        <div class="frow c2">
-          <div class="field" style="grid-column:1/-1;"><label>Description</label><input type="text" id="exp-desc" placeholder="Brief description..."></div>
-        </div>
-        <div class="frow c2">
-          <div class="field"><label>Amount (RM)</label><input type="number" id="exp-amt" placeholder="0.00" min="0" step="0.01"></div>
-          <div class="field"><label>Receipt / Reference</label><input type="text" id="exp-ref" placeholder="e.g. RCP-001"></div>
-        </div>
-        <div style="margin-top:16px;">
-          <button class="btn b-blue" id="exp-btn" onclick="submitExpense()">✓ Submit Expense</button>
-        </div>
-      </div>
-    </div>
+<!-- EXPENSE -->
+<div id="pg-expense" class="pg">
+  <div class="ph"><div><div class="ph-t">Record Expense</div><div class="ph-s">Church operational and ministry expenses</div></div></div>
+  <div style="max-width:560px">
+    <div class="sc"><div class="sh"><h2>📤 New Expense</h2></div><div class="sb2">
+      <div class="fr c2"><div class="f"><label>Date</label><input type="date" id="e-date"></div><div class="f"><label>Category</label><select id="e-cat"><option value="">— Select —</option><option>Ministry</option><option>Worship</option><option>Administration</option><option>Maintenance</option><option>Outreach</option><option>Fellowship</option><option>DFCM Remittance</option><option>Other</option></select></div></div>
+      <div class="fr"><div class="f"><label>Description</label><input type="text" id="e-desc" placeholder="Brief description…"></div></div>
+      <div class="fr c2"><div class="f"><label>Amount (RM)</label><input type="number" id="e-amt" placeholder="0.00" min="0" step="0.01"></div><div class="f"><label>Receipt / Reference</label><input type="text" id="e-ref" placeholder="e.g. RCP-001"></div></div>
+      <div style="margin-top:14px"><button class="btn bb" id="e-btn" onclick="submitExpense()">✓ Submit Expense</button></div>
+    </div></div>
   </div>
 </div>
 
-<!-- ━━━━ PPF OVERVIEW ━━━━ -->
-<div id="page-ppf" class="page">
-  <div class="page-header">
-    <div><div class="ph-title">Poor People Fund</div><div class="ph-sub">Separate fund · No DFCM · Independent balance tracking</div></div>
-    <div class="ph-actions">
-      <button class="btn b-ghost" onclick="loadPPF()">↻ Refresh</button>
-      <button class="btn b-amber" onclick="go('ppf-claim', document.querySelector('.ppf-btn:nth-child(2)'))">+ New Claim</button>
-    </div>
-  </div>
-
-  <!-- Two-column layout: left=entry form, right=summary -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;" id="ppf-entry-grid">
-    <!-- LEFT: Collection Entry -->
+<!-- PPF OVERVIEW -->
+<div id="pg-ppf" class="pg">
+  <div class="ph"><div><div class="ph-t">Poor People Fund</div><div class="ph-s">Separate fund · No DFCM · Independent balance</div></div><div class="ph-a"><button class="btn bgh" onclick="loadPPF()">↻ Refresh</button><button class="btn ba" onclick="go('ppfclaim',document.querySelector('[data-grp=a]:nth-child(2)'))">+ New Claim</button></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
     <div>
-      <div class="slip-card" style="margin-bottom:10px;">
-        <div class="slip-hdr" style="background:linear-gradient(90deg,#1a1200,#2a1f00);">
-          <h2 style="color:var(--amber);">📋 Record PPF Collection</h2>
-          <span style="font-size:11px;color:var(--muted)">Poor People Fund</span>
-        </div>
-        <div class="slip-body">
-          <div class="frow c2" style="margin-bottom:10px;">
-            <div class="field"><label>Date of Service</label><input type="date" id="ppf-off-date"></div>
-            <div class="field"><label>Counted By</label><input type="text" id="ppf-off-counters" placeholder="Treasurer name..."></div>
-          </div>
-          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;padding-bottom:6px;border-bottom:1px solid var(--bdr);margin-bottom:8px;">🗒 Notes (Currency)</div>
-          <div class="denom-hdr"><span>Denomination</span><span style="text-align:center">Qty</span><span style="text-align:right">Total (RM)</span></div>
-          <div id="ppf-notes-wrap"></div>
-          <div class="subtotal" style="margin-bottom:10px;"><span>Sub-Total (Notes)</span><strong id="ppf-st-notes">RM 0.00</strong></div>
-          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;padding-bottom:6px;border-bottom:1px solid var(--bdr);margin-bottom:8px;">🪙 Coins</div>
-          <div class="denom-hdr"><span>Denomination</span><span style="text-align:center">Qty</span><span style="text-align:right">Total (RM)</span></div>
-          <div id="ppf-coins-wrap"></div>
-          <div class="subtotal" style="margin-bottom:10px;"><span>Sub-Total (Coins)</span><strong id="ppf-st-coins">RM 0.00</strong></div>
-          <div class="grand-total" style="margin-bottom:12px;border-color:rgba(245,158,11,.3);background:linear-gradient(90deg,rgba(245,158,11,.1),rgba(245,158,11,.04));">
-            <div class="gt-label">GRAND TOTAL<small>Notes + Coins</small></div>
-            <div class="gt-val" id="ppf-grand-total" style="color:var(--amber);">RM 0.00</div>
-          </div>
-          <div class="field" style="margin-bottom:12px;"><label>Remarks (optional)</label><input type="text" id="ppf-off-notes" placeholder="e.g. 1st Sunday collection..."></div>
-          <div style="display:flex;gap:8px;">
-            <button class="btn b-amber" id="ppf-off-btn" onclick="submitPPFCollection()">✓ Submit Collection</button>
-            <button class="btn b-ghost" onclick="clearPPFSlip()">Clear</button>
-          </div>
+      <div class="sc">
+        <div class="sh amber"><h2>📋 Record PPF Collection</h2><span style="font-size:11px;color:var(--muted)">Poor People Fund</span></div>
+        <div class="sb2">
+          <div class="fr c2" style="margin-bottom:10px"><div class="f"><label>Date of Service</label><input type="date" id="p-date"></div><div class="f"><label>Counted By</label><input type="text" id="p-ctr" placeholder="Treasurer name…"></div></div>
+          <div class="dt">🗒 Notes (Currency)</div>
+          <div class="dh"><span>Denomination</span><span style="text-align:center">Qty</span><span style="text-align:right">Total (RM)</span></div>
+          <div id="p-notes"></div>
+          <div class="stl" style="margin-bottom:9px"><span>Sub-Total (Notes)</span><strong id="p-stn">RM 0.00</strong></div>
+          <div class="dt">🪙 Coins</div>
+          <div class="dh"><span>Denomination</span><span style="text-align:center">Qty</span><span style="text-align:right">Total (RM)</span></div>
+          <div id="p-coins"></div>
+          <div class="stl" style="margin-bottom:9px"><span>Sub-Total (Coins)</span><strong id="p-stc">RM 0.00</strong></div>
+          <div class="gt amber" style="margin-bottom:10px"><div class="gt-l">GRAND TOTAL<small>Notes + Coins</small></div><div class="gt-v amber" id="p-gt">RM 0.00</div></div>
+          <div class="f" style="margin-bottom:11px"><label>Remarks (optional)</label><input type="text" id="p-rem" placeholder="e.g. 1st Sunday…"></div>
+          <div style="display:flex;gap:8px"><button class="btn ba" id="p-btn" onclick="submitPPFColl()">✓ Submit Collection</button><button class="btn bgh" onclick="clearPPF()">Clear</button></div>
         </div>
       </div>
     </div>
-
-    <!-- RIGHT: Balance summary -->
     <div>
-      <div class="ppf-balance" id="ppf-balance" style="grid-template-columns:1fr;margin-bottom:10px;">
-    <div class="ppf-stat"><div class="label">Total Collected</div><div class="val" id="ppf-collected">RM —</div><div class="note">Active year</div></div>
-    <div class="ppf-stat"><div class="label">Total Claimed</div><div class="val" id="ppf-claimed">RM —</div><div class="note">Disbursements</div></div>
-    <div class="ppf-stat"><div class="label">Available Balance</div><div class="val" id="ppf-bal">RM —</div><div class="note">Collected − Claimed</div></div>
-  </div>
-  <div class="chart-grid g2">
-    <div class="chart-card"><h3>Monthly PPF Collections</h3><div class="csub">Amount received each month</div><div style="height:190px"><canvas id="ch-ppf-monthly"></canvas></div></div>
-    <div class="chart-card"><h3>Claims by Purpose</h3><div class="csub">How PPF funds were used</div><div id="ppf-claim-bars" style="margin-top:4px;"></div></div>
-  </div>
-  <div class="tbl-card">
-    <div class="tbl-hdr"><h3>Recent Claims</h3></div>
-    <div class="tbl-wrap">
-      <table id="tbl-ppf-claims">
-        <thead><tr><th>Date</th><th>Beneficiary</th><th>Purpose</th><th>Description</th><th>Amount</th><th>Source</th></tr></thead>
-        <tbody><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- ━━━━ PPF CLAIM ENTRY ━━━━ -->
-<div id="page-ppf-claim" class="page">
-  <div class="page-header"><div><div class="ph-title">PPF Claim Entry</div><div class="ph-sub">Record a disbursement from Poor People Fund</div></div></div>
-  <div style="max-width:580px;">
-    <div class="warn-box">⚠️ Claims reduce the PPF balance. This amount is separate from the main church fund and DFCM calculations.</div>
-    <div class="slip-card">
-      <div class="slip-hdr"><h2>❤️ New PPF Claim</h2></div>
-      <div class="slip-body">
-        <div class="frow c2">
-          <div class="field"><label>Date of Claim</label><input type="date" id="ppf-date"></div>
-          <div class="field"><label>Purpose / Category</label>
-            <select id="ppf-purpose">
-              <option value="">— Select —</option>
-              <option>Medical Assistance</option><option>Food Aid</option><option>Education Support</option>
-              <option>Emergency Relief</option><option>Funeral Assistance</option><option>Other</option>
-            </select>
-          </div>
-        </div>
-        <div class="frow c2">
-          <div class="field"><label>Beneficiary Name</label><input type="text" id="ppf-bene" placeholder="Full name of recipient..."></div>
-          <div class="field"><label>Amount (RM)</label><input type="number" id="ppf-amt" placeholder="0.00" min="0" step="0.01"></div>
-        </div>
-        <div class="frow c2">
-          <div class="field" style="grid-column:1/-1;"><label>Description / Notes</label><input type="text" id="ppf-desc" placeholder="Brief description of the need..."></div>
-        </div>
-        <div class="field" style="margin-bottom:16px;"><label>Reference / Voucher No.</label><input type="text" id="ppf-ref" placeholder="e.g. PPF-2024-001"></div>
-        <button class="btn b-amber" id="ppf-btn" onclick="submitPPFClaim()">✓ Submit PPF Claim</button>
+      <div class="ppf-strip">
+        <div><div class="ps-l">Total Collected</div><div class="ps-v" id="p-coll">RM —</div><div class="ps-n">Active year</div></div>
+        <div><div class="ps-l">Total Claimed</div><div class="ps-v" id="p-clmd">RM —</div><div class="ps-n">Disbursements</div></div>
+        <div><div class="ps-l">Available Balance</div><div class="ps-v" id="p-bal">RM —</div><div class="ps-n">Collected − Claimed</div></div>
       </div>
+      <div class="cc" style="margin-bottom:12px"><h3>Monthly PPF Collections</h3><div class="cc-s">Per month</div><div style="height:155px"><canvas id="ch-ppfm"></canvas></div></div>
+      <div class="cc"><h3>Claims by Purpose</h3><div class="cc-s">How PPF was used</div><div id="ppf-cbars" style="margin-top:4px"></div></div>
     </div>
+  </div>
+  <div class="tc"><div class="tc-h"><h3>Recent PPF Claims</h3></div><div class="tw"><table id="t-ppf"><thead><tr><th>Date</th><th>Beneficiary</th><th>Purpose</th><th>Description</th><th>Amount</th><th>Source</th></tr></thead><tbody><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">Loading…</td></tr></tbody></table></div></div>
+</div>
+
+<!-- PPF CLAIM -->
+<div id="pg-ppfclaim" class="pg">
+  <div class="ph"><div><div class="ph-t">PPF Claim Entry</div><div class="ph-s">Record a disbursement from Poor People Fund</div></div></div>
+  <div style="max-width:560px">
+    <div class="wb">⚠️ Claims reduce the PPF balance. Separate from main church fund and DFCM.</div>
+    <div class="sc"><div class="sh amber"><h2>❤️ New PPF Claim</h2></div><div class="sb2">
+      <div class="fr c2"><div class="f"><label>Date of Claim</label><input type="date" id="pc-date"></div><div class="f"><label>Purpose</label><select id="pc-pur"><option value="">— Select —</option><option>Medical Assistance</option><option>Food Aid</option><option>Education Support</option><option>Emergency Relief</option><option>Funeral Assistance</option><option>Other</option></select></div></div>
+      <div class="fr c2"><div class="f"><label>Beneficiary Name</label><input type="text" id="pc-bene" placeholder="Full name…"></div><div class="f"><label>Amount (RM)</label><input type="number" id="pc-amt" placeholder="0.00" min="0" step="0.01"></div></div>
+      <div class="fr"><div class="f"><label>Description</label><input type="text" id="pc-desc" placeholder="Brief description of need…"></div></div>
+      <div class="f" style="margin-bottom:14px"><label>Reference / Voucher No.</label><input type="text" id="pc-ref" placeholder="e.g. PPF-2024-001"></div>
+      <button class="btn ba" id="pc-btn" onclick="submitPPFClaim()">✓ Submit PPF Claim</button>
+    </div></div>
   </div>
 </div>
 
-<!-- ━━━━ MEMBER LIST ━━━━ -->
-<div id="page-members" class="page">
-  <div class="page-header">
-    <div><div class="ph-title">Church Members</div><div class="ph-sub" id="mem-count-sub">Loading...</div></div>
-    <div class="ph-actions">
-      <button class="btn b-ghost" onclick="loadMembers()">↻ Refresh</button>
-      <button class="btn b-blue" onclick="openMemberModal(null)">+ Add Member</button>
-    </div>
-  </div>
-  <div class="search-wrap"><input class="search-bar" type="text" id="mem-search" placeholder="Search by name, phone, email, skills..." oninput="filterMembers()"></div>
-  <div class="member-grid" id="member-grid"><div style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1">Loading members...</div></div>
+<!-- MEMBERS -->
+<div id="pg-members" class="pg">
+  <div class="ph"><div><div class="ph-t">Church Members</div><div class="ph-s" id="mem-sub">Loading…</div></div><div class="ph-a"><button class="btn bgh" onclick="loadMembers()">↻ Refresh</button><button class="btn bb" onclick="openMem(null)">+ Add Member</button></div></div>
+  <div class="srch"><input type="text" id="mem-srch" placeholder="Search by name, phone, email, skills…" oninput="filterMem()"></div>
+  <div class="mg" id="mem-grid"><div style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1">Loading members…</div></div>
 </div>
 
-<!-- ━━━━ MEMBER DASHBOARD ━━━━ -->
-<div id="page-mem-dashboard" class="page">
-  <div class="page-header">
-    <div><div class="ph-title">Member Insights</div><div class="ph-sub">Fellowship demographics and statistics</div></div>
-    <button class="btn b-ghost" onclick="loadMemberDashboard()">↻ Refresh</button>
+<!-- MEMBER INSIGHTS -->
+<div id="pg-memdash" class="pg">
+  <div class="ph"><div><div class="ph-t">Member Insights</div><div class="ph-s">Fellowship demographics</div></div><button class="btn bgh" onclick="loadMemDash()">↻ Refresh</button></div>
+  <div class="krow">
+    <div class="kc k-b"><div class="kc-l">Total Members</div><div class="kc-v" id="mk-tot">—</div><div class="kc-s">Registered</div><div class="kc-i">👥</div></div>
+    <div class="kc k-g"><div class="kc-l">Baptized</div><div class="kc-v" id="mk-bap">—</div><div class="kc-s" id="mk-bap-s">—</div><div class="kc-i">✝</div></div>
+    <div class="kc k-p"><div class="kc-l">Families</div><div class="kc-v" id="mk-fam">—</div><div class="kc-s">With spouse listed</div><div class="kc-i">🏠</div></div>
+    <div class="kc k-a"><div class="kc-l">Children</div><div class="kc-v" id="mk-kid">—</div><div class="kc-s">Total registered</div><div class="kc-i">👶</div></div>
   </div>
-  <div class="kpi-row" id="mem-kpi-row">
-    <div class="kpi k-b"><div class="kpi-label">Total Members</div><div class="kpi-val" id="mk-total">—</div><div class="kpi-sub">Registered</div><div class="kpi-icon">👥</div></div>
-    <div class="kpi k-g"><div class="kpi-label">Baptized</div><div class="kpi-val" id="mk-bap">—</div><div class="kpi-sub" id="mk-bap-pct">—</div><div class="kpi-icon">✝</div></div>
-    <div class="kpi k-p"><div class="kpi-label">Families</div><div class="kpi-val" id="mk-fam">—</div><div class="kpi-sub">With spouse listed</div><div class="kpi-icon">🏠</div></div>
-    <div class="kpi k-a"><div class="kpi-label">Children Registered</div><div class="kpi-val" id="mk-child">—</div><div class="kpi-sub">Total children listed</div><div class="kpi-icon">👶</div></div>
+  <div class="cg g2">
+    <div class="cc"><h3>Baptism Status</h3><div class="cc-s">Baptized vs unbaptized</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center"><div style="height:170px"><canvas id="ch-bap"></canvas></div><div id="bap-leg"></div></div></div>
+    <div class="cc"><h3>Members by Join Year</h3><div class="cc-s">New members per year</div><div style="height:170px"><canvas id="ch-join"></canvas></div></div>
   </div>
-  <div class="chart-grid g2">
-    <div class="chart-card"><h3>Baptism Status</h3><div class="csub">Members vs non-baptized</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:center;"><div style="height:180px"><canvas id="ch-bap"></canvas></div><div id="bap-legend"></div></div></div>
-    <div class="chart-card"><h3>Membership by Join Year</h3><div class="csub">New members added per year</div><div style="height:180px"><canvas id="ch-join"></canvas></div></div>
-  </div>
-  <div class="chart-card" style="margin-bottom:18px;"><h3>Skills & Interests</h3><div class="csub">Top skills across fellowship</div><div id="skills-cloud" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;padding-top:4px;"></div></div>
+  <div class="cc" style="margin-bottom:16px"><h3>Skills &amp; Interests</h3><div class="cc-s">Top skills across fellowship</div><div id="skills-cloud" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:8px"></div></div>
 </div>
 
-<!-- ━━━━ RECORDS ━━━━ -->
-<div id="page-records" class="page">
-  <div class="page-header">
-    <div><div class="ph-title">Transaction Records</div><div class="ph-sub">Last 20 entries per category</div></div>
-    <button class="btn b-ghost" onclick="loadRecords()">↻ Refresh</button>
-  </div>
-  <div class="tbl-card">
-    <div class="tbl-hdr"><h3>Recent Offerings (Sunday Service + Special)</h3></div>
-    <div class="tbl-wrap">
-      <table id="tbl-off"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Year</th><th>Source</th><th>Denominations</th></tr></thead>
-      <tbody><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Loading...</td></tr></tbody></table>
-    </div>
-  </div>
-  <div class="tbl-card">
-    <div class="tbl-hdr"><h3>Recent Expenses</h3></div>
-    <div class="tbl-wrap">
-      <table id="tbl-exp"><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Year</th><th>Source</th></tr></thead>
-      <tbody><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Loading...</td></tr></tbody></table>
-    </div>
-  </div>
+<!-- RECORDS -->
+<div id="pg-records" class="pg">
+  <div class="ph"><div><div class="ph-t">Transaction Records</div><div class="ph-s">Last 20 entries per category</div></div><button class="btn bgh" onclick="loadRecords()">↻ Refresh</button></div>
+  <div class="tc"><div class="tc-h"><h3>Recent Offerings (Sunday + Special)</h3></div><div class="tw"><table id="t-off"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Year</th><th>Source</th><th>Denominations</th></tr></thead><tbody><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:22px">Loading…</td></tr></tbody></table></div></div>
+  <div class="tc"><div class="tc-h"><h3>Recent Expenses</h3></div><div class="tw"><table id="t-exp"><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Year</th><th>Source</th></tr></thead><tbody><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:22px">Loading…</td></tr></tbody></table></div></div>
 </div>
 
-<!-- ━━━━ SETTINGS ━━━━ -->
-<div id="page-settings" class="page">
-  <div class="page-header"><div><div class="ph-title">Settings</div><div class="ph-sub">Configure API, financial year, and DFCM</div></div></div>
-
-  <div class="settings-group">
-    <div class="settings-group-hdr">🔗 API Configuration (GitHub Pages Mode)</div>
-    <div class="settings-group-body">
-      <div class="info-box">Paste your Google Apps Script Web App URL here. Get it from: Apps Script → Deploy → Manage Deployments → Copy Web App URL</div>
-      <div class="frow c2">
-        <div class="field" style="grid-column:1/-1;"><label>Apps Script Web App URL</label><input type="text" id="s-api-url" placeholder="https://script.google.com/macros/s/YOUR_ID/exec"></div>
+<!-- SETTINGS -->
+<div id="pg-settings" class="pg">
+  <div class="ph"><div><div class="ph-t">Settings</div><div class="ph-s">Configure API URL, financial year, and DFCM</div></div></div>
+  <div style="max-width:600px">
+    <div class="sg"><div class="sg-h">🔗 Apps Script API URL</div><div class="sg-b">
+      <div class="ib">Paste your Google Apps Script Web App URL. Apps Script → Deploy → New Deployment → Web App → Copy URL</div>
+      <div class="f" style="margin-bottom:11px"><label>Web App URL</label><input type="text" id="s-url" placeholder="https://script.google.com/macros/s/…/exec"></div>
+      <div style="display:flex;gap:8px"><button class="btn bg" onclick="saveURL()">Save URL</button><button class="btn bgh" onclick="testConn()">Test Connection</button></div>
+    </div></div>
+    <div class="sg"><div class="sg-h">⚙️ Financial Settings</div><div class="sg-b">
+      <div class="fr c2">
+        <div class="f"><label>Active Financial Year</label><input type="number" id="s-yr" min="2000" max="2099"></div>
+        <div class="f"><label>DFCM Percentage (%)</label><input type="number" id="s-dfcm" min="0" max="100" step="0.1"></div>
+        <div class="f"><label>Opening Balance (RM)</label><input type="number" id="s-open" min="0" step="0.01"></div>
+        <div class="f"><label>Closing Balance (auto)</label><input type="number" id="s-close" disabled style="opacity:.5"></div>
       </div>
-      <div style="margin-top:12px;display:flex;gap:9px;flex-wrap:wrap;">
-        <button class="btn b-green" onclick="saveApiUrl()">Save API URL</button>
-        <button class="btn b-ghost" onclick="testConnection()">Test Connection</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="settings-group">
-    <div class="settings-group-hdr">⚙️ Financial Settings</div>
-    <div class="settings-group-body">
-      <div class="frow c2">
-        <div class="field"><label>Active Financial Year</label><input type="number" id="s-year" min="2000" max="2099"></div>
-        <div class="field"><label>DFCM Percentage (%)</label><input type="number" id="s-dfcm" min="0" max="100" step="0.1"></div>
-        <div class="field"><label>Opening Balance (RM) — Main Fund</label><input type="number" id="s-opening" min="0" step="0.01"></div>
-        <div class="field"><label>Closing Balance (RM) — auto</label><input type="number" id="s-closing" disabled style="opacity:.5"></div>
-      </div>
-      <div style="margin-top:12px;display:flex;gap:9px;">
-        <button class="btn b-green" onclick="saveSettings()">Save Settings</button>
-        <button class="btn b-ghost" onclick="loadSettings()">Reset</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="settings-group">
-    <div class="settings-group-hdr">🚀 First-Time Setup</div>
-    <div class="settings-group-body">
-      <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">Creates all required Google Sheets (Settings, Combined_Offerings, Combined_Expenses, PPF_Collections, PPF_Claims, Members, Audit_Log). Safe to run — existing sheets are not modified.</p>
-      <button class="btn b-ghost" onclick="runSetup()">Run Initial Setup</button>
-    </div>
+      <div style="display:flex;gap:8px;margin-top:8px"><button class="btn bg" onclick="saveSettings()">Save Settings</button><button class="btn bgh" onclick="loadSettings()">Reset</button></div>
+    </div></div>
+    <div class="sg"><div class="sg-h">🚀 First-Time Setup</div><div class="sg-b">
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px">Creates all required Google Sheet tabs. Safe to run — existing sheets are not modified.</p>
+      <button class="btn bgh" onclick="runSetup()">Run Initial Setup</button>
+    </div></div>
   </div>
 </div>
 
-</div><!-- /content -->
-</div><!-- /app -->
+</div></div>
 
-<!-- ══════════════════ MEMBER MODAL ══════════════════ -->
-<div class="modal-overlay hidden" id="mem-modal">
-  <div class="modal">
-    <div class="modal-hdr">
-      <h2 id="modal-title">Add Member</h2>
-      <button class="modal-close" onclick="closeMemberModal()">✕</button>
-    </div>
-
+<!-- MEMBER MODAL -->
+<div class="ov hide" id="mem-ov">
+  <div class="mo">
+    <div class="mo-h"><h2 id="mo-title">Add Member</h2><button class="mo-x" onclick="closeMem()">✕</button></div>
     <input type="hidden" id="m-sno">
-
-    <div class="modal-section">
-      <div class="modal-section-title">Primary Member</div>
-      <div class="frow c3">
-        <div class="field" style="grid-column:1/-1;"><label>Full Name *</label><input type="text" id="m-name" placeholder="Full name..."></div>
-      </div>
-      <div class="frow c3">
-        <div class="field"><label>Date of Birth</label><input type="date" id="m-dob"></div>
-        <div class="field"><label>Phone Number</label><input type="text" id="m-phone" placeholder="+60..."></div>
-        <div class="field"><label>Email ID</label><input type="email" id="m-email" placeholder="email@..."></div>
-      </div>
-      <div class="frow c3">
-        <div class="field" style="grid-column:1/3;"><label>Skills / Interests</label><input type="text" id="m-skills" placeholder="e.g. Music, Teaching, IT..."></div>
-        <div class="field"><label>Baptized?</label>
-          <select id="m-baptism"><option value="No">No</option><option value="Yes">Yes</option></select>
-        </div>
-      </div>
+    <div class="ms"><div class="ms-t">Primary Member</div>
+      <div class="fr c3"><div class="f" style="grid-column:1/-1"><label>Full Name *</label><input type="text" id="m-name" placeholder="Full name…"></div></div>
+      <div class="fr c3"><div class="f"><label>Date of Birth</label><input type="date" id="m-dob"></div><div class="f"><label>Phone Number</label><input type="text" id="m-ph" placeholder="+60…"></div><div class="f"><label>Email ID</label><input type="email" id="m-em"></div></div>
+      <div class="fr c3"><div class="f" style="grid-column:1/3"><label>Skills / Interests</label><input type="text" id="m-sk" placeholder="e.g. Music, Teaching, IT…"></div><div class="f"><label>Baptized?</label><select id="m-bap"><option value="No">No</option><option value="Yes">Yes</option></select></div></div>
     </div>
-
-    <div class="modal-section">
-      <div class="modal-section-title" style="--g:var(--blue)">Spouse (if applicable)</div>
-      <div class="frow c3">
-        <div class="field" style="grid-column:1/-1;"><label>Spouse Full Name</label><input type="text" id="m-spname" placeholder="Spouse name..."></div>
-      </div>
-      <div class="frow c3">
-        <div class="field"><label>Spouse DOB</label><input type="date" id="m-spdob"></div>
-        <div class="field"><label>Spouse Phone</label><input type="text" id="m-spphone" placeholder="+60..."></div>
-        <div class="field"><label>Spouse Email</label><input type="email" id="m-spemail"></div>
-      </div>
-      <div class="frow c3">
-        <div class="field" style="grid-column:1/3;"><label>Spouse Skills / Interests</label><input type="text" id="m-spskills"></div>
-        <div class="field"><label>Spouse Baptized?</label>
-          <select id="m-spbaptism"><option value="No">No</option><option value="Yes">Yes</option></select>
-        </div>
-      </div>
+    <div class="ms"><div class="ms-t">Spouse (if applicable)</div>
+      <div class="fr c3"><div class="f" style="grid-column:1/-1"><label>Spouse Full Name</label><input type="text" id="m-spn"></div></div>
+      <div class="fr c3"><div class="f"><label>Spouse DOB</label><input type="date" id="m-spd"></div><div class="f"><label>Spouse Phone</label><input type="text" id="m-spp"></div><div class="f"><label>Spouse Email</label><input type="email" id="m-spe"></div></div>
+      <div class="fr c3"><div class="f" style="grid-column:1/3"><label>Spouse Skills</label><input type="text" id="m-sps"></div><div class="f"><label>Spouse Baptized?</label><select id="m-spb"><option value="No">No</option><option value="Yes">Yes</option></select></div></div>
     </div>
-
-    <div class="modal-section">
-      <div class="modal-section-title" style="--g:var(--amber)">Children</div>
-      <div class="frow c3">
-        <div class="field" style="grid-column:1/3;"><label>Child 1 Name</label><input type="text" id="m-c1" placeholder="Child 1 name..."></div>
-        <div class="field"><label>Child 1 DOB</label><input type="date" id="m-c1dob"></div>
-      </div>
-      <div class="frow c3">
-        <div class="field" style="grid-column:1/3;"><label>Child 2 Name</label><input type="text" id="m-c2" placeholder="Child 2 name..."></div>
-        <div class="field"><label>Child 2 DOB</label><input type="date" id="m-c2dob"></div>
-      </div>
-      <div class="frow c3">
-        <div class="field" style="grid-column:1/3;"><label>Child 3 Name</label><input type="text" id="m-c3" placeholder="Child 3 name..."></div>
-        <div class="field"><label>Child 3 DOB</label><input type="date" id="m-c3dob"></div>
-      </div>
+    <div class="ms"><div class="ms-t">Children</div>
+      <div class="fr c3"><div class="f" style="grid-column:1/3"><label>Child 1 Name</label><input type="text" id="m-c1"></div><div class="f"><label>Child 1 DOB</label><input type="date" id="m-c1d"></div></div>
+      <div class="fr c3"><div class="f" style="grid-column:1/3"><label>Child 2 Name</label><input type="text" id="m-c2"></div><div class="f"><label>Child 2 DOB</label><input type="date" id="m-c2d"></div></div>
+      <div class="fr c3"><div class="f" style="grid-column:1/3"><label>Child 3 Name</label><input type="text" id="m-c3"></div><div class="f"><label>Child 3 DOB</label><input type="date" id="m-c3d"></div></div>
     </div>
-
-    <div class="modal-section">
-      <div class="modal-section-title">Additional Info</div>
-      <div class="frow c3">
-        <div class="field" style="grid-column:1/-1;"><label>Address</label><textarea id="m-address" placeholder="Full address..."></textarea></div>
-      </div>
-      <div class="frow c3">
-        <div class="field"><label>Year Joined</label><input type="number" id="m-joined" min="2000" max="2099"></div>
-        <div class="field"><label>Status</label>
-          <select id="m-status"><option value="Active">Active</option><option value="Inactive">Inactive</option><option value="Transferred">Transferred</option></select>
-        </div>
-        <div class="field"><label>Notes</label><input type="text" id="m-notes" placeholder="Any notes..."></div>
-      </div>
+    <div class="ms"><div class="ms-t">Additional Info</div>
+      <div class="fr"><div class="f"><label>Address</label><textarea id="m-addr" placeholder="Full address…"></textarea></div></div>
+      <div class="fr c3"><div class="f"><label>Year Joined</label><input type="number" id="m-yr" min="2000" max="2099"></div><div class="f"><label>Status</label><select id="m-st"><option value="Active">Active</option><option value="Inactive">Inactive</option><option value="Transferred">Transferred</option></select></div><div class="f"><label>Notes</label><input type="text" id="m-nt"></div></div>
     </div>
-
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
-      <div>
-        <button class="btn b-blue" onclick="saveMember()">Save Member</button>
-        <button class="btn b-ghost" style="margin-left:8px;" onclick="closeMemberModal()">Cancel</button>
-      </div>
-      <button class="btn b-red" id="del-btn" onclick="deleteMember()" style="display:none;">Delete Member</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+      <div style="display:flex;gap:8px"><button class="btn bb" onclick="saveMember()">Save Member</button><button class="btn bgh" onclick="closeMem()">Cancel</button></div>
+      <button class="btn br" id="del-btn" onclick="delMember()" style="display:none">Delete</button>
     </div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
-<!-- ══════════════════ JAVASCRIPT ══════════════════ -->
 <script>
-// ══════════════════════════════════════════════════════
-// CONFIGURATION
-// For GitHub Pages: paste your Apps Script Web App URL here
-// For Apps Script hosted mode: leave as null
-// ══════════════════════════════════════════════════════
-let API_URL = 'https://script.google.com/macros/s/AKfycbyUe4Cv-9GOSjMGnQoX1KA2jTVeGzDYsRME1WWEstIGtYm05BCX1u9Viej0tM9OwN707Q/exec';
+'use strict';
+let API = 'https://script.google.com/macros/s/AKfycbyUe4Cv-9GOSjMGnQoX1KA2jTVeGzDYsRME1WWEstIGtYm05BCX1u9Viej0tM9OwN707Q/exec';
+const NOTES=[{l:'RM 1',v:1},{l:'RM 5',v:5},{l:'RM 10',v:10},{l:'RM 20',v:20},{l:'RM 50',v:50},{l:'RM 100',v:100}];
+const COINS=[{l:'5 sen',v:0.05},{l:'10 sen',v:0.10},{l:'20 sen',v:0.20},{l:'50 sen',v:0.50}];
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const PAL=['#22d3aa','#4f90f5','#f59e0b','#a78bfa','#f2554a','#06b6d4','#ec4899','#10b981'];
+const AX={x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a85a8',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a85a8',font:{size:10},callback:v=>'RM'+v.toLocaleString()}}};
+const CHS={};
+const today=()=>new Date().toISOString().split('T')[0];
+const fmt=n=>'RM '+parseFloat(n||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
 
-// ── API call helper ────────────────────────────────────
-async function api(action, data) {
-  if (!API_URL) {
-    throw new Error('API URL not configured. Go to Settings → paste your Apps Script Web App URL.');
-  }
-  // Apps Script always does a 302 redirect to googleusercontent.com — this is normal.
-  // We must use redirect:'follow' and muteHttpExceptions must be true on the Apps Script side.
-  let url = API_URL + '?action=' + encodeURIComponent(action);
-  if (data) url += '&data=' + encodeURIComponent(JSON.stringify(data));
-
+async function api(action,data){
+  if(!API)throw new Error('No API URL. Go to Settings and save your Apps Script URL.');
+  let url=API+'?action='+encodeURIComponent(action);
+  if(data)url+='&data='+encodeURIComponent(JSON.stringify(data));
   let resp;
-  try {
-    resp = await fetch(url, {
-      method: 'GET',
-      redirect: 'follow',
-      // Do NOT set mode:'no-cors' — that returns an opaque response we can't read
-    });
-  } catch (networkErr) {
-    // Likely a CORS block — guide user to fix
-    throw new Error(
-      'Network error (CORS). Make sure your Apps Script is deployed as:\n' +
-      '• Execute as: Me\n• Who has access: Anyone\n\nThen create a NEW deployment and update the URL in Settings.'
-    );
-  }
-
-  // Apps Script returns 200 after the redirect if everything is working
-  if (!resp.ok) {
-    throw new Error('Server returned ' + resp.status + '. Redeploy the Apps Script and update the URL in Settings.');
-  }
-
-  const text = await resp.text();
-  try {
-    return JSON.parse(text);
-  } catch {
-    // Apps Script returned HTML instead of JSON — means action param wasn't received
-    console.error('Non-JSON response:', text.substring(0, 300));
-    throw new Error('Got HTML instead of JSON. Make sure the NEW deployment URL is used (not the old one).');
-  }
+  try{resp=await fetch(url,{redirect:'follow'});}
+  catch(e){throw new Error('Network error. Check API URL and redeployment.');}
+  if(!resp.ok)throw new Error('HTTP '+resp.status);
+  const txt=await resp.text();
+  try{return JSON.parse(txt);}
+  catch(e){throw new Error('Invalid server response. Redeploy Apps Script.');}
 }
 
-// ── Navigation ─────────────────────────────────────────
-function go(name, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  if (btn) btn.classList.add('active');
-  // Load data for page
-  if (name === 'dashboard')     loadDashboard();
-  if (name === 'ppf')           { loadPPF(); buildPPFDenoms(); const t=document.getElementById('ppf-off-date'); if(t&&!t.value) t.value=new Date().toISOString().split('T')[0]; }
-  if (name === 'records')       loadRecords();
-  if (name === 'settings')      loadSettings();
-  if (name === 'members')       loadMembers();
-  if (name === 'mem-dashboard') loadMemberDashboard();
-  // Close sidebar on mobile
-  document.getElementById('sidebar').classList.remove('open');
+function toast(msg,type){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast on t-'+(type||'ok');
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),4000);
 }
-function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
-// ── Toast ──────────────────────────────────────────────
-function toast(msg, type) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast t-' + (type||'ok') + ' show';
-  setTimeout(() => el.classList.remove('show'), 4000);
+function go(name,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on','on-a','on-b'));
+  document.getElementById('pg-'+name).classList.add('on');
+  if(btn){const g=btn.dataset.grp;btn.classList.add(g==='a'?'on-a':g==='b'?'on-b':'on');}
+  const map={dashboard:loadDash,ppf:loadPPF,records:loadRecords,settings:loadSettings,members:loadMembers,memdash:loadMemDash};
+  if(map[name])map[name]();
 }
-function fmt(n) { return 'RM ' + parseFloat(n||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
-// ── Denominations ──────────────────────────────────────
-const NOTES_DENOMS = [{l:'RM 1',v:1},{l:'RM 5',v:5},{l:'RM 10',v:10},{l:'RM 20',v:20},{l:'RM 50',v:50},{l:'RM 100',v:100}];
-const COIN_DENOMS  = [{l:'5 sen',v:0.05},{l:'10 sen',v:0.10},{l:'20 sen',v:0.20},{l:'50 sen',v:0.50}];
-
-function buildDenoms() {
-  const nw = document.getElementById('notes-wrap');
-  NOTES_DENOMS.forEach(d => {
-    const row = document.createElement('div'); row.className = 'denom-row';
-    row.innerHTML = `<span class="denom-label">${d.l}</span>
-      <input class="d-input" type="number" id="n${d.v}" min="0" step="1" placeholder="0" oninput="calcTotals()">
-      <div class="d-calc" id="c-n${d.v}">—</div>`;
-    nw.appendChild(row);
+function buildRows(prefix,nWrapId,cWrapId,calcFn){
+  const nw=document.getElementById(nWrapId);
+  if(!nw||nw.children.length)return;
+  NOTES.forEach(d=>{
+    const r=document.createElement('div');r.className='dr';
+    r.innerHTML=`<span class="dl">${d.l}</span><input class="di" type="number" id="${prefix}n${d.v}" min="0" step="1" placeholder="0" oninput="${calcFn}()"><div class="dc" id="${prefix}cn${d.v}">—</div>`;
+    nw.appendChild(r);
   });
-  const cw = document.getElementById('coins-wrap');
-  COIN_DENOMS.forEach(d => {
-    const id = 'c' + String(d.v).replace('.','_');
-    const row = document.createElement('div'); row.className = 'denom-row';
-    row.innerHTML = `<span class="denom-label">${d.l}</span>
-      <input class="d-input" type="number" id="${id}" min="0" step="1" placeholder="0" oninput="calcTotals()">
-      <div class="d-calc" id="calc-${id}">—</div>`;
-    cw.appendChild(row);
+  const cw=document.getElementById(cWrapId);
+  COINS.forEach(d=>{
+    const sid=String(d.v).replace('.','_');
+    const r=document.createElement('div');r.className='dr';
+    r.innerHTML=`<span class="dl">${d.l}</span><input class="di" type="number" id="${prefix}c${sid}" min="0" step="1" placeholder="0" oninput="${calcFn}()"><div class="dc" id="${prefix}cc${sid}">—</div>`;
+    cw.appendChild(r);
   });
 }
 
-function calcTotals() {
-  let nt = 0;
-  NOTES_DENOMS.forEach(d => {
-    const q = parseInt(document.getElementById('n'+d.v).value)||0, a = q*d.v;
-    nt += a;
-    const el = document.getElementById('c-n'+d.v);
-    el.textContent = q>0 ? fmt(a) : '—'; el.className='d-calc'+(q>0?' on':'');
-  });
-  let ct = 0;
-  COIN_DENOMS.forEach(d => {
-    const id='c'+String(d.v).replace('.','_'), q=parseInt(document.getElementById(id).value)||0;
-    const a = parseFloat((q*d.v).toFixed(2)); ct+=a;
-    const el = document.getElementById('calc-'+id);
-    el.textContent = q>0 ? fmt(a) : '—'; el.className='d-calc'+(q>0?' on':'');
-  });
-  const g = parseFloat((nt+ct).toFixed(2));
-  document.getElementById('st-notes').textContent = fmt(nt);
-  document.getElementById('st-coins').textContent = fmt(ct);
-  document.getElementById('grand-total').textContent = fmt(g);
-}
-
-function clearSlip() {
-  NOTES_DENOMS.forEach(d => { document.getElementById('n'+d.v).value=''; });
-  COIN_DENOMS.forEach(d => { document.getElementById('c'+String(d.v).replace('.','_')).value=''; });
-  document.getElementById('off-notes').value='';
-  document.getElementById('off-counters').value='';
-  calcTotals();
-}
-// ── PPF Denomination inputs (separate IDs from main offering) ──
-function buildPPFDenoms() {
-  const nw = document.getElementById('ppf-notes-wrap');
-  if (!nw || nw.children.length > 0) return; // already built
-  NOTES_DENOMS.forEach(d => {
-    const row = document.createElement('div'); row.className = 'denom-row';
-    row.innerHTML = `<span class="denom-label">${d.l}</span>
-      <input class="d-input" type="number" id="ppfn${d.v}" min="0" step="1" placeholder="0" oninput="calcPPFTotals()">
-      <div class="d-calc" id="ppfc-n${d.v}">—</div>`;
-    nw.appendChild(row);
-  });
-  const cw = document.getElementById('ppf-coins-wrap');
-  COIN_DENOMS.forEach(d => {
-    const id = 'ppfc' + String(d.v).replace('.','_');
-    const row = document.createElement('div'); row.className = 'denom-row';
-    row.innerHTML = `<span class="denom-label">${d.l}</span>
-      <input class="d-input" type="number" id="${id}" min="0" step="1" placeholder="0" oninput="calcPPFTotals()">
-      <div class="d-calc" id="ppfcalc-${id}">—</div>`;
-    cw.appendChild(row);
-  });
-}
-
-function calcPPFTotals() {
-  let nt = 0;
-  NOTES_DENOMS.forEach(d => {
-    const q = parseInt(document.getElementById('ppfn'+d.v).value)||0, a = q*d.v;
-    nt += a;
-    const el = document.getElementById('ppfc-n'+d.v);
-    el.textContent = q>0 ? fmt(a) : '—'; el.className='d-calc'+(q>0?' on':'');
-  });
-  let ct = 0;
-  COIN_DENOMS.forEach(d => {
-    const id='ppfc'+String(d.v).replace('.','_'), q=parseInt(document.getElementById(id).value)||0;
-    const a = parseFloat((q*d.v).toFixed(2)); ct+=a;
-    const el = document.getElementById('ppfcalc-ppfc'+String(d.v).replace('.','_'));
-    if(el){ el.textContent = q>0 ? fmt(a) : '—'; el.className='d-calc'+(q>0?' on':''); }
-  });
-  const g = parseFloat((nt+ct).toFixed(2));
-  document.getElementById('ppf-st-notes').textContent = fmt(nt);
-  document.getElementById('ppf-st-coins').textContent = fmt(ct);
-  document.getElementById('ppf-grand-total').textContent = fmt(g);
-}
-
-function clearPPFSlip() {
-  NOTES_DENOMS.forEach(d => { const el=document.getElementById('ppfn'+d.v); if(el) el.value=''; });
-  COIN_DENOMS.forEach(d => { const el=document.getElementById('ppfc'+String(d.v).replace('.','_')); if(el) el.value=''; });
-  const n=document.getElementById('ppf-off-notes'); if(n) n.value='';
-  const c=document.getElementById('ppf-off-counters'); if(c) c.value='';
-  calcPPFTotals();
-}
-
-async function submitPPFCollection() {
-  const date     = document.getElementById('ppf-off-date').value;
-  const counters = document.getElementById('ppf-off-counters').value;
-  const notes    = document.getElementById('ppf-off-notes').value;
-  const grandEl  = document.getElementById('ppf-grand-total');
-  const grand    = parseFloat(grandEl.textContent.replace('RM ','').replace(/,/g,''))||0;
-
-  if (!date) { toast('Please enter a date.','err'); return; }
-  if (grand <= 0) { toast('Enter at least one denomination amount.','err'); return; }
-
-  const d = { date, offeringType: 'Poor People Fund', counters, notes, grandTotal: grand.toFixed(2) };
+function calcDenoms(prefix,stnId,stcId,gtId){
   let nt=0;
-  NOTES_DENOMS.forEach(dd => { const q=parseInt(document.getElementById('ppfn'+dd.v).value)||0; d['rm'+dd.v]=q; nt+=q*dd.v; });
+  NOTES.forEach(d=>{
+    const el=document.getElementById(prefix+'n'+d.v);if(!el)return;
+    const q=parseInt(el.value)||0,a=q*d.v;nt+=a;
+    const dc=document.getElementById(prefix+'cn'+d.v);
+    if(dc){dc.textContent=q>0?fmt(a):'—';dc.className='dc'+(q>0?' hi':'');}
+  });
   let ct=0;
-  COIN_DENOMS.forEach(dd => { const id='ppfc'+String(dd.v).replace('.','_'); const q=parseInt(document.getElementById(id).value)||0; d['coins'+String(Math.round(dd.v*100))]=q; ct+=parseFloat((q*dd.v).toFixed(2)); });
-  d.totalNotes = nt.toFixed(2); d.totalCoins = ct.toFixed(2);
-
-  const btn = document.getElementById('ppf-off-btn');
-  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Saving...';
-  try {
-    const res = await api('submitOffering', d);
-    btn.disabled=false; btn.textContent='✓ Submit Collection';
-    if (res.ok) {
-      toast(res.msg,'ok');
-      clearPPFSlip();
-      loadPPF(); // refresh PPF balance
-    } else toast(res.msg,'err');
-  } catch(e) {
-    btn.disabled=false; btn.textContent='✓ Submit Collection';
-    toast(e.message,'err');
-  }
+  COINS.forEach(d=>{
+    const sid=String(d.v).replace('.','_');
+    const el=document.getElementById(prefix+'c'+sid);if(!el)return;
+    const q=parseInt(el.value)||0,a=parseFloat((q*d.v).toFixed(2));ct+=a;
+    const dc=document.getElementById(prefix+'cc'+sid);
+    if(dc){dc.textContent=q>0?fmt(a):'—';dc.className='dc'+(q>0?' hi':'');}
+  });
+  const g=parseFloat((nt+ct).toFixed(2));
+  const s1=document.getElementById(stnId);if(s1)s1.textContent=fmt(nt);
+  const s2=document.getElementById(stcId);if(s2)s2.textContent=fmt(ct);
+  const gv=document.getElementById(gtId);if(gv)gv.textContent=fmt(g);
+  return{nt,ct,g};
 }
 
-
-
-// ── Submit Offering ────────────────────────────────────
-async function submitOffering() {
-  const date    = document.getElementById('off-date').value;
-  const offType = document.getElementById('off-type').value;
-  const counters= document.getElementById('off-counters').value;
-  const notes   = document.getElementById('off-notes').value;
-  const grand   = parseFloat(document.getElementById('grand-total').textContent.replace('RM ','').replace(/,/g,''))||0;
-
-  if (!date) { toast('Please enter a date.','err'); return; }
-  if (!offType) { toast('Please select an offering type.','err'); return; }
-  if (grand <= 0) { toast('Enter at least one denomination.','err'); return; }
-
-  const d = { date, offeringType: offType, counters, notes, grandTotal: grand.toFixed(2) };
-  let nt=0;
-  NOTES_DENOMS.forEach(dd => { const q=parseInt(document.getElementById('n'+dd.v).value)||0; d['rm'+dd.v]=q; nt+=q*dd.v; });
-  let ct=0;
-  COIN_DENOMS.forEach(dd => { const id='c'+String(dd.v).replace('.','_'); const q=parseInt(document.getElementById(id).value)||0; d['coins'+String(dd.v*100).replace('.','')]=q; ct+=parseFloat((q*dd.v).toFixed(2)); });
-  d.totalNotes = nt.toFixed(2); d.totalCoins = ct.toFixed(2);
-
-  const btn = document.getElementById('off-btn');
-  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Saving...';
-  try {
-    const res = await api('submitOffering', d);
-    btn.disabled=false; btn.textContent='✓ Submit Collection';
-    if (res.ok) { toast(res.msg,'ok'); clearSlip(); }
-    else toast(res.msg,'err');
-  } catch(e) { btn.disabled=false; btn.textContent='✓ Submit Collection'; toast(e.message,'err'); }
+function readDenoms(prefix){
+  const d={};let nt=0,ct=0;
+  NOTES.forEach(dd=>{const el=document.getElementById(prefix+'n'+dd.v);const q=parseInt(el&&el.value)||0;d['rm'+dd.v]=q;nt+=q*dd.v;});
+  COINS.forEach(dd=>{const sid=String(dd.v).replace('.','_');const el=document.getElementById(prefix+'c'+sid);const q=parseInt(el&&el.value)||0;d['coins'+String(Math.round(dd.v*100))]=q;ct+=parseFloat((q*dd.v).toFixed(2));});
+  d.totalNotes=nt.toFixed(2);d.totalCoins=ct.toFixed(2);d.grandTotal=(nt+ct).toFixed(2);
+  return d;
 }
 
-// ── Submit Expense ─────────────────────────────────────
-async function submitExpense() {
-  const d = {
-    date:       document.getElementById('exp-date').value,
-    category:   document.getElementById('exp-cat').value,
-    description:document.getElementById('exp-desc').value,
-    amount:     document.getElementById('exp-amt').value,
-    reference:  document.getElementById('exp-ref').value,
-  };
-  const btn = document.getElementById('exp-btn');
-  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Saving...';
-  try {
-    const res = await api('submitExpense', d);
-    btn.disabled=false; btn.textContent='✓ Submit Expense';
-    if (res.ok) {
-      toast(res.msg,'ok');
-      ['exp-date','exp-cat','exp-desc','exp-amt','exp-ref'].forEach(id => { document.getElementById(id).value=''; });
-      document.getElementById('exp-date').value = new Date().toISOString().split('T')[0];
-    } else toast(res.msg,'err');
-  } catch(e) { btn.disabled=false; btn.textContent='✓ Submit Expense'; toast(e.message,'err'); }
+function clearDenoms(prefix,nId,cId){
+  NOTES.forEach(d=>{const e=document.getElementById(prefix+'n'+d.v);if(e)e.value='';});
+  COINS.forEach(d=>{const sid=String(d.v).replace('.','_');const e=document.getElementById(prefix+'c'+sid);if(e)e.value='';});
 }
 
-// ── Submit PPF Claim ───────────────────────────────────
-async function submitPPFClaim() {
-  const d = {
-    date:       document.getElementById('ppf-date').value,
-    purpose:    document.getElementById('ppf-purpose').value,
-    beneficiary:document.getElementById('ppf-bene').value,
-    amount:     document.getElementById('ppf-amt').value,
-    description:document.getElementById('ppf-desc').value,
-    reference:  document.getElementById('ppf-ref').value,
-  };
-  const btn = document.getElementById('ppf-btn');
-  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Saving...';
-  try {
-    const res = await api('submitPPFClaim', d);
-    btn.disabled=false; btn.textContent='✓ Submit PPF Claim';
-    if (res.ok) {
-      toast(res.msg,'ok');
-      ['ppf-date','ppf-purpose','ppf-bene','ppf-amt','ppf-desc','ppf-ref'].forEach(id => { document.getElementById(id).value=''; });
-      document.getElementById('ppf-date').value = new Date().toISOString().split('T')[0];
-    } else toast(res.msg,'err');
-  } catch(e) { btn.disabled=false; btn.textContent='✓ Submit PPF Claim'; toast(e.message,'err'); }
+function calcOff(){calcDenoms('o-','o-stn','o-stc','o-gt');}
+function calcPPF2(){calcDenoms('p-','p-stn','p-stc','p-gt');}
+
+async function submitOffering(){
+  const date=document.getElementById('o-date').value;
+  const type=document.getElementById('o-type').value;
+  const ctr=document.getElementById('o-ctr').value;
+  const rem=document.getElementById('o-rem').value;
+  const{g}=calcDenoms('o-','o-stn','o-stc','o-gt');
+  if(!date){toast('Please enter a date.','err');return;}
+  if(!type){toast('Please select an offering type.','err');return;}
+  if(g<=0){toast('Enter at least one denomination amount.','err');return;}
+  const d={date,offeringType:type,counters:ctr,notes:rem,...readDenoms('o-')};
+  const btn=document.getElementById('o-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Saving…';
+  try{const r=await api('submitOffering',d);btn.disabled=false;btn.textContent='✓ Submit Collection';if(r.ok){toast(r.msg,'ok');clearOff();}else toast(r.msg,'err');}
+  catch(e){btn.disabled=false;btn.textContent='✓ Submit Collection';toast(e.message,'err');}
+}
+function clearOff(){
+  clearDenoms('o-','o-notes','o-coins');
+  ['o-date','o-type','o-ctr','o-rem'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  calcOff();document.getElementById('o-date').value=today();
 }
 
-// ── CHARTS (shared instances) ──────────────────────────
-let charts = {};
-function destroyChart(key) { if (charts[key]) { charts[key].destroy(); delete charts[key]; } }
-
-const PALETTE = ['#22d3aa','#4f90f5','#f59e0b','#a78bfa','#f2554a','#06b6d4','#ec4899','#10b981'];
-const CHART_DEFAULTS = {
-  scales: {
-    x: { grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#6a85a8',font:{size:11}} },
-    y: { grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#6a85a8',font:{size:11},callback:v=>'RM'+v.toLocaleString()} }
-  }
-};
-
-// ── Dashboard ──────────────────────────────────────────
-async function loadDashboard() {
-  document.getElementById('dash-sub').textContent = 'Loading...';
-  try {
-    const s = await api('getSummary');
-    document.getElementById('fy-pill').textContent = 'FY ' + s.activeYear;
-    document.getElementById('dash-title').textContent = 'Finance Dashboard — ' + s.activeYear;
-    document.getElementById('dash-sub').textContent =
-      'DFCM Rate: ' + s.dfcmPct + '%  ·  Opening Balance: ' + fmt(s.openingBalance) +
-      '  ·  ' + (s.sundayCount||0) + ' Sunday services';
-
-    document.getElementById('k-off').textContent = fmt(s.totalOfferings);
-    document.getElementById('k-exp').textContent = fmt(s.totalExpenses);
-    document.getElementById('k-bal').textContent = fmt(s.netBalance);
-    document.getElementById('k-dfcm').textContent = fmt(s.dfcmOutstanding);
-    document.getElementById('k-off-sub').textContent = 'Sunday Service + Special Offering';
-    document.getElementById('k-bal-sub').innerHTML = s.netBalance>=0
-      ? '<span style="color:var(--g)">▲ Surplus</span>'
-      : '<span style="color:var(--red)">▼ Deficit</span>';
-    document.getElementById('k-dfcm-sub').innerHTML = s.dfcmOutstanding<=0
-      ? '<span style="color:var(--g)">✓ Fully paid</span>'
-      : '<span style="color:var(--amber)">⚠ Outstanding</span>';
-
-    const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    destroyChart('monthly');
-    charts['monthly'] = new Chart(document.getElementById('ch-monthly'), {
-      type:'bar', data:{labels:months,datasets:[{label:'Offerings',data:s.monthly,
-        backgroundColor:'rgba(34,211,170,.2)',borderColor:'#22d3aa',borderWidth:2,borderRadius:5}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},...CHART_DEFAULTS}
-    });
-
-    const typeLabels = Object.keys(s.byType||{});
-    const typeData   = Object.values(s.byType||{});
-    destroyChart('type');
-    charts['type'] = new Chart(document.getElementById('ch-type'), {
-      type:'doughnut', data:{labels:typeLabels,datasets:[{data:typeData,backgroundColor:PALETTE,borderWidth:2,borderColor:'#111c2d'}]},
-      options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false}}}
-    });
-    const typeTotal = typeData.reduce((a,b)=>a+b,0);
-    document.getElementById('type-legend').innerHTML = typeLabels.map((l,i)=>`
-      <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px;">
-        <span style="width:10px;height:10px;border-radius:2px;background:${PALETTE[i]};flex-shrink:0"></span>
-        <span style="font-size:12px;color:var(--txt);flex:1">${l}</span>
-        <span style="font-family:Syne,sans-serif;font-weight:600;font-size:13px;color:#fff">${typeTotal>0?Math.round(typeData[i]/typeTotal*100):0}%</span>
-      </div>`).join('');
-
-    destroyChart('compare');
-    charts['compare'] = new Chart(document.getElementById('ch-compare'), {
-      type:'line', data:{labels:months,datasets:[
-        {label:'Offerings',data:s.monthly,borderColor:'#22d3aa',backgroundColor:'rgba(34,211,170,.08)',borderWidth:2,tension:.4,fill:true,pointBackgroundColor:'#22d3aa',pointRadius:3},
-        {label:'Expenses',data:s.expMonthly,borderColor:'#f2554a',backgroundColor:'rgba(242,85,74,.08)',borderWidth:2,tension:.4,fill:true,pointBackgroundColor:'#f2554a',pointRadius:3},
-      ]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#6a85a8',font:{size:11},boxWidth:10}}},...CHART_DEFAULTS}
-    });
-
-    const cats = s.expByCategory||{};
-    const catMax = Math.max(...Object.values(cats),1);
-    document.getElementById('cat-bars').innerHTML = Object.keys(cats).length===0
-      ? '<div style="color:var(--muted);font-size:12px;padding:10px 0">No expenses yet.</div>'
-      : Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
-          <div class="cat-row">
-            <span class="cat-name">${k}</span>
-            <div class="cat-track"><div class="cat-fill" style="width:${Math.round(v/catMax*100)}%"></div></div>
-            <span class="cat-amt">${fmt(v)}</span>
-          </div>`).join('');
-  } catch(e) {
-    document.getElementById('dash-sub').textContent = 'Error loading data';
-    toast(e.message, 'err');
-  }
+async function submitPPFColl(){
+  const date=document.getElementById('p-date').value;
+  const ctr=document.getElementById('p-ctr').value;
+  const rem=document.getElementById('p-rem').value;
+  const{g}=calcDenoms('p-','p-stn','p-stc','p-gt');
+  if(!date){toast('Please enter a date.','err');return;}
+  if(g<=0){toast('Enter at least one denomination amount.','err');return;}
+  const d={date,offeringType:'Poor People Fund',counters:ctr,notes:rem,...readDenoms('p-')};
+  const btn=document.getElementById('p-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Saving…';
+  try{const r=await api('submitOffering',d);btn.disabled=false;btn.textContent='✓ Submit Collection';if(r.ok){toast(r.msg,'ok');clearPPF();loadPPF();}else toast(r.msg,'err');}
+  catch(e){btn.disabled=false;btn.textContent='✓ Submit Collection';toast(e.message,'err');}
+}
+function clearPPF(){
+  clearDenoms('p-','p-notes','p-coins');
+  ['p-date','p-ctr','p-rem'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  calcPPF2();document.getElementById('p-date').value=today();
 }
 
-// ── PPF ────────────────────────────────────────────────
-let ppfChart = null;
-async function loadPPF() {
-  try {
-    const [s, claims] = await Promise.all([api('getPPFSummary'), api('getPPFClaims')]);
-    document.getElementById('ppf-collected').textContent = fmt(s.totalCollected);
-    document.getElementById('ppf-claimed').textContent   = fmt(s.totalClaimed);
-    document.getElementById('ppf-bal').textContent       = fmt(s.balance);
-
-    const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    destroyChart('ppf-m');
-    charts['ppf-m'] = new Chart(document.getElementById('ch-ppf-monthly'), {
-      type:'bar', data:{labels:months,datasets:[{label:'Collections',data:s.monthly,
-        backgroundColor:'rgba(245,158,11,.2)',borderColor:'#f59e0b',borderWidth:2,borderRadius:5}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-        scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a85a8',font:{size:11}}},
-          y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a85a8',font:{size:11},callback:v=>'RM'+v.toLocaleString()}}}}
-    });
-
-    const cp = s.claimsByPurpose||{};
-    const cMax = Math.max(...Object.values(cp),1);
-    document.getElementById('ppf-claim-bars').innerHTML = Object.keys(cp).length===0
-      ? '<div style="color:var(--muted);font-size:12px;padding:10px 0">No claims yet.</div>'
-      : Object.entries(cp).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
-          <div class="cat-row">
-            <span class="cat-name">${k}</span>
-            <div class="cat-track"><div class="cat-fill" style="width:${Math.round(v/cMax*100)}%;background:var(--amber)"></div></div>
-            <span class="cat-amt">${fmt(v)}</span>
-          </div>`).join('');
-
-    const tb = document.querySelector('#tbl-ppf-claims tbody');
-    tb.innerHTML = claims.length===0
-      ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">No claims recorded.</td></tr>'
-      : claims.map(r=>`<tr>
-          <td>${r.date}</td><td>${r.beneficiary}</td>
-          <td><span class="tag tag-ppf">${r.purpose}</span></td>
-          <td style="color:var(--muted);font-size:12px">${r.description||''}</td>
-          <td class="amt">${fmt(r.amount)}</td>
-          <td><span class="tag ${r.source==='NEW_ENTRY'?'tag-new':'tag-old'}">${r.source}</span></td>
-        </tr>`).join('');
-  } catch(e) { toast(e.message,'err'); }
+async function submitExpense(){
+  const d={date:document.getElementById('e-date').value,category:document.getElementById('e-cat').value,description:document.getElementById('e-desc').value,amount:document.getElementById('e-amt').value,reference:document.getElementById('e-ref').value};
+  const btn=document.getElementById('e-btn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Saving…';
+  try{const r=await api('submitExpense',d);btn.disabled=false;btn.textContent='✓ Submit Expense';if(r.ok){toast(r.msg,'ok');['e-date','e-cat','e-desc','e-amt','e-ref'].forEach(id=>{document.getElementById(id).value='';});document.getElementById('e-date').value=today();}else toast(r.msg,'err');}
+  catch(e){btn.disabled=false;btn.textContent='✓ Submit Expense';toast(e.message,'err');}
 }
 
-// ── Records ────────────────────────────────────────────
-async function loadRecords() {
-  try {
-    const [offs, exps] = await Promise.all([api('getRecentOfferings'), api('getRecentExpenses')]);
-    document.querySelector('#tbl-off tbody').innerHTML = offs.length===0
-      ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">No offerings yet.</td></tr>'
-      : offs.map(r=>`<tr>
-          <td>${r.date}</td>
-          <td><span class="tag ${r.offeringType==='Sunday Service'?'tag-ss':r.offeringType==='Poor People Fund'?'tag-ppf':'tag-so'}">${r.offeringType}</span></td>
-          <td class="amt">${fmt(r.amount)}</td><td>${r.year}</td>
-          <td><span class="tag ${r.source==='NEW_ENTRY'?'tag-new':'tag-old'}">${r.source}</span></td>
-          <td style="color:var(--muted);font-size:11px">${r.denoms||r.ref||''}</td>
-        </tr>`).join('');
-
-    document.querySelector('#tbl-exp tbody').innerHTML = exps.length===0
-      ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">No expenses yet.</td></tr>'
-      : exps.map(r=>`<tr>
-          <td>${r.date}</td><td>${r.category}</td><td>${r.description}</td>
-          <td class="amt">${fmt(r.amount)}</td><td>${r.year}</td>
-          <td><span class="tag ${r.source==='NEW_ENTRY'?'tag-new':'tag-old'}">${r.source}</span></td>
-        </tr>`).join('');
-  } catch(e) { toast(e.message,'err'); }
+async function submitPPFClaim(){
+  const d={date:document.getElementById('pc-date').value,purpose:document.getElementById('pc-pur').value,beneficiary:document.getElementById('pc-bene').value,amount:document.getElementById('pc-amt').value,description:document.getElementById('pc-desc').value,reference:document.getElementById('pc-ref').value};
+  const btn=document.getElementById('pc-btn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Saving…';
+  try{const r=await api('submitPPFClaim',d);btn.disabled=false;btn.textContent='✓ Submit PPF Claim';if(r.ok){toast(r.msg,'ok');['pc-date','pc-pur','pc-bene','pc-amt','pc-desc','pc-ref'].forEach(id=>{document.getElementById(id).value='';});document.getElementById('pc-date').value=today();}else toast(r.msg,'err');}
+  catch(e){btn.disabled=false;btn.textContent='✓ Submit PPF Claim';toast(e.message,'err');}
 }
 
-// ── Settings ───────────────────────────────────────────
-function loadSettings() {
-  const saved = localStorage.getItem('kltf_api_url')||'';
-  document.getElementById('s-api-url').value = saved;
-  if (!saved) { toast('No API URL configured. Please add your Apps Script URL.','info'); return; }
-  api('getSettings').then(s => {
-    document.getElementById('s-year').value    = s['Active Financial Year']||'';
-    document.getElementById('s-dfcm').value    = s['DFCM Percentage']||10;
-    document.getElementById('s-opening').value = s['Opening Balance']||0;
-    document.getElementById('s-closing').value = s['Closing Balance']||'';
-  }).catch(e => toast(e.message,'err'));
+function mkChart(id,type,labels,datasets,extra){
+  if(CHS[id])CHS[id].destroy();
+  const ctx=document.getElementById(id);if(!ctx)return;
+  CHS[id]=new Chart(ctx,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,...extra}});
 }
 
-function saveApiUrl() {
-  const url = document.getElementById('s-api-url').value.trim();
-  if (!url) { toast('Please enter the Apps Script URL.','err'); return; }
-  localStorage.setItem('kltf_api_url', url);
-  API_URL = url;
-  toast('API URL saved. Testing connection...','info');
-  testConnection();
+async function loadDash(){
+  document.getElementById('d-sub').textContent='Loading…';
+  try{
+    const s=await api('getSummary');
+    document.getElementById('fy-tag').textContent='FY '+s.activeYear;
+    document.getElementById('d-title').textContent='Finance Dashboard — '+s.activeYear;
+    document.getElementById('d-sub').textContent='DFCM: '+s.dfcmPct+'% · Opening: '+fmt(s.openingBalance)+' · '+s.sundayCount+' services';
+    document.getElementById('k-off').textContent=fmt(s.totalOfferings);
+    document.getElementById('k-exp').textContent=fmt(s.totalExpenses);
+    document.getElementById('k-bal').textContent=fmt(s.netBalance);
+    document.getElementById('k-dfcm').textContent=fmt(s.dfcmOutstanding);
+    document.getElementById('k-bal-s').innerHTML=s.netBalance>=0?'<span style="color:var(--g)">▲ Surplus</span>':'<span style="color:var(--red)">▼ Deficit</span>';
+    document.getElementById('k-dfcm-s').innerHTML=s.dfcmOutstanding<=0?'<span style="color:var(--g)">✓ Fully paid</span>':'<span style="color:var(--amber)">⚠ Outstanding</span>';
+    mkChart('ch-mon','bar',MONTHS,[{label:'Offerings',data:s.monthly,backgroundColor:'rgba(34,211,170,.2)',borderColor:'#22d3aa',borderWidth:2,borderRadius:4}],{plugins:{legend:{display:false}},scales:AX});
+    const tl=Object.keys(s.byType||{}),td=Object.values(s.byType||{});
+    mkChart('ch-typ','doughnut',tl,[{data:td,backgroundColor:PAL,borderWidth:2,borderColor:'#111c2d'}],{cutout:'62%',plugins:{legend:{display:false}}});
+    const tsum=td.reduce((a,b)=>a+b,0);
+    document.getElementById('typ-leg').innerHTML=tl.map((l,i)=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="width:9px;height:9px;border-radius:2px;background:${PAL[i]};flex-shrink:0"></span><span style="font-size:12px;flex:1">${l}</span><strong style="font-size:13px;color:#fff">${tsum>0?Math.round(td[i]/tsum*100):0}%</strong></div>`).join('');
+    mkChart('ch-cmp','line',MONTHS,[
+      {label:'Offerings',data:s.monthly,borderColor:'#22d3aa',backgroundColor:'rgba(34,211,170,.07)',borderWidth:2,tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#22d3aa'},
+      {label:'Expenses',data:s.expMonthly,borderColor:'#f2554a',backgroundColor:'rgba(242,85,74,.07)',borderWidth:2,tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#f2554a'}
+    ],{plugins:{legend:{display:true,labels:{color:'#6a85a8',font:{size:10},boxWidth:9}}},scales:AX});
+    const cats=s.expByCategory||{},cmax=Math.max(...Object.values(cats),1);
+    document.getElementById('cat-bars').innerHTML=Object.keys(cats).length?Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="cb-row"><span class="cb-name">${k}</span><div class="cb-track"><div class="cb-fill" style="width:${Math.round(v/cmax*100)}%;background:var(--g)"></div></div><span class="cb-amt">${fmt(v)}</span></div>`).join(''):'<div style="color:var(--muted);font-size:12px;padding:8px 0">No expenses yet.</div>';
+  }catch(e){document.getElementById('d-sub').textContent='Error: '+e.message;toast(e.message,'err');}
 }
 
-function testConnection() {
-  const url = document.getElementById('s-api-url').value.trim() || API_URL;
-  if (!url) { toast('No API URL to test.','err'); return; }
-  API_URL = url;
-  api('getSettings')
-    .then(() => toast('✓ Connection successful!','ok'))
-    .catch(e  => toast('Connection failed: ' + e.message,'err'));
+async function loadPPF(){
+  try{
+    const[s,claims]=await Promise.all([api('getPPFSummary'),api('getPPFClaims')]);
+    document.getElementById('p-coll').textContent=fmt(s.totalCollected);
+    document.getElementById('p-clmd').textContent=fmt(s.totalClaimed);
+    document.getElementById('p-bal').textContent=fmt(s.balance);
+    mkChart('ch-ppfm','bar',MONTHS,[{label:'PPF',data:s.monthly,backgroundColor:'rgba(245,158,11,.2)',borderColor:'#f59e0b',borderWidth:2,borderRadius:4}],{plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a85a8',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a85a8',font:{size:10},callback:v=>'RM'+v.toLocaleString()}}}});
+    const cp=s.claimsByPurpose||{},cpmax=Math.max(...Object.values(cp),1);
+    document.getElementById('ppf-cbars').innerHTML=Object.keys(cp).length?Object.entries(cp).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="cb-row"><span class="cb-name">${k}</span><div class="cb-track"><div class="cb-fill" style="width:${Math.round(v/cpmax*100)}%;background:var(--amber)"></div></div><span class="cb-amt">${fmt(v)}</span></div>`).join(''):'<div style="color:var(--muted);font-size:12px;padding:8px 0">No claims yet.</div>';
+    document.querySelector('#t-ppf tbody').innerHTML=claims.length?claims.map(r=>`<tr><td>${r.date}</td><td>${r.beneficiary}</td><td><span class="tag t-ppf">${r.purpose}</span></td><td style="color:var(--muted);font-size:11px">${r.description||''}</td><td class="amt">${fmt(r.amount)}</td><td><span class="tag ${r.source==='NEW_ENTRY'?'t-new':'t-old'}">${r.source}</span></td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No claims yet.</td></tr>';
+  }catch(e){toast(e.message,'err');}
 }
 
-function saveSettings() {
-  const d = { year: document.getElementById('s-year').value, dfcm: document.getElementById('s-dfcm').value, opening: document.getElementById('s-opening').value };
-  if (!d.year) { toast('Year is required.','err'); return; }
-  api('saveSettings', d).then(r => r.ok ? toast('Settings saved.','ok') : toast(r.msg,'err')).catch(e=>toast(e.message,'err'));
+async function loadRecords(){
+  try{
+    const[offs,exps]=await Promise.all([api('getRecentOfferings'),api('getRecentExpenses')]);
+    document.querySelector('#t-off tbody').innerHTML=offs.length?offs.map(r=>`<tr><td>${r.date}</td><td><span class="tag ${r.offeringType==='Sunday Service'?'t-ss':'t-so'}">${r.offeringType}</span></td><td class="amt">${fmt(r.amount)}</td><td>${r.year}</td><td><span class="tag ${r.source==='NEW_ENTRY'?'t-new':'t-old'}">${r.source}</span></td><td style="color:var(--muted);font-size:11px">${r.denoms||''}</td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No offerings yet.</td></tr>';
+    document.querySelector('#t-exp tbody').innerHTML=exps.length?exps.map(r=>`<tr><td>${r.date}</td><td>${r.category}</td><td>${r.description}</td><td class="amt">${fmt(r.amount)}</td><td>${r.year}</td><td><span class="tag ${r.source==='NEW_ENTRY'?'t-new':'t-old'}">${r.source}</span></td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No expenses yet.</td></tr>';
+  }catch(e){toast(e.message,'err');}
 }
 
-function runSetup() {
-  if (!confirm('Create all required sheets in your Google Sheet?\n\nExisting sheets will NOT be modified.')) return;
-  api('initialSetup').then(r => toast(r.msg||'Setup complete.','ok')).catch(e=>toast(e.message,'err'));
+function loadSettings(){
+  const saved=localStorage.getItem('kltf_url')||'';
+  document.getElementById('s-url').value=saved;
+  if(!saved)return;
+  api('getSettings').then(s=>{
+    document.getElementById('s-yr').value=s['Active Financial Year']||'';
+    document.getElementById('s-dfcm').value=s['DFCM Percentage']||10;
+    document.getElementById('s-open').value=s['Opening Balance']||0;
+    document.getElementById('s-close').value=s['Closing Balance']||'';
+  }).catch(()=>{});
+}
+function saveURL(){const u=document.getElementById('s-url').value.trim();if(!u){toast('Enter URL.','err');return;}localStorage.setItem('kltf_url',u);API=u;toast('URL saved. Testing…','inf');testConn();}
+function testConn(){API=document.getElementById('s-url').value.trim()||API;api('getSettings').then(()=>toast('✓ Connection successful!','ok')).catch(e=>toast('Failed: '+e.message,'err'));}
+function saveSettings(){const d={year:document.getElementById('s-yr').value,dfcm:document.getElementById('s-dfcm').value,opening:document.getElementById('s-open').value};if(!d.year){toast('Year required.','err');return;}api('saveSettings',d).then(r=>r.ok?toast('Settings saved.','ok'):toast(r.msg,'err')).catch(e=>toast(e.message,'err'));}
+function runSetup(){if(!confirm('Create all required sheets?\nExisting sheets will NOT be modified.'))return;api('initialSetup').then(r=>toast(r.msg||'Setup complete.','ok')).catch(e=>toast(e.message,'err'));}
+
+async function doRollover(){
+  try{const s=await api('getSummary');if(!confirm('YEAR-END ROLLOVER\n\nClose FY '+s.activeYear+' → Open FY '+(s.activeYear+1)+'\nClosing Balance: '+fmt(s.netBalance)+'\n\nAll data preserved. Proceed?'))return;const r=await api('doYearRollover');toast('FY '+(r.newYear-1)+' closed. FY '+r.newYear+' now active.','ok');loadDash();}
+  catch(e){toast(e.message,'err');}
 }
 
-// ── Year Rollover ──────────────────────────────────────
-async function confirmRollover() {
-  try {
-    const s = await api('getSummary');
-    if (!confirm('YEAR-END ROLLOVER\n\nClose FY ' + s.activeYear + ' → Open FY ' + (s.activeYear+1) +
-      '\n\nClosing Balance: ' + fmt(s.netBalance) + '\n\nAll data is preserved. Continue?')) return;
-    const res = await api('doYearRollover');
-    toast('FY ' + (res.newYear-1) + ' closed. FY ' + res.newYear + ' is now active.','ok');
-    loadDashboard();
-  } catch(e) { toast(e.message,'err'); }
+let allMem=[];
+async function loadMembers(){
+  document.getElementById('mem-grid').innerHTML='<div style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1">Loading…</div>';
+  try{allMem=await api('getMembers');document.getElementById('mem-sub').textContent=allMem.length+' registered members · click to edit';renderMem(allMem);}
+  catch(e){toast(e.message,'err');}
 }
-
-// ══════════════════════════════════════════════════════
-// MEMBERS
-// ══════════════════════════════════════════════════════
-let allMembers = [];
-
-async function loadMembers() {
-  document.getElementById('member-grid').innerHTML =
-    '<div style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1">Loading...</div>';
-  try {
-    allMembers = await api('getMembers');
-    document.getElementById('mem-count-sub').textContent =
-      allMembers.length + ' registered members · click a card to edit';
-    renderMemberCards(allMembers);
-  } catch(e) { toast(e.message,'err'); }
-}
-
-function renderMemberCards(members) {
-  const grid = document.getElementById('member-grid');
-  if (!members.length) {
-    grid.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1">No members yet. Click <strong>+ Add Member</strong> to get started.</div>';
-    return;
-  }
-  grid.innerHTML = members.map(m => {
-    const initials = (m.name||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
-    const skills = (m.skills||'').split(',').map(s=>s.trim()).filter(Boolean);
-    return `<div class="mem-card" onclick="openMemberModal(${m.sno})">
-      <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;">
-        <div class="mem-avatar">${initials}</div>
-        <div style="flex:1;min-width:0;">
-          <div class="mem-name">${m.name}</div>
-          <div class="mem-detail">${m.phone||'—'} · ${m.email||'—'}</div>
-          <div class="mem-detail" style="margin-top:2px;">DOB: ${m.dob||'—'}</div>
-        </div>
-        <span class="baptism-badge ${m.baptism==='Yes'?'bap-yes':'bap-no'}">${m.baptism==='Yes'?'✓ Baptized':'Unbaptized'}</span>
-      </div>
-      ${m.spouseName ? `<div style="font-size:11px;color:var(--muted);margin-bottom:6px;">👫 ${m.spouseName}</div>` : ''}
-      ${(m.child1||m.child2||m.child3) ? `<div style="font-size:11px;color:var(--muted);margin-bottom:6px;">👶 ${[m.child1,m.child2,m.child3].filter(Boolean).join(', ')}</div>` : ''}
-      <div class="mem-tags">
-        ${skills.slice(0,4).map(s=>`<span class="skill-tag">${s}</span>`).join('')}
-        ${skills.length>4?`<span class="skill-tag">+${skills.length-4}</span>`:''}
-      </div>
-    </div>`;
+function renderMem(list){
+  const g=document.getElementById('mem-grid');
+  if(!list.length){g.innerHTML='<div style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1">No members yet. Click <strong>+ Add Member</strong>.</div>';return;}
+  g.innerHTML=list.map(m=>{
+    const ini=(m.name||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    const skills=(m.skills||'').split(',').map(s=>s.trim()).filter(Boolean);
+    return `<div class="mc" onclick="openMem(${m.sno})"><div style="display:flex;gap:11px;align-items:flex-start;margin-bottom:9px"><div class="mc-av">${ini}</div><div style="flex:1;min-width:0"><div class="mc-n">${m.name}</div><div class="mc-d">${m.phone||'—'} · ${m.email||'—'}</div><div class="mc-d">DOB: ${m.dob||'—'}</div></div><span class="bap ${m.baptism==='Yes'?'bap-y':'bap-n'}">${m.baptism==='Yes'?'✓ Baptized':'Unbaptized'}</span></div>${m.spouseName?`<div style="font-size:11px;color:var(--muted);margin-bottom:5px">👫 ${m.spouseName}</div>`:''} ${(m.child1||m.child2||m.child3)?`<div style="font-size:11px;color:var(--muted);margin-bottom:5px">👶 ${[m.child1,m.child2,m.child3].filter(Boolean).join(', ')}</div>`:''}<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">${skills.slice(0,4).map(s=>`<span class="sk">${s}</span>`).join('')}${skills.length>4?`<span class="sk">+${skills.length-4}</span>`:''}</div></div>`;
   }).join('');
 }
+function filterMem(){const q=document.getElementById('mem-srch').value.toLowerCase();renderMem(q?allMem.filter(m=>(m.name+m.phone+m.email+m.skills+m.spouseName+m.address).toLowerCase().includes(q)):allMem);}
 
-function filterMembers() {
-  const q = document.getElementById('mem-search').value.toLowerCase();
-  if (!q) { renderMemberCards(allMembers); return; }
-  renderMemberCards(allMembers.filter(m =>
-    (m.name+m.phone+m.email+m.skills+m.spouseName+m.address).toLowerCase().includes(q)
-  ));
+function openMem(sno){
+  const isNew=!sno;
+  document.getElementById('mo-title').textContent=isNew?'Add New Member':'Edit Member';
+  document.getElementById('del-btn').style.display=isNew?'none':'inline-flex';
+  const ids=['sno','name','dob','ph','em','sk','bap','spn','spd','spp','spe','sps','spb','c1','c1d','c2','c2d','c3','c3d','addr','yr','st','nt'];
+  const keys=['sno','name','dob','phone','email','skills','baptism','spouseName','spouseDob','spousePhone','spouseEmail','spouseSkills','spouseBaptism','child1','child1Dob','child2','child2Dob','child3','child3Dob','address','joinedYear','status','notes'];
+  if(isNew){ids.forEach(id=>{const e=document.getElementById('m-'+id);if(e)e.value='';});document.getElementById('m-yr').value=new Date().getFullYear();}
+  else{const m=allMem.find(x=>String(x.sno)===String(sno));if(!m){toast('Member not found.','err');return;}ids.forEach((id,i)=>{const e=document.getElementById('m-'+id);if(!e)return;const val=m[keys[i]]||'';if(e.type==='date'&&val&&val.includes('/')){const[d,mo,y]=val.split('/');e.value=y+'-'+mo+'-'+d;}else e.value=val;});}
+  document.getElementById('mem-ov').classList.remove('hide');
+}
+function closeMem(){document.getElementById('mem-ov').classList.add('hide');}
+async function saveMember(){
+  const d={sno:document.getElementById('m-sno').value,name:document.getElementById('m-name').value,dob:document.getElementById('m-dob').value,phone:document.getElementById('m-ph').value,email:document.getElementById('m-em').value,skills:document.getElementById('m-sk').value,baptism:document.getElementById('m-bap').value,spouseName:document.getElementById('m-spn').value,spouseDob:document.getElementById('m-spd').value,spousePhone:document.getElementById('m-spp').value,spouseEmail:document.getElementById('m-spe').value,spouseSkills:document.getElementById('m-sps').value,spouseBaptism:document.getElementById('m-spb').value,child1:document.getElementById('m-c1').value,child1Dob:document.getElementById('m-c1d').value,child2:document.getElementById('m-c2').value,child2Dob:document.getElementById('m-c2d').value,child3:document.getElementById('m-c3').value,child3Dob:document.getElementById('m-c3d').value,address:document.getElementById('m-addr').value,joinedYear:document.getElementById('m-yr').value,status:document.getElementById('m-st').value,notes:document.getElementById('m-nt').value};
+  if(!d.name){toast('Name is required.','err');return;}
+  try{const r=await api('saveMember',d);if(r.ok){toast(r.msg,'ok');closeMem();loadMembers();}else toast(r.msg,'err');}
+  catch(e){toast(e.message,'err');}
+}
+async function delMember(){
+  const sno=document.getElementById('m-sno').value,name=document.getElementById('m-name').value;
+  if(!confirm('Delete member: '+name+'?\nThis cannot be undone.'))return;
+  try{const r=await api('deleteMember',{sno});if(r.ok){toast(r.msg,'ok');closeMem();loadMembers();}else toast(r.msg,'err');}
+  catch(e){toast(e.message,'err');}
 }
 
-function openMemberModal(sno) {
-  const overlay = document.getElementById('mem-modal');
-  const isNew   = !sno;
-  document.getElementById('modal-title').textContent = isNew ? 'Add New Member' : 'Edit Member';
-  document.getElementById('del-btn').style.display   = isNew ? 'none' : 'inline-flex';
-
-  const fields = ['sno','name','dob','phone','email','skills','baptism',
-    'spname','spdob','spphone','spemail','spskills','spbaptism',
-    'c1','c1dob','c2','c2dob','c3','c3dob','address','joined','status','notes'];
-  const mFields = ['sno','name','dob','phone','email','skills','baptism',
-    'spouseName','spouseDob','spousePhone','spouseEmail','spouseSkills','spouseBaptism',
-    'child1','child1Dob','child2','child2Dob','child3','child3Dob','address','joinedYear','status','notes'];
-
-  if (isNew) {
-    fields.forEach(f => { const el=document.getElementById('m-'+f); if(el) el.value=''; });
-    document.getElementById('m-joined').value = new Date().getFullYear();
-  } else {
-    const m = allMembers.find(x => String(x.sno)===String(sno));
-    if (!m) { toast('Member not found.','err'); return; }
-    fields.forEach((f,i) => {
-      const el = document.getElementById('m-'+f);
-      if (!el) return;
-      const val = m[mFields[i]]||'';
-      // Convert dd/MM/yyyy dates to YYYY-MM-DD for input[type=date]
-      if (el.type==='date' && val && val.includes('/')) {
-        const [d,mo,y] = val.split('/');
-        el.value = y+'-'+mo+'-'+d;
-      } else {
-        el.value = val;
-      }
-    });
-  }
-  overlay.classList.remove('hidden');
+async function loadMemDash(){
+  try{
+    if(!allMem.length)allMem=await api('getMembers');
+    const total=allMem.length,bap=allMem.filter(m=>m.baptism==='Yes').length,fams=allMem.filter(m=>m.spouseName).length,kids=allMem.reduce((n,m)=>(n+(m.child1?1:0)+(m.child2?1:0)+(m.child3?1:0)),0);
+    document.getElementById('mk-tot').textContent=total;document.getElementById('mk-bap').textContent=bap;document.getElementById('mk-bap-s').textContent=total>0?Math.round(bap/total*100)+'% baptized':'—';document.getElementById('mk-fam').textContent=fams;document.getElementById('mk-kid').textContent=kids;
+    mkChart('ch-bap','doughnut',['Baptized','Unbaptized'],[{data:[bap,total-bap],backgroundColor:['#22d3aa','#f2554a'],borderWidth:2,borderColor:'#111c2d'}],{cutout:'60%',plugins:{legend:{display:false}}});
+    document.getElementById('bap-leg').innerHTML=[['Baptized',bap,'#22d3aa'],['Unbaptized',total-bap,'#f2554a']].map(([l,v,c])=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="width:9px;height:9px;border-radius:2px;background:${c};flex-shrink:0"></span><span style="font-size:12px;flex:1">${l}</span><strong style="font-size:14px;color:#fff">${v}</strong></div>`).join('');
+    const jy={};allMem.forEach(m=>{if(m.joinedYear)jy[m.joinedYear]=(jy[m.joinedYear]||0)+1;});const jk=Object.keys(jy).sort();
+    mkChart('ch-join','bar',jk,[{label:'Members',data:jk.map(k=>jy[k]),backgroundColor:'rgba(79,144,245,.3)',borderColor:'#4f90f5',borderWidth:2,borderRadius:4}],{plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a85a8',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a85a8',font:{size:10},stepSize:1}}}});
+    const sc={};allMem.forEach(m=>(m.skills||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(s=>{sc[s]=(sc[s]||0)+1;}));const scmax=Math.max(...Object.values(sc),1);
+    document.getElementById('skills-cloud').innerHTML=Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([s,c])=>`<span style="background:var(--bg3);color:var(--txt);border-radius:5px;padding:3px 9px;font-size:${11+Math.round(c/scmax*7)}px;font-weight:600" title="${c} member(s)">${s} <span style="color:var(--muted);font-size:9px">${c}</span></span>`).join('');
+  }catch(e){toast(e.message,'err');}
 }
 
-function closeMemberModal() { document.getElementById('mem-modal').classList.add('hidden'); }
-
-async function saveMember() {
-  const d = {
-    sno:          document.getElementById('m-sno').value,
-    name:         document.getElementById('m-name').value,
-    dob:          document.getElementById('m-dob').value,
-    phone:        document.getElementById('m-phone').value,
-    email:        document.getElementById('m-email').value,
-    skills:       document.getElementById('m-skills').value,
-    baptism:      document.getElementById('m-baptism').value,
-    spouseName:   document.getElementById('m-spname').value,
-    spouseDob:    document.getElementById('m-spdob').value,
-    spousePhone:  document.getElementById('m-spphone').value,
-    spouseEmail:  document.getElementById('m-spemail').value,
-    spouseSkills: document.getElementById('m-spskills').value,
-    spouseBaptism:document.getElementById('m-spbaptism').value,
-    child1:       document.getElementById('m-c1').value,
-    child1Dob:    document.getElementById('m-c1dob').value,
-    child2:       document.getElementById('m-c2').value,
-    child2Dob:    document.getElementById('m-c2dob').value,
-    child3:       document.getElementById('m-c3').value,
-    child3Dob:    document.getElementById('m-c3dob').value,
-    address:      document.getElementById('m-address').value,
-    joinedYear:   document.getElementById('m-joined').value,
-    status:       document.getElementById('m-status').value,
-    notes:        document.getElementById('m-notes').value,
-  };
-  if (!d.name) { toast('Name is required.','err'); return; }
-  try {
-    const res = await api('saveMember', d);
-    if (res.ok) { toast(res.msg,'ok'); closeMemberModal(); loadMembers(); }
-    else toast(res.msg,'err');
-  } catch(e) { toast(e.message,'err'); }
-}
-
-async function deleteMember() {
-  const sno = document.getElementById('m-sno').value;
-  const name= document.getElementById('m-name').value;
-  if (!confirm('Delete member: ' + name + '?\n\nThis cannot be undone.')) return;
-  try {
-    const res = await api('deleteMember', {sno});
-    if (res.ok) { toast(res.msg,'ok'); closeMemberModal(); loadMembers(); }
-    else toast(res.msg,'err');
-  } catch(e) { toast(e.message,'err'); }
-}
-
-// ── Member Dashboard ───────────────────────────────────
-async function loadMemberDashboard() {
-  try {
-    const members = allMembers.length ? allMembers : await api('getMembers');
-    allMembers = members;
-
-    const total  = members.length;
-    const bap    = members.filter(m=>m.baptism==='Yes').length;
-    const fams   = members.filter(m=>m.spouseName).length;
-    const children = members.reduce((n,m)=>{
-      return n + (m.child1?1:0) + (m.child2?1:0) + (m.child3?1:0);
-    }, 0);
-
-    document.getElementById('mk-total').textContent = total;
-    document.getElementById('mk-bap').textContent   = bap;
-    document.getElementById('mk-bap-pct').textContent = total>0 ? Math.round(bap/total*100)+'% baptized' : '—';
-    document.getElementById('mk-fam').textContent   = fams;
-    document.getElementById('mk-child').textContent = children;
-
-    // Baptism donut
-    destroyChart('bap');
-    charts['bap'] = new Chart(document.getElementById('ch-bap'), {
-      type:'doughnut',
-      data:{labels:['Baptized','Unbaptized'],datasets:[{data:[bap,total-bap],backgroundColor:['#22d3aa','#f2554a'],borderWidth:2,borderColor:'#111c2d'}]},
-      options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false}}}
-    });
-    document.getElementById('bap-legend').innerHTML = [['Baptized',bap,'#22d3aa'],['Unbaptized',total-bap,'#f2554a']].map(([l,v,c])=>`
-      <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px;">
-        <span style="width:10px;height:10px;border-radius:2px;background:${c};flex-shrink:0"></span>
-        <span style="font-size:12px;color:var(--txt);flex:1">${l}</span>
-        <span style="font-family:Syne,sans-serif;font-weight:600;font-size:14px;color:#fff">${v}</span>
-      </div>`).join('');
-
-    // Join year bar
-    const joinYears = {};
-    members.forEach(m => { if(m.joinedYear) joinYears[m.joinedYear]=(joinYears[m.joinedYear]||0)+1; });
-    const sortedYears = Object.keys(joinYears).sort();
-    destroyChart('join');
-    charts['join'] = new Chart(document.getElementById('ch-join'), {
-      type:'bar',
-      data:{labels:sortedYears,datasets:[{label:'Members',data:sortedYears.map(y=>joinYears[y]),backgroundColor:'rgba(79,144,245,.3)',borderColor:'#4f90f5',borderWidth:2,borderRadius:4}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-        scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a85a8',font:{size:11}}},
-          y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a85a8',font:{size:11},stepSize:1}}}}
-    });
-
-    // Skills cloud
-    const skillCount = {};
-    members.forEach(m => {
-      (m.skills||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(s => {
-        skillCount[s] = (skillCount[s]||0)+1;
-      });
-    });
-    const maxSkill = Math.max(...Object.values(skillCount),1);
-    document.getElementById('skills-cloud').innerHTML = Object.entries(skillCount)
-      .sort((a,b)=>b[1]-a[1]).slice(0,20)
-      .map(([s,c]) => {
-        const size = 11 + Math.round((c/maxSkill)*8);
-        return `<span style="background:var(--bg3);color:var(--txt);border-radius:6px;padding:4px 10px;font-size:${size}px;font-weight:600;cursor:default;" title="${c} member(s)">${s} <span style="color:var(--muted);font-size:10px">${c}</span></span>`;
-      }).join('');
-  } catch(e) { toast(e.message,'err'); }
-}
-
-// ══════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════
-window.addEventListener('load', () => {
-  buildDenoms();
-  const today = new Date().toISOString().split('T')[0];
-  ['off-date','exp-date','ppf-date'].forEach(id => { document.getElementById(id).value = today; });
-  document.getElementById('m-joined').value = new Date().getFullYear();
-
-  if (!API_URL) {
-    document.getElementById('fy-pill').textContent = 'Configure API';
-    document.getElementById('dash-sub').textContent = 'Go to Settings and add your Apps Script Web App URL to begin.';
-    document.getElementById('k-off').textContent =
-    document.getElementById('k-exp').textContent =
-    document.getElementById('k-bal').textContent =
-    document.getElementById('k-dfcm').textContent = 'RM —';
-    toast('Welcome! Go to Settings to configure the API URL.','info');
-  } else {
-    loadDashboard();
-  }
+window.addEventListener('load',()=>{
+  buildRows('o-','o-notes','o-coins','calcOff');
+  buildRows('p-','p-notes','p-coins','calcPPF2');
+  document.querySelectorAll('input[type=date]').forEach(el=>{if(!el.value)el.value=today();});
+  document.getElementById('m-yr').value=new Date().getFullYear();
+  if(API){loadDash();}
+  else{document.getElementById('d-sub').textContent='Go to Settings → save your Apps Script URL to begin.';document.getElementById('fy-tag').textContent='Configure API';toast('Welcome! Go to Settings to add your Apps Script URL.','inf');}
 });
 </script>
 </body>
