@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KLTF Finance – Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body{
+      margin:0;
+      height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg,#04080f,#070d18);
+      font-family:Arial,sans-serif;color:#fff;
+    }
+    .box{
+      width:340px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px;
+      padding:28px;
+      text-align:center;
+    }
+    img{width:90px;height:90px;object-fit:contain;margin-bottom:14px}
+    h2{margin:0;font-size:22px}
+    p{font-size:12px;color:#8aa0c4;margin-bottom:20px}
+    input{
+      width:100%;padding:12px;margin-bottom:12px;
+      border-radius:8px;border:1px solid rgba(255,255,255,.15);
+      background:rgba(255,255,255,.08);color:#fff
+    }
+    button{
+      width:100%;padding:12px;border-radius:8px;
+      border:none;cursor:pointer;font-weight:bold;
+      background:linear-gradient(135deg,#00f5c4,#00c99e)
+    }
+    .err{color:#ff5f5f;font-size:12px;margin-top:10px;display:none}
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    kltf-logo.png
+    <h2>KLTF Finance</h2>
+    <p>Telugu Fellowship Church</p>
+
+    <input id="u" placeholder="Username">
+    <input id="p" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+
+    <div id="e" class="err">❌ Invalid credentials</div>
+  </div>
+
+<script>
+  const USER = "admin";
+  const PASS = "kltf123";
+
+  function login(){
+    if(u.value.trim()==USER && p.value==PASS){
+      sessionStorage.setItem("kltf_logged","1");
+      location.href = "index.html";
+    } else {
+      e.style.display="block";
+    }
+  }
+</script>
+</body>
+</html>
