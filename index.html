@@ -1376,7 +1376,14 @@ async function loadMemDash() {
     document.getElementById('skills-cloud').innerHTML=Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([s,c])=>`<span style="background:rgba(255,255,255,.06);border:1px solid var(--bdr);color:var(--txt);border-radius:7px;padding:4px 11px;font-size:${11+Math.round(c/scmax*6)}px;font-weight:600;transition:all .2s;cursor:default" title="${c} member(s)">${s} <span style="color:var(--muted);font-size:9px;margin-left:2px">${c}</span></span>`).join('');
   } catch(e){ toast(e.message,'err'); }
 }
+const loggedIn = sessionStorage.getItem('kltf_logged_in') === '1';
 
+if (!loggedIn) {
+  document.querySelector('.app').style.display = 'none';
+  return;
+} else {
+  document.getElementById('login-screen').style.display = 'none';
+}
 // ── INIT ─────────────────────────────────────────────────
 window.addEventListener('load', () => {
   // Build denomination inputs
