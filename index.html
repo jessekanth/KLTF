@@ -935,6 +935,27 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
 <script>
 'use strict';
+   // ── SIMPLE LOGIN AUTH ─────────────────────
+const LOGIN_USER = 'admin';
+const LOGIN_PASS = 'kltf123';
+
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+
+  if (u === LOGIN_USER && p === LOGIN_PASS) {
+    sessionStorage.setItem('kltf_logged_in', '1');
+    document.getElementById('login-screen').style.display = 'none';
+    document.querySelector('.app').style.display = 'flex';
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('kltf_logged_in');
+  location.reload();
+}
 // ── CONFIG ──────────────────────────────────────────────
 let API = 'https://script.google.com/macros/s/AKfycbyXpXuVXzsS7Qzy-g0SZ4Zbd_HHN28MQxgTrLdG_5oSOlATE2EugYET_fdcps6Aq5TQBw/exec';
 
