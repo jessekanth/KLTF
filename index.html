@@ -1380,9 +1380,11 @@ const loggedIn = sessionStorage.getItem('kltf_logged_in') === '1';
 
 if (!loggedIn) {
   document.querySelector('.app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
   return;
 } else {
   document.getElementById('login-screen').style.display = 'none';
+  document.querySelector('.app').style.display = 'flex';
 }
 // ── INIT ─────────────────────────────────────────────────
 window.addEventListener('load', () => {
