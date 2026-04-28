@@ -4,67 +4,116 @@
   <meta charset="UTF-8">
   <title>KLTF Finance – Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body{
-      margin:0;
-      height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:linear-gradient(180deg,#04080f,#070d18);
-      font-family:Arial,sans-serif;color:#fff;
+    :root{
+      --bg:#04080f;--g:#00f5c4;--g2:#00c99e;
+      --bdr2:rgba(255,255,255,.14);
+      --txt:#e8f0fe;--muted:#6b7fa3;
+      --red:#ff5f5f;
     }
-    .box{
-      width:340px;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:16px;
-      padding:28px;
-      text-align:center;
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;font-family:'Plus Jakarta Sans',Arial,sans-serif;background:linear-gradient(160deg,#04080f 0%,#070d18 50%,#04080f 100%);color:var(--txt);overflow:hidden}
+    .orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0}
+    .orb1{width:700px;height:700px;background:radial-gradient(circle,rgba(0,245,196,.05) 0%,transparent 70%);top:-250px;right:-200px}
+    .orb2{width:600px;height:600px;background:radial-gradient(circle,rgba(77,159,255,.04) 0%,transparent 70%);bottom:-200px;left:-200px}
+    .grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 70% 60% at 50% 50%,black 20%,transparent 100%)}
+    .wrap{position:relative;z-index:1;height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+    .card{
+      width:100%;max-width:380px;position:relative;
+      background:rgba(255,255,255,.04);border:1px solid var(--bdr2);
+      border-radius:24px;padding:36px 32px 32px;
+      box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04) inset;
+      backdrop-filter:blur(24px);animation:rise .5s cubic-bezier(.4,0,.2,1) both;
     }
-    img{width:90px;height:90px;object-fit:contain;margin-bottom:14px}
-    h2{margin:0;font-size:22px}
-    p{font-size:12px;color:#8aa0c4;margin-bottom:20px}
-    input{
-      width:100%;padding:12px;margin-bottom:12px;
-      border-radius:8px;border:1px solid rgba(255,255,255,.15);
-      background:rgba(255,255,255,.08);color:#fff
-    }
-    button{
-      width:100%;padding:12px;border-radius:8px;
-      border:none;cursor:pointer;font-weight:bold;
-      background:linear-gradient(135deg,#00f5c4,#00c99e)
-    }
-    .err{color:#ff5f5f;font-size:12px;margin-top:10px;display:none}
+    @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+    .card::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
+    .logo-ring{width:68px;height:68px;border-radius:18px;background:linear-gradient(135deg,rgba(0,245,196,.14),rgba(77,159,255,.08));border:1px solid rgba(0,245,196,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 8px 24px rgba(0,245,196,.12)}
+    .logo-ring img{width:54px;height:54px;object-fit:contain}
+    .lf{font-size:26px;display:none}
+    .app-name{text-align:center;font-size:22px;font-weight:800;letter-spacing:-.5px;color:#fff;margin-bottom:4px}
+    .app-sub{text-align:center;font-size:12px;color:var(--muted);margin-bottom:28px}
+    .field{margin-bottom:14px}
+    .field label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}
+    .inp-wrap{position:relative}
+    .inp-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;opacity:.4}
+    .field input{width:100%;padding:11px 14px 11px 40px;border-radius:11px;border:1px solid var(--bdr2);background:rgba(255,255,255,.05);color:var(--txt);font-size:13.5px;font-weight:500;font-family:inherit;outline:none;transition:all .2s}
+    .field input:hover{border-color:rgba(255,255,255,.2)}
+    .field input:focus{border-color:rgba(0,245,196,.45);background:rgba(0,245,196,.04);box-shadow:0 0 0 3px rgba(0,245,196,.08)}
+    .field input::placeholder{color:var(--muted);font-weight:400}
+    .btn-login{width:100%;padding:13px;border-radius:12px;border:none;cursor:pointer;font-weight:700;font-size:14px;font-family:inherit;background:linear-gradient(135deg,var(--g),var(--g2));color:#04080f;box-shadow:0 6px 24px rgba(0,245,196,.3);transition:all .2s;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px}
+    .btn-login:hover{transform:translateY(-1px);box-shadow:0 10px 32px rgba(0,245,196,.4)}
+    .btn-login:active{transform:scale(.98)}
+    .btn-login:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .spin{display:inline-block;width:14px;height:14px;border:2.5px solid rgba(0,0,0,.2);border-top-color:#04080f;border-radius:50%;animation:rot .5s linear infinite}
+    @keyframes rot{to{transform:rotate(360deg)}}
+    .err-box{background:rgba(255,95,95,.1);border:1px solid rgba(255,95,95,.25);color:var(--red);border-radius:10px;padding:10px 14px;font-size:12.5px;font-weight:600;margin-top:14px;display:none;align-items:center;gap:8px}
+    .err-box.show{display:flex;animation:shake .35s ease}
+    @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+    .footer{margin-top:22px;text-align:center;font-size:11px;color:var(--muted)}
+    .footer span{color:rgba(0,245,196,.6)}
   </style>
 </head>
-
 <body>
-  <div class="box">
-    kltf-logo.png
-    <h2>KLTF Finance</h2>
-    <p>Telugu Fellowship Church</p>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="grid"></div>
+  <div class="wrap">
+    <div class="card">
+      <div class="logo-ring">
+        <img src="kltf-logo.png" alt="KLTF" onerror="this.style.display='none';document.querySelector('.lf').style.display='block'">
+        <span class="lf">✝</span>
+      </div>
+      <div class="app-name">KLTF Finance</div>
+      <div class="app-sub">KL Telugu Fellowship Church · Secure Portal</div>
 
-    <input id="u" placeholder="Username">
-    <input id="p" type="password" placeholder="Password">
-    <button onclick="login()">Login</button>
+      <div class="field">
+        <label>Username</label>
+        <div class="inp-wrap">
+          <span class="inp-icon">👤</span>
+          <input id="u" type="text" placeholder="Enter username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('p').focus()">
+        </div>
+      </div>
 
-    <div id="e" class="err">❌ Invalid credentials</div>
+      <div class="field">
+        <label>Password</label>
+        <div class="inp-wrap">
+          <span class="inp-icon">🔒</span>
+          <input id="p" type="password" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
+        </div>
+      </div>
+
+      <button class="btn-login" id="lbtn" onclick="login()">
+        <span id="lbltxt">Sign In</span>
+      </button>
+
+      <div class="err-box" id="err">
+        <span>⚠</span><span>Invalid credentials. Please try again.</span>
+      </div>
+
+      <div class="footer">Secured · <span>KLTF Finance v2</span> · Internal use only</div>
+    </div>
   </div>
 
 <script>
-  const USER = "admin";
-  const PASS = "kltf123";
-
+  const USER="admin", PASS="kltf123";
   function login(){
-    if(u.value.trim()==USER && p.value==PASS){
-      sessionStorage.setItem("kltf_logged","1");
-      location.href = "index.html";
-    } else {
-      e.style.display="block";
-    }
+    const btn=document.getElementById('lbtn'), lbl=document.getElementById('lbltxt'), err=document.getElementById('err');
+    err.classList.remove('show'); btn.disabled=true; lbl.innerHTML='<span class="spin"></span>';
+    setTimeout(()=>{
+      if(document.getElementById('u').value.trim()===USER && document.getElementById('p').value===PASS){
+        sessionStorage.setItem('kltf_logged','1');
+        lbl.textContent='✓ Welcome!';
+        setTimeout(()=>{location.href='index.html';},380);
+      } else {
+        btn.disabled=false; lbl.textContent='Sign In';
+        err.classList.add('show');
+        document.getElementById('p').value=''; document.getElementById('p').focus();
+      }
+    },600);
   }
+  window.addEventListener('load',()=>document.getElementById('u').focus());
 </script>
 </body>
 </html>
