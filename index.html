@@ -854,6 +854,13 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
 <script>
 'use strict';
+   
+/* ── LOGIN PROTECTION ───────────────────────── */
+if (sessionStorage.getItem('kltf_logged') !== '1') {
+  window.location.replace('login.html');
+}
+/* ───────────────────────────────────────────── */
+
 // ── CONFIG ──────────────────────────────────────────────
 let API = 'https://script.google.com/macros/s/AKfycbyXpXuVXzsS7Qzy-g0SZ4Zbd_HHN28MQxgTrLdG_5oSOlATE2EugYET_fdcps6Aq5TQBw/exec';
 
