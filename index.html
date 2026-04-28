@@ -69,13 +69,43 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;
   background:linear-gradient(180deg,transparent,rgba(0,245,196,.2),transparent);
 }
 .sb-brand{padding:22px 16px 18px}
-.sb-logo{
-  width:40px;height:40px;border-radius:11px;
-  background:linear-gradient(135deg,var(--g),var(--blue));
-  display:flex;align-items:center;justify-content:center;
-  font-weight:800;font-size:15px;color:#04080f;
-  margin-bottom:11px;box-shadow:0 4px 16px rgba(0,245,196,.25);
+/* Sidebar brand container */
+.sb-brand {
+  padding: 22px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
 }
+
+/* Logo container */
+.sb-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: none;
+  box-shadow: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Logo image */
+.sb-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Optional text polish */
+.sb-name {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
 .sb-name{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px}
 .sb-sub{font-size:11px;color:var(--muted);margin-top:2px}
 .fy-pill{
