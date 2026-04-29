@@ -542,6 +542,31 @@ tr:hover td{background:rgba(255,255,255,.02)}
 /* ═══════════════════════════════════════
    INFO BOX
 ═══════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   PASTOR TOGGLE
+═══════════════════════════════════════ */
+.pastor-wrap{display:flex;gap:8px;align-items:center}
+.pastor-wrap input{flex:1}
+.ptog{
+  display:flex;border-radius:8px;overflow:hidden;
+  border:1px solid var(--bdr);flex-shrink:0;
+}
+.ptog-btn{
+  padding:7px 11px;font-size:11px;font-weight:700;
+  border:none;cursor:pointer;font-family:inherit;
+  background:transparent;color:var(--muted);transition:all .18s;
+  white-space:nowrap;
+}
+.ptog-btn.active{background:rgba(0,245,196,.12);color:var(--g)}
+.ptog-btn.active-g{background:rgba(180,143,255,.12);color:var(--purple)}
+.attend-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(77,159,255,.08);border:1px solid rgba(77,159,255,.15);
+  border-radius:8px;padding:3px 10px;font-size:11px;color:var(--blue);
+  font-weight:700;white-space:nowrap;
+}
+.t-local{background:rgba(0,245,196,.1);color:var(--g)}
+.t-guest{background:var(--purple2);color:var(--purple)}
 .info-strip{
   background:rgba(0,245,196,.04);border:1px solid rgba(0,245,196,.12);
   border-radius:10px;padding:11px 16px;font-size:12px;
@@ -656,6 +681,23 @@ tr:hover td{background:rgba(255,255,255,.02)}
           </div>
           <div class="f"><label>Counted By</label><input type="text" id="o-ctr" placeholder="Treasurer name…"></div>
         </div>
+        <div class="fr c2" style="margin-top:4px">
+          <div class="f">
+            <label>Church Attendance Count</label>
+            <input type="number" id="o-attend" placeholder="e.g. 85" min="0" step="1">
+          </div>
+          <div class="f">
+            <label>Pastor Name</label>
+            <div class="pastor-wrap">
+              <input type="text" id="o-pastor" placeholder="Pastor's name…">
+              <div class="ptog" id="o-ptog">
+                <button class="ptog-btn active" id="o-pt-local" onclick="setPastorType('local')">Local</button>
+                <button class="ptog-btn" id="o-pt-guest" onclick="setPastorType('guest')">Guest</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" id="o-ptype" value="local">
         <div class="info-strip" style="margin-bottom:0">Service: Telugu · For <strong>Poor People Fund</strong> use the PPF section in the sidebar.</div>
       </div>
     </div>
@@ -797,7 +839,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <div id="pg-records" class="pg">
   <div class="ph"><div><div class="ph-title">Transaction Records</div><div class="ph-sub">Last 20 entries per category</div></div><button class="btn bgh" onclick="loadRecords(true)">↻ Refresh</button></div>
   <div class="tc"><div class="tc-h"><h3>Recent Offerings (Sunday + Special)</h3></div><div class="tw">
-    <table id="t-off"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Year</th><th>Source</th><th>Denominations</th></tr></thead>
+    <table id="t-off"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Attendance</th><th>Pastor</th><th>Year</th><th>Source</th><th>Denominations</th></tr></thead>
     <tbody><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Loading…</td></tr></tbody></table>
   </div></div>
   <div class="tc"><div class="tc-h"><h3>Recent Expenses</h3></div><div class="tw">
@@ -808,7 +850,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
 <!-- SETTINGS -->
 <div id="pg-settings" class="pg">
-  <div class="ph"><div><div class="ph-title">Settings</div><div class="ph-sub">Configure API, financial year, and DFCM</div></div></div>
+  <div class="ph">
+    <div><div class="ph-title">Settings</div><div class="ph-sub">Configure API, financial year, and DFCM</div></div>
+    <div class="ph-acts">
+      <button class="btn bgh" onclick="loadSettings(true)" title="Re-read all values from Google Sheet">↻ Refresh from Sheet</button>
+    </div>
+  </div>
   <div style="max-width:620px">
     <div class="sg"><div class="sg-h">🔗 Apps Script API URL</div><div class="sg-b">
       <div class="ib">Paste your Google Apps Script Web App URL. Get it from: Apps Script → Deploy → New Deployment → Web App → Copy URL</div>
@@ -824,7 +871,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       </div>
       <div class="fr" style="margin-top:4px"><div class="f"><label>Notification Email(s)</label><input type="text" id="s-email" placeholder="treasurer@church.org, pastor@church.org"></div></div>
       <div style="font-size:11px;color:var(--muted);margin:-6px 0 12px">Separate multiple emails with commas. Leave blank to disable email notifications.</div>
-      <div style="display:flex;gap:9px"><button class="btn bg" onclick="saveSettings()">Save Settings</button><button class="btn bgh" onclick="loadSettings()">Reset</button></div>
+      <div style="display:flex;gap:9px"><button class="btn bg" onclick="saveSettings()">Save Settings</button><button class="btn bgh" onclick="loadSettings(true)">↻ Reset from Sheet</button></div>
     </div></div>
     <div class="sg"><div class="sg-h">🚀 First-Time Setup</div><div class="sg-b">
       <p style="color:var(--muted);font-size:13px;margin-bottom:14px">Creates all required Google Sheet tabs. Safe to run — existing sheets are not modified.</p>
@@ -896,7 +943,7 @@ if (sessionStorage.getItem('kltf_logged') !== '1') {
 /* ───────────────────────────────────────────── */
 
 // ── CONFIG ──────────────────────────────────────────────
-let API = 'https://script.google.com/macros/s/AKfycbyXpXuVXzsS7Qzy-g0SZ4Zbd_HHN28MQxgTrLdG_5oSOlATE2EugYET_fdcps6Aq5TQBw/exec';
+let API = 'https://script.google.com/macros/s/AKfycby3t1CCosVmwJZvXMu9XByNsRZQnORPbm8REAvrDgNHPR7QWupDoTpGtltBJFA2EQVopw/exec';
 
 // ── DATA CACHE (TTL: 60s) ────────────────────────────────
 const CACHE = {};
@@ -1032,11 +1079,14 @@ async function submitOffering() {
   const type=document.getElementById('o-type').value;
   const ctr=document.getElementById('o-ctr').value;
   const rem=document.getElementById('o-rem').value;
+  const attend=document.getElementById('o-attend').value;
+  const pastor=document.getElementById('o-pastor').value.trim();
+  const ptype=document.getElementById('o-ptype').value;
   const{g}=calcDenoms('o-','o-stn','o-stc','o-gt');
   if(!date){toast('Please enter a date.','err');return;}
   if(!type){toast('Please select an offering type.','err');return;}
   if(g<=0){toast('Enter at least one denomination amount.','err');return;}
-  const d={date,offeringType:type,counters:ctr,notes:rem,...readDenoms('o-')};
+  const d={date,offeringType:type,counters:ctr,notes:rem,attendanceCount:attend||'',pastorName:pastor,pastorType:ptype,...readDenoms('o-')};
   const btn=document.getElementById('o-btn');
   btn.disabled=true; btn.innerHTML='<span class="spin"></span> Saving…';
   try {
@@ -1048,8 +1098,20 @@ async function submitOffering() {
 }
 function clearOff() {
   clearDenoms('o-');
-  ['o-date','o-type','o-ctr','o-rem'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['o-date','o-type','o-ctr','o-rem','o-attend','o-pastor'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('o-ptype').value='local';
+  setPastorType('local');
   calcOff(); document.getElementById('o-date').value=today();
+}
+
+function setPastorType(type) {
+  document.getElementById('o-ptype').value=type;
+  const lb=document.getElementById('o-pt-local');
+  const gb=document.getElementById('o-pt-guest');
+  if(lb&&gb){
+    lb.className='ptog-btn'+(type==='local'?' active':'');
+    gb.className='ptog-btn'+(type==='guest'?' active-g':'');
+  }
 }
 
 // ── SUBMIT PPF COLLECTION ────────────────────────────────
@@ -1185,7 +1247,7 @@ async function loadRecords(force) {
   try {
     const [offs,exps] = await Promise.all([api('getRecentOfferings',null,force), api('getRecentExpenses',null,force)]);
     document.querySelector('#t-off tbody').innerHTML=offs.length
-      ? offs.map(r=>`<tr><td>${r.date}</td><td><span class="tag ${r.offeringType==='Sunday Service'?'t-ss':'t-so'}">${r.offeringType}</span></td><td class="amt">${fmt(r.amount)}</td><td>${r.year}</td><td><span class="tag ${r.source==='NEW_ENTRY'?'t-new':'t-old'}">${r.source}</span></td><td style="color:var(--muted);font-size:11px">${r.denoms||''}</td></tr>`).join('')
+      ? offs.map(r=>`<tr><td>${r.date}</td><td><span class="tag ${r.offeringType==='Sunday Service'?'t-ss':'t-so'}">${r.offeringType}</span></td><td class="amt">${fmt(r.amount)}</td><td>${r.attendanceCount?`<span class="attend-badge">👥 ${r.attendanceCount}</span>`:'<span style="color:var(--dim)">—</span>'}</td><td>${r.pastorName?`<span class="tag ${r.pastorType==='guest'?'t-guest':'t-local'}">${r.pastorType==='guest'?'🌟 ':'✝ '}${r.pastorName}</span>`:'<span style="color:var(--dim)">—</span>'}</td><td>${r.year}</td><td><span class="tag ${r.source==='NEW_ENTRY'?'t-new':'t-old'}">${r.source}</span></td><td style="color:var(--muted);font-size:11px">${r.denoms||''}</td></tr>`).join('')
       : '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">No offerings yet.</td></tr>';
     document.querySelector('#t-exp tbody').innerHTML=exps.length
       ? exps.map(r=>`<tr><td>${r.date}</td><td>${r.category}</td><td>${r.description}</td><td class="amt">${fmt(r.amount)}</td><td>${r.year}</td><td><span class="tag ${r.source==='NEW_ENTRY'?'t-new':'t-old'}">${r.source}</span></td></tr>`).join('')
@@ -1194,17 +1256,54 @@ async function loadRecords(force) {
 }
 
 // ── SETTINGS ─────────────────────────────────────────────
-function loadSettings() {
-  const saved=localStorage.getItem('kltf_url')||'';
-  document.getElementById('s-url').value=saved;
-  if(!saved) return;
-  api('getSettings').then(s=>{
-    document.getElementById('s-yr').value=s['Active Financial Year']||'';
-    document.getElementById('s-dfcm').value=s['DFCM Percentage']||10;
-    document.getElementById('s-open').value=s['Opening Balance']||0;
-    document.getElementById('s-close').value=s['Closing Balance']||'';
-    document.getElementById('s-email').value=s['Notification Email']||'';
-  }).catch(()=>{});
+async function loadSettings(force) {
+  // Always show the saved URL (or empty if not yet set)
+  const saved = localStorage.getItem('kltf_url') || '';
+  document.getElementById('s-url').value = saved;
+
+  // Always try to load values from the sheet regardless of localStorage state
+  // Uses the hardcoded API fallback if localStorage is empty
+  if (!API) {
+    _settingsPlaceholder();
+    return;
+  }
+
+  // Show loading shimmer on all fields
+  const fields = ['s-yr','s-dfcm','s-open','s-close','s-email'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.disabled) { el.style.opacity = '.4'; el.disabled = true; }
+  });
+
+  try {
+    // force=true busts the 60s cache so sheet edits are always reflected
+    const s = await api('getSettings', null, true);
+
+    document.getElementById('s-yr').value    = s['Active Financial Year'] || '';
+    document.getElementById('s-dfcm').value  = s['DFCM Percentage']       !== undefined ? s['DFCM Percentage'] : 10;
+    document.getElementById('s-open').value  = s['Opening Balance']        !== undefined ? s['Opening Balance'] : 0;
+    document.getElementById('s-close').value = s['Closing Balance']        || '';
+    document.getElementById('s-email').value = s['Notification Email']     || '';
+
+    if (force) toast('Settings loaded from sheet.', 'ok');
+  } catch(e) {
+    toast('Could not load settings: ' + e.message, 'err');
+    _settingsPlaceholder();
+  } finally {
+    // Re-enable all fields
+    ['s-yr','s-dfcm','s-open','s-email'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.style.opacity = ''; el.disabled = false; }
+    });
+  }
+}
+
+function _settingsPlaceholder() {
+  // Show dash placeholders so the user knows fields haven't loaded
+  ['s-yr','s-dfcm','s-open','s-email'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.value) el.placeholder = 'Not loaded — check API URL';
+  });
 }
 function saveURL(){const u=document.getElementById('s-url').value.trim();if(!u){toast('Enter URL.','err');return;}localStorage.setItem('kltf_url',u);API=u;toast('URL saved. Testing…','inf');testConn();}
 function testConn(){API=document.getElementById('s-url').value.trim()||API;api('getSettings',null,true).then(()=>toast('✓ Connection successful!','ok')).catch(e=>toast('Failed: '+e.message,'err'));}
