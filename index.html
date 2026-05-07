@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>KLTF Finance</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
@@ -109,7 +110,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
 
 /* ── KPI CARDS ── */
 .kc.k-p{--kc:var(--purple);--kc2:var(--purple2)}
-.krow{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
+.krow{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:14px;margin-bottom:20px}
 .kc{
   background:var(--card);border:1px solid var(--bdr);
   border-radius:var(--r2);padding:18px 20px;
@@ -273,6 +274,15 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:none!important}
 .spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(0,0,0,.2);border-top-color:currentColor;border-radius:50%;animation:rot .5s linear infinite}
 @keyframes rot{to{transform:rotate(360deg)}}
+/* Delete confirm inline panel */
+.del-confirm{background:rgba(255,82,82,.06);border:1px solid rgba(255,82,82,.18);border-radius:10px;padding:10px 14px;margin-top:12px;display:none}
+.del-confirm.show{display:block}
+.del-confirm p{font-size:12px;color:var(--red);margin-bottom:8px}
+.del-confirm .btn-row{display:flex;gap:8px}
+/* Pastor chips in settings */
+.pastor-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--bdr2);border-radius:6px;padding:4px 10px;font-size:12px;margin:3px}
+.pastor-chip .rm-p{background:none;border:none;color:var(--muted);cursor:pointer;padding:0;font-size:14px;line-height:1}
+.pastor-chip .rm-p:hover{color:var(--red)}
 
 /* ── TABLE ── */
 .tc{
@@ -592,9 +602,11 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
   <div class="ph">
     <div><div class="ph-t" id="d-title">Finance Dashboard</div><div class="ph-s" id="d-sub">Loading data…</div></div>
     <div class="ph-a">
+      <button class="btn bgh" onclick="exportDashPDF()" id="dash-pdf-btn">📄 Export PDF</button>
       <button class="btn bgh" onclick="loadDash(true)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Refresh</button>
     </div>
   </div>
+  <div id="dash-export-area">
   <div class="krow" id="krow">
     <div class="kc k-g"><div class="skel skel-kpi"></div></div>
     <div class="kc k-r"><div class="skel skel-kpi"></div></div>
@@ -610,6 +622,7 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
     <div class="cc"><div class="cc-hdr"><div><h3>Expenses by Category</h3><div class="cc-s">Active year</div></div></div><div id="cat-bars" style="margin-top:4px"></div></div>
   </div>
   <div class="ib">⚠️ <strong>Poor People Fund (PPF)</strong> is excluded from above totals — it has its own independent balance and claims tracking.</div>
+  </div><!-- /dash-export-area -->
 </div>
 
 <!-- OFFERING -->
@@ -621,6 +634,11 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
         <div class="f"><label>Date of Service</label><input type="date" id="o-date"></div>
         <div class="f"><label>Offering Type</label><select id="o-type"><option value="">— Select —</option><option value="Sunday Service">Sunday Service</option><option value="Special Offering">Special Offering</option></select></div>
         <div class="f"><label>Counted By</label><input type="text" id="o-ctr" placeholder="Treasurer name…"></div>
+      </div>
+      <div class="fg c3">
+        <div class="f"><label>Pastor / Speaker</label><select id="o-pastor"><option value="">— Select —</option></select></div>
+        <div class="f"><label>Local / Foreigner</label><select id="o-ptype"><option value="">— Select —</option><option value="Local">Local</option><option value="Foreigner">Foreigner</option></select></div>
+        <div class="f"></div>
       </div>
       <div id="off-dup-warn" class="dup-warn">⛔ Duplicate entry blocked: A Sunday Service offering for this date already exists. Use the <strong>Records</strong> page to edit it.</div>
       <div class="ib" style="margin-bottom:0;font-size:11px">For <strong>Poor People Fund</strong> collections — use the PPF section in the sidebar.</div>
@@ -676,6 +694,7 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
     </div>
   </div>
   <div class="tc"><div class="tc-h"><h3>Recent PPF Claims</h3></div><div class="tw"><table id="t-ppf"><thead><tr><th>Date</th><th>Beneficiary</th><th>Purpose</th><th>Description</th><th>Amount</th><th>Source</th></tr></thead><tbody><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Loading…</td></tr></tbody></table></div></div>
+  <div class="tc" style="margin-top:14px"><div class="tc-h"><h3>PPF Collections</h3><span style="font-size:11px;color:var(--muted)">Grouped · editable</span></div><div class="tw"><table id="t-ppfcol"><thead><tr><th></th><th>Date</th><th>Amount</th><th>Year</th><th>Source</th><th>Counted By</th><th>Reason</th><th>Action</th></tr></thead><tbody><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Loading…</td></tr></tbody></table></div></div>
 </div>
 
 <!-- PPF CLAIM -->
@@ -758,6 +777,18 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
         <button class="btn" id="rollover-confirm-btn" style="background:linear-gradient(135deg,#ff7b7b,#e53e3e);color:#fff;display:none" onclick="confirmRollover()">✓ Confirm Year Rollover</button>
       </div>
     </div></div>
+    <div class="sg"><div class="sg-h">👨‍💼 Pastor / Speaker List</div><div class="sg-b">
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px;line-height:1.6">Manage the list of pastors and guest speakers for the offering slip. Changes take effect immediately. Update annually for new speakers.</p>
+      <div id="pastor-chips" style="margin-bottom:12px;min-height:32px"></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input type="text" id="new-pastor-name" placeholder="Pastor / Speaker name…" style="flex:1;background:var(--bg3);border:1px solid var(--bdr2);color:var(--txt);padding:8px 12px;border-radius:8px;font-size:12px;font-family:var(--font);outline:none">
+        <select id="new-pastor-type" style="background:var(--bg3);border:1px solid var(--bdr2);color:var(--txt);padding:8px 12px;border-radius:8px;font-size:12px;font-family:var(--font);outline:none">
+          <option value="Local">Local</option><option value="Foreigner">Foreigner</option>
+        </select>
+        <button class="btn bg" onclick="addPastor()" style="padding:8px 14px">+ Add</button>
+      </div>
+      <button class="btn bgh" onclick="savePastors()">Save Pastor List</button>
+    </div></div>
     <div class="sg"><div class="sg-h">🚀 First-Time Setup</div><div class="sg-b">
       <p style="color:var(--muted);font-size:13px;margin-bottom:14px;line-height:1.6">Creates all required Google Sheet tabs: Settings, Combined_Offerings, Combined_Expenses, PPF_Collections, PPF_Claims, Members, Audit_Log. Safe to run — existing sheets are not modified.</p>
       <button class="btn bgh" onclick="runSetup()">Run Initial Setup</button>
@@ -813,6 +844,7 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
   <div class="mo" style="max-width:520px">
     <div class="mo-h"><h2>✏️ Edit Offering</h2><button class="mo-x" onclick="closeEditOff()">✕</button></div>
     <input type="hidden" id="eo-row">
+    <input type="hidden" id="eo-groupref">
     <div class="ib" style="margin-bottom:14px;font-size:12px">Changes are logged to the Audit Trail with your reason. The original entry is preserved in the log.</div>
     <div class="dup-warn" id="eo-dup-warn">⛔ Another Sunday Service entry exists for this date. Change the date or type.</div>
     <div class="fg c2">
@@ -828,12 +860,28 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
       <div class="f"><label>Total Amount (RM)</label><input type="number" id="eo-amount" min="0" step="0.01" placeholder="0.00"></div>
       <div class="f"><label>Counted By</label><input type="text" id="eo-counters" placeholder="Treasurer name…"></div>
     </div>
+    <div class="fg c2">
+      <div class="f"><label>Pastor / Speaker</label><select id="eo-pastor"><option value="">— None / Not Recorded —</option></select></div>
+      <div class="f"><label>Local / Foreigner</label>
+        <select id="eo-ptype"><option value="">— Select —</option><option value="Local">Local</option><option value="Foreigner">Foreigner</option></select>
+      </div>
+    </div>
     <div class="reason-field">
       <div class="f"><label>⚠ Reason for Edit (required)</label><input type="text" id="eo-reason" placeholder="e.g. Data entry error, wrong amount counted…"></div>
     </div>
     <div style="display:flex;gap:9px;margin-top:16px">
       <button class="btn bg" onclick="saveEditOffering()">Save Changes</button>
       <button class="btn bgh" onclick="closeEditOff()">Cancel</button>
+    </div>
+    <div class="del-confirm" id="del-off-confirm">
+      <p>⚠ Delete this offering record and all its edits? This cannot be undone.</p>
+      <div class="btn-row">
+        <button class="btn br" onclick="confirmDeleteOffering()">Yes, Delete</button>
+        <button class="btn bgh" onclick="document.getElementById('del-off-confirm').classList.remove('show')">Cancel</button>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)">
+      <button class="btn br" style="font-size:11px" onclick="document.getElementById('del-off-confirm').classList.toggle('show')">🗑 Delete Record</button>
     </div>
   </div>
 </div>
@@ -843,6 +891,7 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
   <div class="mo" style="max-width:520px">
     <div class="mo-h"><h2>✏️ Edit Expense</h2><button class="mo-x" onclick="closeEditExp()">✕</button></div>
     <input type="hidden" id="ee-row">
+    <input type="hidden" id="ee-groupref">
     <div class="ib" style="margin-bottom:14px;font-size:12px">Changes are logged to the Audit Trail with your reason.</div>
     <div class="fg c2">
       <div class="f"><label>Date</label><input type="date" id="ee-date"></div>
@@ -866,6 +915,16 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
       <button class="btn bb" onclick="saveEditExpense()">Save Changes</button>
       <button class="btn bgh" onclick="closeEditExp()">Cancel</button>
     </div>
+    <div class="del-confirm" id="del-exp-confirm">
+      <p>⚠ Delete this expense record and all its edits? This cannot be undone.</p>
+      <div class="btn-row">
+        <button class="btn br" onclick="confirmDeleteExpense()">Yes, Delete</button>
+        <button class="btn bgh" onclick="document.getElementById('del-exp-confirm').classList.remove('show')">Cancel</button>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)">
+      <button class="btn br" style="font-size:11px" onclick="document.getElementById('del-exp-confirm').classList.toggle('show')">🗑 Delete Record</button>
+    </div>
   </div>
 </div>
 
@@ -874,6 +933,7 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
   <div class="mo" style="max-width:520px">
     <div class="mo-h"><h2>✏️ Edit PPF Claim</h2><button class="mo-x" onclick="closeEditPPFC()">✕</button></div>
     <input type="hidden" id="ec-row">
+    <input type="hidden" id="ec-groupref">
     <div class="ib" style="margin-bottom:14px;font-size:12px">Changes are logged to the Audit Trail with your reason.</div>
     <div class="fg c2">
       <div class="f"><label>Date</label><input type="date" id="ec-date"></div>
@@ -896,6 +956,48 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
     <div style="display:flex;gap:9px;margin-top:16px">
       <button class="btn ba" onclick="saveEditPPFClaim()">Save Changes</button>
       <button class="btn bgh" onclick="closeEditPPFC()">Cancel</button>
+    </div>
+    <div class="del-confirm" id="del-ppfc-confirm">
+      <p>⚠ Delete this PPF Claim and all its edits? This cannot be undone.</p>
+      <div class="btn-row">
+        <button class="btn br" onclick="confirmDeletePPFClaim()">Yes, Delete</button>
+        <button class="btn bgh" onclick="document.getElementById('del-ppfc-confirm').classList.remove('show')">Cancel</button>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)">
+      <button class="btn br" style="font-size:11px" onclick="document.getElementById('del-ppfc-confirm').classList.toggle('show')">🗑 Delete Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PPF COLLECTION MODAL -->
+<div class="ov hide" id="edit-ppfcol-ov">
+  <div class="mo" style="max-width:480px">
+    <div class="mo-h"><h2>✏️ Edit PPF Collection</h2><button class="mo-x" onclick="document.getElementById('edit-ppfcol-ov').classList.add('hide')">✕</button></div>
+    <input type="hidden" id="ecol-row">
+    <input type="hidden" id="ecol-groupref">
+    <div class="ib" style="margin-bottom:14px;font-size:12px">Changes are logged. Original row is preserved.</div>
+    <div class="fg c2">
+      <div class="f"><label>Date</label><input type="date" id="ecol-date"></div>
+      <div class="f"><label>Amount (RM)</label><input type="number" id="ecol-amount" min="0" step="0.01" placeholder="0.00"></div>
+    </div>
+    <div class="fg c2">
+      <div class="f"><label>Counted By</label><input type="text" id="ecol-ctr" placeholder="Treasurer…"></div>
+      <div class="f"><label>Reason for Edit</label><input type="text" id="ecol-reason" placeholder="Required…"></div>
+    </div>
+    <div style="display:flex;gap:9px;margin-top:16px">
+      <button class="btn ba" onclick="saveEditPPFCol()">Save Changes</button>
+      <button class="btn bgh" onclick="document.getElementById('edit-ppfcol-ov').classList.add('hide')">Cancel</button>
+    </div>
+    <div class="del-confirm" id="del-ppfcol-confirm">
+      <p>⚠ Delete this PPF Collection and all its edits? This cannot be undone.</p>
+      <div class="btn-row">
+        <button class="btn br" onclick="confirmDeletePPFCol()">Yes, Delete</button>
+        <button class="btn bgh" onclick="document.getElementById('del-ppfcol-confirm').classList.remove('show')">Cancel</button>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)">
+      <button class="btn br" style="font-size:11px" onclick="document.getElementById('del-ppfcol-confirm').classList.toggle('show')">🗑 Delete Record</button>
     </div>
   </div>
 </div>
@@ -972,7 +1074,7 @@ function setBotNav(id) {
 }
 
 // ── CONFIG ──────────────────────────────────────────────────────
-let API = 'https://script.google.com/macros/s/AKfycbxsnlX_cXXZ7gLfurPoSND2BNN1j1NdCZghYM4zEf5VK8S4uM2wXV6YCbzMprlbifjBIg/exec';
+let API = 'https://script.google.com/macros/s/AKfycbzQIw35LL6P5gV6kw-VCzhh2WJVscvw53_lqsbv1-TXStrEcBzKB7ePf2-h9CNFu7ee0Q/exec';
 
 // ── IN-MEMORY CACHE (makes navigation instant after first load) ──
 const CACHE = { dash:null, ppf:null, members:null, records:null, dashTime:0, ppfTime:0, memTime:0, recTime:0 };
@@ -1091,13 +1193,13 @@ async function submitOffering(){
   if(!date){toast('Please enter a date.','err');return;}
   if(!type){toast('Please select an offering type.','err');return;}
   if(g<=0){toast('Enter at least one denomination amount.','err');return;}
-  const d={date,offeringType:type,counters:document.getElementById('o-ctr').value,notes:document.getElementById('o-rem').value,...readD('o-')};
+  const d={date,offeringType:type,counters:document.getElementById('o-ctr').value,notes:document.getElementById('o-rem').value,pastorName:document.getElementById('o-pastor').value,pastorType:document.getElementById('o-ptype').value,...readD('o-')};
   const btn=document.getElementById('o-btn');
   btn.disabled=true;btn.innerHTML='<span class="spin"></span> Saving…';
   try{const r=await api('submitOffering',d);btn.disabled=false;btn.textContent='✓ Submit Collection';if(r.ok){toast(r.msg,'ok');clearOff();CACHE.dashTime=0;}else toast(r.msg,'err');}
   catch(e){btn.disabled=false;btn.textContent='✓ Submit Collection';toast(e.message,'err');}
 }
-function clearOff(){clearD('o-');['o-type','o-ctr','o-rem'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});calcOff();document.getElementById('o-date').value=today();}
+function clearOff(){clearD('o-');['o-type','o-ctr','o-rem','o-pastor','o-ptype'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});calcOff();document.getElementById('o-date').value=today();}
 
 // ── SUBMIT PPF COLLECTION ────────────────────────────────────────
 async function submitPPFColl(){
@@ -1138,9 +1240,10 @@ async function loadDash(force){
     <div class="kc k-r"><div class="skel skel-kpi"></div></div>
     <div class="kc k-b"><div class="skel skel-kpi"></div></div>
     <div class="kc k-a"><div class="skel skel-kpi"></div></div>
-    <div class="kc k-p"><div class="skel skel-kpi"></div></div>`;
+    <div class="kc k-p"><div class="skel skel-kpi"></div></div>
+    <div class="kc k-b"><div class="skel skel-kpi"></div></div>`;
   try{
-    const [s, ppf] = await Promise.all([api('getSummary'), api('getPPFSummary')]);
+    const [s, ppf, memStats] = await Promise.all([api('getSummary'), api('getPPFSummary'), api('getMemberStats')]);
     if(s&&s.ok===false){_dashError(s.msg||'Server error.');return;}
     if(!s||s.activeYear===undefined){_dashError('Incomplete data. Check Spreadsheet ID in Apps Script.');return;}
     s.ppfBalance   = ppf ? (ppf.balance        || 0) : 0;
@@ -1151,6 +1254,9 @@ async function loadDash(force){
     s.ppfCollected = s.ppfCollected || 0;
     s.ppfClaimed   = s.ppfClaimed   || 0;
     s.ppfOpening   = s.ppfOpening   || 0;
+    s.memTotal     = memStats ? (memStats.total      || 0) : 0;
+    s.memActive    = memStats ? (memStats.active      || 0) : 0;
+    s.memNew       = memStats ? (memStats.newThisYear || 0) : 0;
     CACHE.dash=s;CACHE.dashTime=Date.now();
     renderDash(s);
   }catch(e){_dashError(e.message);}
@@ -1190,7 +1296,8 @@ function renderDash(s){
     <div class="kc k-r"><div class="kc-bg"></div><div class="kc-l">Total Expenses</div><div class="kc-v">${fmt(s.totalExpenses)}</div><div class="kc-s">Active year all categories</div><div class="kc-ico">📤</div></div>
     <div class="kc k-b"><div class="kc-bg"></div><div class="kc-l">Fund Balance</div><div class="kc-v">${fmt(s.netBalance)}</div><div class="kc-s"><span style="color:var(--muted);font-size:10px">Carry Fwd</span> <span style="color:var(--txt);font-weight:600">${fmt(s.openingBalance)}</span> &nbsp;→&nbsp; <span style="color:var(--muted);font-size:10px">Present</span> <span style="${s.netBalance>=0?'color:var(--g)':'color:var(--red)'}">▲ ${fmt(s.netBalance)}</span></div><div class="kc-ico">📊</div></div>
     <div class="kc k-a"><div class="kc-bg"></div><div class="kc-l">DFCM Outstanding</div><div class="kc-v">${fmt(s.dfcmOutstanding)}</div><div class="kc-s">${s.dfcmOutstanding<=0?'<span style="color:var(--g)">✓ Fully paid</span>':'<span style="color:var(--amber)">⚠ Outstanding</span>'}</div><div class="kc-ico">🏛</div></div>
-    <div class="kc k-p"><div class="kc-bg"></div><div class="kc-l">PPF Balance</div><div class="kc-v">${fmt(s.ppfBalance)}</div><div class="kc-s"><span style="color:var(--muted);font-size:10px">Carry Fwd</span> <span style="color:var(--txt);font-weight:600">${fmt(s.ppfOpening)}</span> &nbsp;→&nbsp; <span style="color:var(--muted);font-size:10px">Present</span> <span style="${s.ppfBalance>=0?'color:var(--g)':'color:var(--red)'}">▲ ${fmt(s.ppfBalance)}</span></div><div class="kc-ico">❤️</div></div>`;
+    <div class="kc k-p"><div class="kc-bg"></div><div class="kc-l">PPF Balance</div><div class="kc-v">${fmt(s.ppfBalance)}</div><div class="kc-s"><span style="color:var(--muted);font-size:10px">Carry Fwd</span> <span style="color:var(--txt);font-weight:600">${fmt(s.ppfOpening)}</span> &nbsp;→&nbsp; <span style="color:var(--muted);font-size:10px">Present</span> <span style="${s.ppfBalance>=0?'color:var(--g)':'color:var(--red)'}">▲ ${fmt(s.ppfBalance)}</span></div><div class="kc-ico">❤️</div></div>
+    <div class="kc k-b" style="--kc-g:linear-gradient(90deg,#22d3ee,#4d9fff)"><div class="kc-bg"></div><div class="kc-l">Membership</div><div class="kc-v">${s.memTotal||0}</div><div class="kc-s"><span style="color:var(--g)">${s.memActive||0} active</span>${s.memNew>0?` &nbsp;·&nbsp; <span style="color:var(--amber)">${s.memNew} new this year</span>`:''}</div><div class="kc-ico">👥</div></div>`;
 
   mkC('ch-mon','bar',MONTHS,[{label:'Offerings',data:s.monthly,backgroundColor:'rgba(0,245,195,.18)',borderColor:'#00f5c3',borderWidth:2,borderRadius:6,borderSkipped:false}],{plugins:{legend:{display:false}},scales:AX});
 
@@ -1212,15 +1319,15 @@ function renderDash(s){
 
 // ── PPF ──────────────────────────────────────────────────────────
 async function loadPPF(force){
-  if(!force&&CACHE.ppf&&isFresh(CACHE.ppfTime)){renderPPF(CACHE.ppf[0],CACHE.ppf[1]);return;}
+  if(!force&&CACHE.ppf&&isFresh(CACHE.ppfTime)){renderPPF(CACHE.ppf[0],CACHE.ppf[1],CACHE.ppf[2]);return;}
   try{
-    const[s,claims]=await Promise.all([api('getPPFSummary'),api('getPPFClaimsForEdit')]);
-    CACHE.ppf=[s,claims];CACHE.ppfTime=Date.now();
-    renderPPF(s,claims);
+    const[s,claims,cols]=await Promise.all([api('getPPFSummary'),api('getPPFClaimsForEdit'),api('getPPFColForEdit')]);
+    CACHE.ppf=[s,claims,cols];CACHE.ppfTime=Date.now();
+    renderPPF(s,claims,cols);
   }catch(e){toast(e.message,'err');}
 }
-function renderPPF(s,claims){
-  s=s||{};claims=claims||[];
+function renderPPF(s,claims,cols){
+  s=s||{};claims=claims||[];cols=cols||[];
   document.getElementById('p-coll').textContent=fmt(s.totalCollected||0);
   document.getElementById('p-clmd').textContent=fmt(s.totalClaimed||0);
   document.getElementById('p-bal').textContent=fmt(s.balance||0);
@@ -1254,6 +1361,24 @@ function renderPPF(s,claims){
         </tr>`;}).join('');}).join('')
     :'<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px">No claims yet.</td></tr>';
   setTimeout(()=>_flashEditedRow('t-ppf'),80);
+
+  // PPF Collections table
+  function mkGrps(rows){const g={},o=[];rows.forEach(r=>{const k=r.groupRef||r.reference||r.rowNumber;if(!g[k]){g[k]=[];o.push(k);}g[k].push(r);});o.forEach(k=>g[k].sort((a,b)=>(a.rowNumber||0)-(b.rowNumber||0)));return{g,o};}
+  const{g:cg,o:co}=mkGrps(cols);
+  document.querySelector('#t-ppfcol tbody').innerHTML=cols.length
+    ?co.map(key=>{const grp=cg[key];return grp.map((r,i)=>{
+        const isUpd=r.source==='NEW_UPDATE';
+        const gcell=i===0?`<td rowspan="${grp.length}" style="vertical-align:top;border-right:3px solid ${grp.length>1?'rgba(255,184,48,.4)':'transparent'}">${grp.length>1?`<span style="font-size:9px;font-weight:700;color:var(--amber)">GRP×${grp.length}</span>`:''}</td>`:'';
+        return `<tr data-row="${r.rowNumber}" style="${isUpd?'background:rgba(255,184,48,.04)':''}">
+          ${gcell}
+          <td>${r.date}${isUpd?'<div style="font-size:9px;color:var(--amber)">✏ UPDATE</div>':''}</td>
+          <td class="amt">${fmt(r.amount)}</td><td>${r.year}</td>
+          <td><span class="badge" style="${isUpd?'background:rgba(255,184,48,.15);color:var(--amber)':'background:rgba(0,245,195,.1);color:var(--g)'}">${r.source}</span></td>
+          <td style="color:var(--muted);font-size:11px">${r.counters||''}</td>
+          <td style="color:var(--muted);font-size:11px">${isUpd&&r.editReason?'📝 '+r.editReason:''}</td>
+          <td>${!isUpd?`<button class="edit-btn" onclick="openEditPPFCol(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏ Edit</button>`:'<span style="font-size:10px;color:var(--muted)">—</span>'}</td>
+        </tr>`;}).join('');}).join('')
+    :'<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">No collections yet.</td></tr>';
 }
 
 // ── RECORDS: defined below with full edit+group logic ───────────
@@ -1465,11 +1590,16 @@ let _editOffData = null;
 function openEditOffering(r) {
   _editOffData = r;
   document.getElementById('eo-row').value    = r.rowNumber;
+  document.getElementById('eo-groupref').value = r.groupRef || '';
   document.getElementById('eo-type').value   = r.offeringType;
   document.getElementById('eo-amount').value = r.amount;
   document.getElementById('eo-counters').value = r.counters || '';
   document.getElementById('eo-reason').value = '';
+  document.getElementById('eo-ptype').value  = r.pastorType || '';
   document.getElementById('eo-dup-warn').classList.remove('show');
+  document.getElementById('del-off-confirm').classList.remove('show');
+  // Populate pastor dropdown then set value
+  _fillPastorDropdown('eo-pastor', r.pastorName || '');
   // Convert dd/MM/yyyy to YYYY-MM-DD for input
   if (r.date && r.date.includes('/')) {
     const [d,m,y] = r.date.split('/');
@@ -1490,6 +1620,8 @@ async function saveEditOffering() {
     offeringType:document.getElementById('eo-type').value,
     amount:      document.getElementById('eo-amount').value,
     counters:    document.getElementById('eo-counters').value,
+    pastorName:  document.getElementById('eo-pastor').value,
+    pastorType:  document.getElementById('eo-ptype').value,
     denoms:      _editOffData ? _editOffData.denoms : '',
     totalNotes:  _editOffData ? _editOffData.totalNotes : 0,
     totalCoins:  _editOffData ? _editOffData.totalCoins : 0,
@@ -1517,11 +1649,13 @@ async function saveEditOffering() {
 // ══════════════════════════════════════════════════════════════════
 function openEditExpense(r) {
   document.getElementById('ee-row').value    = r.rowNumber;
+  document.getElementById('ee-groupref').value = r.groupRef || '';
   document.getElementById('ee-cat').value    = r.category;
   document.getElementById('ee-desc').value   = r.description;
   document.getElementById('ee-amount').value = r.amount;
   document.getElementById('ee-ref').value    = r.reference || '';
   document.getElementById('ee-reason').value = '';
+  document.getElementById('del-exp-confirm').classList.remove('show');
   if (r.date && r.date.includes('/')) {
     const [d,m,y] = r.date.split('/');
     document.getElementById('ee-date').value = y+'-'+m+'-'+d;
@@ -1562,12 +1696,14 @@ async function saveEditExpense() {
 // ══════════════════════════════════════════════════════════════════
 function openEditPPFClaim(r) {
   document.getElementById('ec-row').value    = r.rowNumber;
+  document.getElementById('ec-groupref').value = r.groupRef || '';
   document.getElementById('ec-pur').value    = r.purpose;
   document.getElementById('ec-bene').value   = r.beneficiary;
   document.getElementById('ec-amount').value = r.amount;
   document.getElementById('ec-desc').value   = r.description || '';
   document.getElementById('ec-ref').value    = r.reference || '';
   document.getElementById('ec-reason').value = '';
+  document.getElementById('del-ppfc-confirm').classList.remove('show');
   if (r.date && r.date.includes('/')) {
     const [d,m,y] = r.date.split('/');
     document.getElementById('ec-date').value = y+'-'+m+'-'+d;
