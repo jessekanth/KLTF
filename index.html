@@ -108,7 +108,8 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
 .ph-a{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 
 /* ── KPI CARDS ── */
-.krow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kc.k-p{--kc:var(--purple);--kc2:var(--purple2)}
+.krow{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
 .kc{
   background:var(--card);border:1px solid var(--bdr);
   border-radius:var(--r2);padding:18px 20px;
@@ -405,19 +406,133 @@ tr:hover td{background:rgba(255,255,255,.015)}
 .t-err{background:rgba(20,0,0,.95);color:#ff7b7b;border-color:var(--red)}
 .t-inf{background:rgba(0,8,22,.95);color:#7db8ff;border-color:var(--blue)}
 
-/* ── RESPONSIVE ── */
-@media(max-width:1100px){.krow{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}}
-@media(max-width:768px){.g2,.g3{grid-template-columns:1fr}.krow{grid-template-columns:1fr 1fr}}
+/* ── ROW FLASH ── */
 @keyframes rowFlash{0%{background:rgba(0,245,195,.22);box-shadow:inset 0 0 0 1px rgba(0,245,195,.5)}70%{background:rgba(0,245,195,.10)}100%{background:transparent;box-shadow:none}}
 tr.edited-flash td{animation:rowFlash 2s ease forwards}
-@media(max-width:600px){.sb{display:none}.krow{grid-template-columns:1fr}.c2,.c3,.c4{grid-template-columns:1fr}.pg{padding:16px}}
+
+/* ── MOBILE TOPBAR ── */
+.mob-bar{
+  display:none;position:fixed;top:0;left:0;right:0;z-index:200;
+  height:54px;padding:0 16px;
+  background:var(--bg2);border-bottom:1px solid var(--bdr);
+  align-items:center;justify-content:space-between;gap:12px;
+}
+.mob-menu-btn{
+  background:none;border:none;color:var(--txt);cursor:pointer;
+  padding:6px;border-radius:8px;display:flex;align-items:center;
+  -webkit-tap-highlight-color:transparent;
+}
+.mob-menu-btn:active{background:var(--bdr)}
+
+/* ── MOBILE BOTTOM NAV ── */
+.bot-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;
+  height:60px;
+  background:var(--bg2);border-top:1px solid var(--bdr);
+  display:none;align-items:center;justify-content:space-around;
+  padding:0 4px;padding-bottom:env(safe-area-inset-bottom);
+}
+.bot-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;padding:6px 2px;
+  background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:10px;font-family:var(--font);font-weight:500;
+  border-radius:10px;transition:color .15s;
+  -webkit-tap-highlight-color:transparent;min-width:0;
+}
+.bot-btn svg{flex-shrink:0}
+.bot-btn.on{color:var(--g)}
+.bot-btn:active{opacity:.7}
+
+/* ── SIDEBAR MOBILE OVERLAY ── */
+.sb-overlay{
+  display:none;position:fixed;inset:0;z-index:149;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(2px);
+}
+.sb-overlay.show{display:block}
+
+/* ── RESPONSIVE BREAKPOINTS ── */
+@media(max-width:1100px){
+  .krow{grid-template-columns:repeat(3,1fr)}
+  .g3{grid-template-columns:1fr 1fr}
+}
+@media(max-width:768px){
+  .g2,.g3{grid-template-columns:1fr}
+  .krow{grid-template-columns:repeat(2,1fr)}
+  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:500px}
+  .mo{max-width:96vw!important;max-height:90vh;overflow-y:auto}
+  .fg.c2,.fg.c3,.fg.c4{grid-template-columns:1fr!important}
+}
+@media(max-width:600px){
+  /* Show mobile chrome */
+  .mob-bar{display:flex}
+  .bot-nav{display:flex}
+  /* Hide desktop sidebar */
+  .sb{
+    position:fixed;top:0;left:0;bottom:0;z-index:150;
+    transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);
+    width:240px;
+  }
+  .sb.open{transform:translateX(0)}
+  /* Main area: push down from topbar, up from bottom nav */
+  .main{
+    margin-left:0!important;
+    padding-top:54px;
+    padding-bottom:68px;
+    overflow-y:auto;
+    height:100vh;
+  }
+  .pg{padding:14px 12px}
+  .ph{flex-direction:column;align-items:flex-start;gap:10px}
+  .ph-a{width:100%;justify-content:flex-end}
+  .krow{grid-template-columns:1fr 1fr}
+  .kc{padding:14px}
+  .c2,.c3,.c4{grid-template-columns:1fr!important}
+  .sw{gap:12px}
+  .sc{border-radius:14px}
+  .gtt{padding:14px 16px}
+  .sg{margin-bottom:14px}
+  .sg-b{padding:14px}
+  .cc{padding:14px}
+  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:480px;font-size:12px}
+  .mo{
+    position:fixed!important;inset:0!important;
+    max-width:100vw!important;max-height:100vh!important;
+    border-radius:0!important;
+    overflow-y:auto;
+  }
+  .toast{bottom:76px;right:12px;left:12px;max-width:none}
+  .ov{align-items:flex-end!important}
+  /* Hide desktop elements on mobile */
+  .ph-t{font-size:17px}
+}
+@media(max-width:380px){
+  .krow{grid-template-columns:1fr}
+  .kc{padding:12px}
+}
 </style>
 </head>
 <body>
+<div class="sb-overlay" id="sb-overlay" onclick="toggleSidebar()"></div>
 <div class="app">
 
 <!-- ══════════ SIDEBAR ══════════ -->
-<aside class="sb">
+<!-- MOBILE TOPBAR -->
+<div class="mob-bar">
+  <button class="mob-menu-btn" onclick="toggleSidebar()" aria-label="Menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="22" height="22"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="sb-icon" style="width:28px;height:28px;font-size:10px">KL</div>
+    <span style="font-weight:700;font-size:15px;color:var(--txt)">KLTF Finance</span>
+  </div>
+  <div id="fy-pill-mob" class="fy-pill" style="font-size:10px;padding:3px 10px"></div>
+</div>
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+<aside class="sb" id="main-sidebar">
   <div class="sb-top">
     <div class="sb-logo">
       <div class="sb-icon">KL</div>
@@ -445,6 +560,30 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
   </nav>
 </aside>
 
+<!-- MOBILE BOTTOM NAV -->
+<nav class="bot-nav">
+  <button class="bot-btn on" id="bn-dashboard" onclick="go('dashboard',this);setBotNav('bn-dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="bot-btn" id="bn-offering" onclick="go('offering',this);setBotNav('bn-offering')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><path d="M12 2v10m0 0l3-3m-3 3l-3-3M3 17l.88 3.52A2 2 0 005.83 22h12.34a2 2 0 001.95-1.48L21 17H3z"/></svg>
+    <span>Offering</span>
+  </button>
+  <button class="bot-btn" id="bn-expense" onclick="go('expense',this);setBotNav('bn-expense')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+    <span>Expense</span>
+  </button>
+  <button class="bot-btn" id="bn-ppf" onclick="go('ppf',this);setBotNav('bn-ppf')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    <span>PPF</span>
+  </button>
+  <button class="bot-btn" id="bn-more" onclick="toggleSidebar()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+    <span>More</span>
+  </button>
+</nav>
+
 <!-- ══════════ PAGES ══════════ -->
 <div class="main">
 
@@ -454,7 +593,6 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
     <div><div class="ph-t" id="d-title">Finance Dashboard</div><div class="ph-s" id="d-sub">Loading data…</div></div>
     <div class="ph-a">
       <button class="btn bgh" onclick="loadDash(true)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Refresh</button>
-      <button class="btn br" onclick="doRollover()">📅 Year Rollover</button>
     </div>
   </div>
   <div class="krow" id="krow">
@@ -598,8 +736,9 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
       <div class="fg c2">
         <div class="f"><label>Active Financial Year</label><input type="number" id="s-yr" min="2000" max="2099"></div>
         <div class="f"><label>DFCM Percentage (%)</label><input type="number" id="s-dfcm" min="0" max="100" step="0.1"></div>
-        <div class="f"><label>Opening Balance (RM)</label><input type="number" id="s-open" min="0" step="0.01"></div>
+        <div class="f"><label>Opening Balance (RM)</label><input type="number" id="s-open" min="0" step="0.01" placeholder="Main fund carry forward"></div>
         <div class="f"><label>Closing Balance (auto)</label><input type="number" id="s-close" disabled style="opacity:.4"></div>
+        <div class="f"><label>PPF Opening Balance (RM)</label><input type="number" id="s-ppf-open" min="0" step="0.01" placeholder="PPF carry forward from prior year"></div>
       </div>
       <div class="fg" style="margin-top:4px"><div class="f"><label>Notification Email(s)</label><input type="text" id="s-email" placeholder="treasurer@church.org, pastor@church.org"></div></div>
       <div style="font-size:11px;color:var(--muted);margin:-6px 0 12px">Separate multiple emails with commas. Leave blank to disable notifications.</div>
@@ -803,8 +942,37 @@ if (!sessionStorage.getItem('kltf_logged')) { location.replace('login.html'); }
 // ── LOGOUT ───────────────────────────────────────────────────────
 function doLogout() { sessionStorage.removeItem('kltf_logged'); location.replace('login.html'); }
 
+// ── MOBILE NAV ───────────────────────────────────────────────────
+function toggleSidebar() {
+  const sb = document.querySelector('.sb');
+  const overlay = document.getElementById('sb-overlay');
+  if (sb) sb.classList.toggle('open');
+  if (overlay) overlay.classList.toggle('show');
+  document.body.style.overflow = (sb && sb.classList.contains('open')) ? 'hidden' : '';
+}
+function closeSidebar() {
+  document.getElementById('main-sidebar').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+// Close sidebar when a nav item is tapped on mobile
+const _origGo = go;
+function go(page, btn) {
+  _origGo(page, btn);
+  closeSidebar();
+  // sync fy pill to mob bar
+  const fyEl = document.getElementById('fy-pill');
+  const fyMob = document.getElementById('fy-pill-mob');
+  if (fyEl && fyMob) fyMob.textContent = fyEl.textContent;
+}
+function setBotNav(id) {
+  document.querySelectorAll('.bot-btn').forEach(function(b){ b.classList.remove('on'); });
+  const el = document.getElementById(id);
+  if (el) el.classList.add('on');
+}
+
 // ── CONFIG ──────────────────────────────────────────────────────
-let API = 'https://script.google.com/macros/s/AKfycbx7PTm9TGEzebLHKvkgRJv-GYgI2YXTt0yV3XzQ_XSNUtsH43aKvn0t4hXs4DJFcIwEmg/exec';
+let API = 'https://script.google.com/macros/s/AKfycbxsnlX_cXXZ7gLfurPoSND2BNN1j1NdCZghYM4zEf5VK8S4uM2wXV6YCbzMprlbifjBIg/exec';
 
 // ── IN-MEMORY CACHE (makes navigation instant after first load) ──
 const CACHE = { dash:null, ppf:null, members:null, records:null, dashTime:0, ppfTime:0, memTime:0, recTime:0 };
@@ -965,10 +1133,24 @@ async function submitPPFClaim(){
 async function loadDash(force){
   if(!force&&CACHE.dash&&isFresh(CACHE.dashTime)){renderDash(CACHE.dash);return;}
   document.getElementById('d-sub').textContent='Loading…';
+  document.getElementById('krow').innerHTML=`
+    <div class="kc k-g"><div class="skel skel-kpi"></div></div>
+    <div class="kc k-r"><div class="skel skel-kpi"></div></div>
+    <div class="kc k-b"><div class="skel skel-kpi"></div></div>
+    <div class="kc k-a"><div class="skel skel-kpi"></div></div>
+    <div class="kc k-p"><div class="skel skel-kpi"></div></div>`;
   try{
-    const s=await api('getSummary');
+    const [s, ppf] = await Promise.all([api('getSummary'), api('getPPFSummary')]);
     if(s&&s.ok===false){_dashError(s.msg||'Server error.');return;}
     if(!s||s.activeYear===undefined){_dashError('Incomplete data. Check Spreadsheet ID in Apps Script.');return;}
+    s.ppfBalance   = ppf ? (ppf.balance        || 0) : 0;
+    s.ppfCollected = ppf ? (ppf.totalCollected  || 0) : 0;
+    s.ppfClaimed   = ppf ? (ppf.totalClaimed    || 0) : 0;
+    s.ppfOpening   = ppf ? (ppf.openingBalance  || 0) : 0;
+    s.ppfBalance   = s.ppfBalance   || 0;
+    s.ppfCollected = s.ppfCollected || 0;
+    s.ppfClaimed   = s.ppfClaimed   || 0;
+    s.ppfOpening   = s.ppfOpening   || 0;
     CACHE.dash=s;CACHE.dashTime=Date.now();
     renderDash(s);
   }catch(e){_dashError(e.message);}
@@ -996,15 +1178,19 @@ function renderDash(s){
   s.netBalance=s.netBalance||0;s.dfcmOutstanding=s.dfcmOutstanding||0;
   s.monthly=s.monthly||Array(12).fill(0);s.expMonthly=s.expMonthly||Array(12).fill(0);
   s.byType=s.byType||{};s.expByCategory=s.expByCategory||{};
-  document.getElementById('fy-pill').textContent='FY '+s.activeYear;
+  s.ppfBalance  = s.ppfBalance  || 0;
+  s.ppfCollected= s.ppfCollected|| 0;
+  s.ppfClaimed  = s.ppfClaimed  || 0;
+  document.getElementById('fy-pill').textContent=document.getElementById('fy-pill-mob').textContent='FY '+s.activeYear;
   document.getElementById('d-title').textContent='Finance Dashboard — '+s.activeYear;
   document.getElementById('d-sub').textContent='DFCM '+s.dfcmPct+'%  ·  Opening '+fmt(s.openingBalance)+'  ·  '+s.sundayCount+' services recorded';
 
   document.getElementById('krow').innerHTML=`
     <div class="kc k-g"><div class="kc-bg"></div><div class="kc-l">Total Offerings</div><div class="kc-v">${fmt(s.totalOfferings)}</div><div class="kc-s">Sunday + Special offering</div><div class="kc-ico">💰</div></div>
     <div class="kc k-r"><div class="kc-bg"></div><div class="kc-l">Total Expenses</div><div class="kc-v">${fmt(s.totalExpenses)}</div><div class="kc-s">Active year all categories</div><div class="kc-ico">📤</div></div>
-    <div class="kc k-b"><div class="kc-bg"></div><div class="kc-l">Net Balance</div><div class="kc-v">${fmt(s.netBalance)}</div><div class="kc-s">${s.netBalance>=0?'<span style="color:var(--g)">▲ Surplus</span>':'<span style="color:var(--red)">▼ Deficit</span>'}</div><div class="kc-ico">📊</div></div>
-    <div class="kc k-a"><div class="kc-bg"></div><div class="kc-l">DFCM Outstanding</div><div class="kc-v">${fmt(s.dfcmOutstanding)}</div><div class="kc-s">${s.dfcmOutstanding<=0?'<span style="color:var(--g)">✓ Fully paid</span>':'<span style="color:var(--amber)">⚠ Outstanding</span>'}</div><div class="kc-ico">🏛</div></div>`;
+    <div class="kc k-b"><div class="kc-bg"></div><div class="kc-l">Fund Balance</div><div class="kc-v">${fmt(s.netBalance)}</div><div class="kc-s"><span style="color:var(--muted);font-size:10px">Carry Fwd</span> <span style="color:var(--txt);font-weight:600">${fmt(s.openingBalance)}</span> &nbsp;→&nbsp; <span style="color:var(--muted);font-size:10px">Present</span> <span style="${s.netBalance>=0?'color:var(--g)':'color:var(--red)'}">▲ ${fmt(s.netBalance)}</span></div><div class="kc-ico">📊</div></div>
+    <div class="kc k-a"><div class="kc-bg"></div><div class="kc-l">DFCM Outstanding</div><div class="kc-v">${fmt(s.dfcmOutstanding)}</div><div class="kc-s">${s.dfcmOutstanding<=0?'<span style="color:var(--g)">✓ Fully paid</span>':'<span style="color:var(--amber)">⚠ Outstanding</span>'}</div><div class="kc-ico">🏛</div></div>
+    <div class="kc k-p"><div class="kc-bg"></div><div class="kc-l">PPF Balance</div><div class="kc-v">${fmt(s.ppfBalance)}</div><div class="kc-s"><span style="color:var(--muted);font-size:10px">Carry Fwd</span> <span style="color:var(--txt);font-weight:600">${fmt(s.ppfOpening)}</span> &nbsp;→&nbsp; <span style="color:var(--muted);font-size:10px">Present</span> <span style="${s.ppfBalance>=0?'color:var(--g)':'color:var(--red)'}">▲ ${fmt(s.ppfBalance)}</span></div><div class="kc-ico">❤️</div></div>`;
 
   mkC('ch-mon','bar',MONTHS,[{label:'Offerings',data:s.monthly,backgroundColor:'rgba(0,245,195,.18)',borderColor:'#00f5c3',borderWidth:2,borderRadius:6,borderSkipped:false}],{plugins:{legend:{display:false}},scales:AX});
 
@@ -1110,28 +1296,20 @@ function loadSettings(){
     document.getElementById('s-dfcm').value=s['DFCM Percentage']||10;
     document.getElementById('s-open').value=s['Opening Balance']||0;
     document.getElementById('s-close').value=s['Closing Balance']||'';
+    document.getElementById('s-ppf-open').value=s['PPF Opening Balance']||0;
     document.getElementById('s-email').value=s['Notification Email']||'';
   }).catch(()=>{});
 }
 function saveURL(){const u=document.getElementById('s-url').value.trim();if(!u){toast('Enter URL first.','err');return;}localStorage.setItem('kltf_url',u);API=u;toast('URL saved — testing…','inf');testConn();}
 function testConn(){API=document.getElementById('s-url').value.trim()||API;api('getSettings').then(()=>toast('✓ Connection successful!','ok')).catch(e=>toast('Failed: '+e.message,'err'));}
 function saveSettings(){
-  const d={year:document.getElementById('s-yr').value,dfcm:document.getElementById('s-dfcm').value,opening:document.getElementById('s-open').value,email:document.getElementById('s-email').value};
+  const d={year:document.getElementById('s-yr').value,dfcm:document.getElementById('s-dfcm').value,opening:document.getElementById('s-open').value,ppfOpening:document.getElementById('s-ppf-open').value,email:document.getElementById('s-email').value};
   if(!d.year){toast('Year required.','err');return;}
   api('saveSettings',d).then(r=>{if(r.ok){toast('Settings saved.','ok');CACHE.dashTime=0;}else toast(r.msg,'err');}).catch(e=>toast(e.message,'err'));
 }
 function runSetup(){if(!confirm('Create all required Google Sheets?\n\nExisting sheets will NOT be modified.'))return;api('initialSetup').then(r=>toast(r.msg||'Setup complete.','ok')).catch(e=>toast(e.message,'err'));}
 
-// ── YEAR ROLLOVER ────────────────────────────────────────────────
-async function doRollover(){
-  try{
-    const s=await api('getSummary');
-    if(!confirm('YEAR-END ROLLOVER\n\nClose FY '+s.activeYear+' → Open FY '+(s.activeYear+1)+'\nClosing Balance: '+fmt(s.netBalance)+'\n\nAll historical data is preserved.\nProceed?'))return;
-    const r=await api('doYearRollover');
-    toast('FY '+(r.newYear-1)+' closed. FY '+r.newYear+' is now active.','ok');
-    CACHE.dashTime=0;loadDash(true);
-  }catch(e){toast(e.message,'err');}
-}
+// ── YEAR ROLLOVER: moved to Settings page ──────────────────────
 
 // ── MEMBERS ──────────────────────────────────────────────────────
 let allMem=[];
@@ -1524,7 +1702,7 @@ window.addEventListener('load',()=>{
   document.getElementById('m-yr').value=new Date().getFullYear();
   if(API){loadDash();}
   else{
-    document.getElementById('fy-pill').textContent='Configure API';
+    document.getElementById('fy-pill').textContent=document.getElementById('fy-pill-mob').textContent='Configure API';
     document.getElementById('d-sub').textContent='Go to Settings → add your Apps Script URL to get started.';
     toast('Welcome to KLTF Finance! Go to Settings to configure.','inf');
   }
