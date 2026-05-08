@@ -633,7 +633,7 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
       <div class="fg c3">
         <div class="f"><label>Date of Service</label><input type="date" id="o-date"></div>
         <div class="f"><label>Offering Type</label><select id="o-type"><option value="">— Select —</option><option value="Sunday Service">Sunday Service</option><option value="Special Offering">Special Offering</option></select></div>
-        <div class="f"><label>Counted By</label><input type="text" id="o-ctr" placeholder="Treasurer name…"></div>
+        <div class="f"><label>Counted By</label><select id="o-ctr"><option value="">— Select Counter —</option></select></div>
       </div>
       <div class="fg c3">
         <div class="f"><label>Pastor / Speaker</label><select id="o-pastor"><option value="">— Select —</option></select></div>
@@ -674,7 +674,7 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px">
     <div>
       <div class="sc"><div class="sh2 amber"><h2>📋 Record PPF Collection</h2><span>Poor People Fund</span></div><div class="sb3">
-        <div class="fg c2"><div class="f"><label>Date of Service</label><input type="date" id="p-date"></div><div class="f"><label>Counted By</label><input type="text" id="p-ctr" placeholder="Treasurer name…"></div></div>
+        <div class="fg c2"><div class="f"><label>Date of Service</label><input type="date" id="p-date"></div><div class="f"><label>Counted By</label><select id="p-ctr"><option value="">— Select Counter —</option></select></div></div>
         <div class="dt">🗒 Notes (Currency)</div>
         <div class="dh"><span>Denomination</span><span style="text-align:center">Qty</span><span style="text-align:right">Total (RM)</span></div>
         <div id="p-notes"></div>
@@ -794,7 +794,15 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
       </div>
       <button class="btn bgh" onclick="savePastors()">Save Pastor List</button>
     </div></div>
-    <div class="sg"><div class="sg-h">🚀 First-Time Setup</div><div class="sg-b">
+    <div class="sg"><div class="sg-h">🧾 Treasurer / Counter List</div><div class="sg-b">
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px;line-height:1.6">Manage the list of people who count offerings. Shown as a dropdown in all offering and PPF forms.</p>
+      <div id="counter-chips" style="margin-bottom:12px;min-height:32px"></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input type="text" id="new-counter-name" placeholder="Treasurer / Counter name…" style="flex:1;background:var(--bg3);border:1px solid var(--bdr2);color:var(--txt);padding:8px 12px;border-radius:8px;font-size:12px;font-family:var(--font);outline:none">
+        <button class="btn bg" onclick="addCounter()" style="padding:8px 14px">+ Add</button>
+      </div>
+      <button class="btn bgh" onclick="saveCounters()">Save Counter List</button>
+    </div></div>
       <p style="color:var(--muted);font-size:13px;margin-bottom:14px;line-height:1.6">Creates all required Google Sheet tabs: Settings, Combined_Offerings, Combined_Expenses, PPF_Collections, PPF_Claims, Members, Audit_Log. Safe to run — existing sheets are not modified.</p>
       <button class="btn bgh" onclick="runSetup()">Run Initial Setup</button>
     </div></div>
@@ -863,7 +871,7 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
     </div>
     <div class="fg c2">
       <div class="f"><label>Total Amount (RM)</label><input type="number" id="eo-amount" min="0" step="0.01" placeholder="0.00"></div>
-      <div class="f"><label>Counted By</label><input type="text" id="eo-counters" placeholder="Treasurer name…"></div>
+      <div class="f"><label>Counted By</label><select id="eo-counters"><option value="">— Select Counter —</option></select></div>
     </div>
     <div class="fg c2">
       <div class="f"><label>Pastor / Speaker</label><select id="eo-pastor"><option value="">— None / Not Recorded —</option></select></div>
@@ -993,7 +1001,7 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
       <div class="f"><label>Amount (RM)</label><input type="number" id="ecol-amount" min="0" step="0.01" placeholder="0.00"></div>
     </div>
     <div class="fg c2">
-      <div class="f"><label>Counted By</label><input type="text" id="ecol-ctr" placeholder="Treasurer…"></div>
+      <div class="f"><label>Counted By</label><select id="ecol-ctr"><option value="">— Select Counter —</option></select></div>
       <div class="f"><label>Reason for Edit</label><input type="text" id="ecol-reason" placeholder="Required…"></div>
     </div>
     <div style="display:flex;gap:9px;margin-top:16px">
@@ -1085,7 +1093,7 @@ function setBotNav(id) {
 }
 
 // ── CONFIG ──────────────────────────────────────────────────────
-let API = 'https://script.google.com/macros/s/AKfycbzlvhFVXsg9b3qHdDNsUEnO1h8m5xA0A_g2ZNOq8-wXJtiLQvYgAB24dO8DLXAWwDsfSw/exec';
+let API = 'https://script.google.com/macros/s/AKfycbyW2tmXr4tHN44o5GsV3aYdROPCfEOaeC552237znL-mUOAvtnab_kJnrM4-6aftwSZMg/exec';
 
 // ── IN-MEMORY CACHE (makes navigation instant after first load) ──
 const CACHE = { dash:null, ppf:null, members:null, records:null, dashTime:0, ppfTime:0, memTime:0, recTime:0 };
@@ -1210,7 +1218,7 @@ async function submitOffering(){
   try{const r=await api('submitOffering',d);btn.disabled=false;btn.textContent='✓ Submit Collection';if(r.ok){toast(r.msg,'ok');clearOff();CACHE.dashTime=0;}else toast(r.msg,'err');}
   catch(e){btn.disabled=false;btn.textContent='✓ Submit Collection';toast(e.message,'err');}
 }
-function clearOff(){clearD('o-');['o-type','o-ctr','o-rem','o-pastor','o-ptype','o-ppay','o-att'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});calcOff();document.getElementById('o-date').value=today();}
+function clearOff(){clearD('o-');['o-type','o-ctr','o-rem','o-pastor','o-ptype','o-ppay','o-att'].forEach(id=>{const e=document.getElementById(id);if(e)e.selectedIndex=0;});calcOff();document.getElementById('o-date').value=today();}
 
 // ── SUBMIT PPF COLLECTION ────────────────────────────────────────
 async function submitPPFColl(){
@@ -1604,9 +1612,11 @@ function openEditOffering(r) {
   document.getElementById('eo-groupref').value = r.groupRef || '';
   document.getElementById('eo-type').value   = r.offeringType;
   document.getElementById('eo-amount').value = r.amount;
-  document.getElementById('eo-counters').value = r.counters || '';
+  _fillCounterDropdown('eo-counters', r.counters || '');
   document.getElementById('eo-reason').value = '';
-  document.getElementById('eo-ptype').value  = r.pastorType || '';
+  document.getElementById('eo-ptype').value   = r.pastorType    || '';
+  document.getElementById('eo-ppay').value    = r.pastorPayment || '';
+  document.getElementById('eo-att').value     = r.attendance    || '';
   document.getElementById('eo-dup-warn').classList.remove('show');
   document.getElementById('del-off-confirm').classList.remove('show');
   // Populate pastor dropdown then set value
@@ -1631,8 +1641,10 @@ async function saveEditOffering() {
     offeringType:document.getElementById('eo-type').value,
     amount:      document.getElementById('eo-amount').value,
     counters:    document.getElementById('eo-counters').value,
-    pastorName:  document.getElementById('eo-pastor').value,
-    pastorType:  document.getElementById('eo-ptype').value,
+    pastorName:   document.getElementById('eo-pastor').value,
+    pastorType:   document.getElementById('eo-ptype').value,
+    pastorPayment:document.getElementById('eo-ppay').value,
+    attendance:   document.getElementById('eo-att').value,
     denoms:      _editOffData ? _editOffData.denoms : '',
     totalNotes:  _editOffData ? _editOffData.totalNotes : 0,
     totalCoins:  _editOffData ? _editOffData.totalCoins : 0,
@@ -1851,6 +1863,8 @@ async function _loadPastorData() {
   if(!API) return;
   try { _pastors = await api('getPastors'); _renderPastorChips(); _populatePastorSelects(); }
   catch(e) { console.warn('Pastor load failed', e); }
+  try { _counters = await api('getCounters'); _renderCounterChips(); _populateCounterSelects(); }
+  catch(e) { console.warn('Counter load failed', e); }
 }
 
 function _renderPastorChips() {
@@ -1875,7 +1889,7 @@ function addPastor() {
 
 async function savePastors() {
   try {
-    const r = await api('savePastors', {list: JSON.stringify(_pastors)});
+    const r = await api('savePastors', {list: _pastors});
     if(r.ok) { toast('✓ Pastor list saved ('+r.count+' entries).','ok'); _populatePastorSelects(); }
     else toast(r.msg,'err');
   } catch(e) { toast(e.message,'err'); }
@@ -1897,6 +1911,51 @@ function _fillPastorDropdown(selectId, selectedVal) {
 
 // Alias used by openEditOffering
 function _populatePastorSelect(id, val) { _fillPastorDropdown(id, val); }
+
+// ══════════════════════════════════════════════════════════════════
+// COUNTER / TREASURER MANAGEMENT
+// ══════════════════════════════════════════════════════════════════
+let _counters = []; // string[]
+
+function _renderCounterChips() {
+  const el = document.getElementById('counter-chips');
+  if(!el) return;
+  el.innerHTML = _counters.length
+    ? _counters.map((n,i) => `<span class="pastor-chip">${n}<button class="rm-p" onclick="_removeCounter(${i})" title="Remove">×</button></span>`).join('')
+    : '<span style="color:var(--muted);font-size:12px">No counters added yet.</span>';
+}
+
+function _removeCounter(i) { _counters.splice(i,1); _renderCounterChips(); }
+
+function addCounter() {
+  const name = (document.getElementById('new-counter-name').value||'').trim();
+  if(!name) { toast('Enter a name first.','err'); return; }
+  if(_counters.find(n=>n.toLowerCase()===name.toLowerCase())) { toast('Already in list.','err'); return; }
+  _counters.push(name);
+  document.getElementById('new-counter-name').value='';
+  _renderCounterChips();
+}
+
+async function saveCounters() {
+  try {
+    const r = await api('saveCounters', {list: _counters});
+    if(r.ok) { toast('✓ Counter list saved ('+r.count+' entries).','ok'); _populateCounterSelects(); }
+    else toast(r.msg,'err');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+function _populateCounterSelects() {
+  ['o-ctr','p-ctr','eo-counters','ecol-ctr'].forEach(id => _fillCounterDropdown(id));
+}
+
+function _fillCounterDropdown(selectId, selectedVal) {
+  const sel = document.getElementById(selectId);
+  if(!sel) return;
+  const cur = selectedVal !== undefined ? selectedVal : sel.value;
+  sel.innerHTML = '<option value="">— Select Counter —</option>' +
+    _counters.map(n => `<option value="${n}" ${n===cur?'selected':''}>${n}</option>`).join('');
+  if(cur) sel.value = cur;
+}
 
 // ══════════════════════════════════════════════════════════════════
 // DELETE HANDLERS — Offering, Expense, PPF Claim, PPF Collection
@@ -1966,7 +2025,7 @@ function openEditPPFCol(r) {
   document.getElementById('ecol-row').value     = r.rowNumber;
   document.getElementById('ecol-groupref').value= r.groupRef || '';
   document.getElementById('ecol-amount').value  = r.amount;
-  document.getElementById('ecol-ctr').value     = r.counters || '';
+  _fillCounterDropdown('ecol-ctr', r.counters || '');
   document.getElementById('ecol-reason').value  = '';
   document.getElementById('del-ppfcol-confirm').classList.remove('show');
   if(r.date && r.date.includes('/')) {
