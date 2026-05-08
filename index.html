@@ -638,6 +638,11 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
       <div class="fg c3">
         <div class="f"><label>Pastor / Speaker</label><select id="o-pastor"><option value="">— Select —</option></select></div>
         <div class="f"><label>Local / Foreigner</label><select id="o-ptype"><option value="">— Select —</option><option value="Local">Local</option><option value="Foreigner">Foreigner</option></select></div>
+        <div class="f"><label>Pastor Honorarium</label><select id="o-ppay"><option value="">— Select —</option><option value="Paid">Paid</option><option value="Unpaid">Unpaid</option></select></div>
+      </div>
+      <div class="fg c3">
+        <div class="f"><label>Attendance Count</label><input type="number" id="o-att" placeholder="No. of people present" min="0" step="1"></div>
+        <div class="f"></div>
         <div class="f"></div>
       </div>
       <div id="off-dup-warn" class="dup-warn">⛔ Duplicate entry blocked: A Sunday Service offering for this date already exists. Use the <strong>Records</strong> page to edit it.</div>
@@ -866,6 +871,12 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
         <select id="eo-ptype"><option value="">— Select —</option><option value="Local">Local</option><option value="Foreigner">Foreigner</option></select>
       </div>
     </div>
+    <div class="fg c2">
+      <div class="f"><label>Pastor Honorarium</label>
+        <select id="eo-ppay"><option value="">— Select —</option><option value="Paid">Paid</option><option value="Unpaid">Unpaid</option></select>
+      </div>
+      <div class="f"><label>Attendance Count</label><input type="number" id="eo-att" placeholder="No. of people" min="0" step="1"></div>
+    </div>
     <div class="reason-field">
       <div class="f"><label>⚠ Reason for Edit (required)</label><input type="text" id="eo-reason" placeholder="e.g. Data entry error, wrong amount counted…"></div>
     </div>
@@ -1074,7 +1085,7 @@ function setBotNav(id) {
 }
 
 // ── CONFIG ──────────────────────────────────────────────────────
-let API = 'https://script.google.com/macros/s/AKfycbzQIw35LL6P5gV6kw-VCzhh2WJVscvw53_lqsbv1-TXStrEcBzKB7ePf2-h9CNFu7ee0Q/exec';
+let API = 'https://script.google.com/macros/s/AKfycbzlvhFVXsg9b3qHdDNsUEnO1h8m5xA0A_g2ZNOq8-wXJtiLQvYgAB24dO8DLXAWwDsfSw/exec';
 
 // ── IN-MEMORY CACHE (makes navigation instant after first load) ──
 const CACHE = { dash:null, ppf:null, members:null, records:null, dashTime:0, ppfTime:0, memTime:0, recTime:0 };
@@ -1141,7 +1152,7 @@ function go(name,btn){
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on','on-a','on-b'));
   document.getElementById('pg-'+name).classList.add('on');
   if(btn){const g=btn.dataset.grp;btn.classList.add(g==='a'?'on-a':g==='b'?'on-b':'on');}
-  const map={dashboard:()=>loadDash(),ppf:()=>loadPPF(),records:()=>loadRecords(),settings:loadSettings,members:()=>loadMembers(),memdash:()=>loadMemDash(),auditlog:()=>loadAuditLog()};
+  const map={dashboard:()=>loadDash(),ppf:()=>loadPPF(),records:()=>loadRecords(),settings:()=>{loadSettings();_loadPastorData();},members:()=>loadMembers(),memdash:()=>loadMemDash(),auditlog:()=>loadAuditLog()};
   if(map[name])map[name]();
 }
 
@@ -1193,13 +1204,13 @@ async function submitOffering(){
   if(!date){toast('Please enter a date.','err');return;}
   if(!type){toast('Please select an offering type.','err');return;}
   if(g<=0){toast('Enter at least one denomination amount.','err');return;}
-  const d={date,offeringType:type,counters:document.getElementById('o-ctr').value,notes:document.getElementById('o-rem').value,pastorName:document.getElementById('o-pastor').value,pastorType:document.getElementById('o-ptype').value,...readD('o-')};
+  const d={date,offeringType:type,counters:document.getElementById('o-ctr').value,notes:document.getElementById('o-rem').value,pastorName:document.getElementById('o-pastor').value,pastorType:document.getElementById('o-ptype').value,pastorPayment:document.getElementById('o-ppay').value,attendance:document.getElementById('o-att').value,...readD('o-')};
   const btn=document.getElementById('o-btn');
   btn.disabled=true;btn.innerHTML='<span class="spin"></span> Saving…';
   try{const r=await api('submitOffering',d);btn.disabled=false;btn.textContent='✓ Submit Collection';if(r.ok){toast(r.msg,'ok');clearOff();CACHE.dashTime=0;}else toast(r.msg,'err');}
   catch(e){btn.disabled=false;btn.textContent='✓ Submit Collection';toast(e.message,'err');}
 }
-function clearOff(){clearD('o-');['o-type','o-ctr','o-rem','o-pastor','o-ptype'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});calcOff();document.getElementById('o-date').value=today();}
+function clearOff(){clearD('o-');['o-type','o-ctr','o-rem','o-pastor','o-ptype','o-ppay','o-att'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});calcOff();document.getElementById('o-date').value=today();}
 
 // ── SUBMIT PPF COLLECTION ────────────────────────────────────────
 async function submitPPFColl(){
@@ -1831,12 +1842,268 @@ function renderAudit(entries) {
   </tr>`; }).join('');
 }
 
+// ══════════════════════════════════════════════════════════════════
+// PASTOR MANAGEMENT
+// ══════════════════════════════════════════════════════════════════
+let _pastors = []; // [{name, type}]
+
+async function _loadPastorData() {
+  if(!API) return;
+  try { _pastors = await api('getPastors'); _renderPastorChips(); _populatePastorSelects(); }
+  catch(e) { console.warn('Pastor load failed', e); }
+}
+
+function _renderPastorChips() {
+  const el = document.getElementById('pastor-chips');
+  if(!el) return;
+  el.innerHTML = _pastors.length
+    ? _pastors.map((p,i) => `<span class="pastor-chip">${p.name} <span class="badge b-b" style="font-size:9px;padding:2px 6px">${p.type}</span><button class="rm-p" onclick="_removePastor(${i})" title="Remove">×</button></span>`).join('')
+    : '<span style="color:var(--muted);font-size:12px">No pastors added yet.</span>';
+}
+
+function _removePastor(i) { _pastors.splice(i,1); _renderPastorChips(); }
+
+function addPastor() {
+  const name = (document.getElementById('new-pastor-name').value||'').trim();
+  const type = document.getElementById('new-pastor-type').value || 'Local';
+  if(!name) { toast('Enter a name first.','err'); return; }
+  if(_pastors.find(p=>p.name.toLowerCase()===name.toLowerCase())) { toast('Already in list.','err'); return; }
+  _pastors.push({name, type});
+  document.getElementById('new-pastor-name').value='';
+  _renderPastorChips();
+}
+
+async function savePastors() {
+  try {
+    const r = await api('savePastors', {list: JSON.stringify(_pastors)});
+    if(r.ok) { toast('✓ Pastor list saved ('+r.count+' entries).','ok'); _populatePastorSelects(); }
+    else toast(r.msg,'err');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+// Populate all pastor <select> elements in the page
+function _populatePastorSelects() {
+  ['o-pastor','eo-pastor'].forEach(id => _fillPastorDropdown(id));
+}
+
+function _fillPastorDropdown(selectId, selectedVal) {
+  const sel = document.getElementById(selectId);
+  if(!sel) return;
+  const cur = selectedVal !== undefined ? selectedVal : sel.value;
+  sel.innerHTML = '<option value="">— None / Not Recorded —</option>' +
+    _pastors.map(p => `<option value="${p.name}" ${p.name===cur?'selected':''}>${p.name} (${p.type})</option>`).join('');
+  if(cur) sel.value = cur;
+}
+
+// Alias used by openEditOffering
+function _populatePastorSelect(id, val) { _fillPastorDropdown(id, val); }
+
+// ══════════════════════════════════════════════════════════════════
+// DELETE HANDLERS — Offering, Expense, PPF Claim, PPF Collection
+// ══════════════════════════════════════════════════════════════════
+async function confirmDeleteOffering() {
+  const rowNumber = parseInt(document.getElementById('eo-row').value);
+  const groupRef  = document.getElementById('eo-groupref').value;
+  try {
+    const r = await api('deleteOffering', {rowNumber, groupRef});
+    if(r.ok) {
+      toast('🗑 ' + r.msg, 'ok');
+      closeEditOff();
+      CACHE.recTime=0; CACHE.dashTime=0;
+      loadRecords(true);
+    } else toast(r.msg,'err');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+async function confirmDeleteExpense() {
+  const rowNumber = parseInt(document.getElementById('ee-row').value);
+  const groupRef  = document.getElementById('ee-groupref').value;
+  try {
+    const r = await api('deleteExpense', {rowNumber, groupRef});
+    if(r.ok) {
+      toast('🗑 ' + r.msg, 'ok');
+      closeEditExp();
+      CACHE.recTime=0; CACHE.dashTime=0;
+      loadRecords(true);
+    } else toast(r.msg,'err');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+async function confirmDeletePPFClaim() {
+  const rowNumber = parseInt(document.getElementById('ec-row').value);
+  const groupRef  = document.getElementById('ec-groupref').value;
+  try {
+    const r = await api('deletePPFClaim', {rowNumber, groupRef});
+    if(r.ok) {
+      toast('🗑 ' + r.msg, 'ok');
+      closeEditPPFC();
+      CACHE.ppfTime=0;
+      loadPPF(true);
+    } else toast(r.msg,'err');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+async function confirmDeletePPFCol() {
+  const rowNumber = parseInt(document.getElementById('ecol-row').value);
+  const groupRef  = document.getElementById('ecol-groupref').value;
+  try {
+    const r = await api('deletePPFCollection', {rowNumber, groupRef});
+    if(r.ok) {
+      toast('🗑 ' + r.msg, 'ok');
+      document.getElementById('edit-ppfcol-ov').classList.add('hide');
+      CACHE.ppfTime=0;
+      loadPPF(true);
+    } else toast(r.msg,'err');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// PPF COLLECTION EDIT
+// ══════════════════════════════════════════════════════════════════
+let _editPPFColData = null;
+function openEditPPFCol(r) {
+  _editPPFColData = r;
+  document.getElementById('ecol-row').value     = r.rowNumber;
+  document.getElementById('ecol-groupref').value= r.groupRef || '';
+  document.getElementById('ecol-amount').value  = r.amount;
+  document.getElementById('ecol-ctr').value     = r.counters || '';
+  document.getElementById('ecol-reason').value  = '';
+  document.getElementById('del-ppfcol-confirm').classList.remove('show');
+  if(r.date && r.date.includes('/')) {
+    const [d,m,y] = r.date.split('/');
+    document.getElementById('ecol-date').value = y+'-'+m+'-'+d;
+  } else { document.getElementById('ecol-date').value = r.date||''; }
+  document.getElementById('edit-ppfcol-ov').classList.remove('hide');
+}
+
+async function saveEditPPFCol() {
+  const reason = document.getElementById('ecol-reason').value.trim();
+  if(!reason) { toast('Please enter a reason.','err'); return; }
+  const d = {
+    rowNumber:  document.getElementById('ecol-row').value,
+    date:       document.getElementById('ecol-date').value,
+    amount:     document.getElementById('ecol-amount').value,
+    counters:   document.getElementById('ecol-ctr').value,
+    denoms:     _editPPFColData ? _editPPFColData.denoms : '',
+    totalNotes: _editPPFColData ? _editPPFColData.totalNotes : 0,
+    totalCoins: _editPPFColData ? _editPPFColData.totalCoins : 0,
+    editReason: reason,
+  };
+  try {
+    const r = await api('updatePPFCollection', d);
+    if(r.ok) {
+      toast('✓ ' + r.msg, 'ok');
+      document.getElementById('edit-ppfcol-ov').classList.add('hide');
+      CACHE.ppfTime=0;
+      loadPPF(true);
+    } else toast(r.msg,'err');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SETTINGS: load pastors when settings page opens
+// ══════════════════════════════════════════════════════════════════
+// _loadPastorData() is called on page load and again when settings opens via go() map
+
+// ══════════════════════════════════════════════════════════════════
+// DASHBOARD PDF EXPORT
+// ══════════════════════════════════════════════════════════════════
+async function exportDashPDF() {
+  const btn = document.getElementById('dash-pdf-btn');
+  if(!CACHE.dash) { toast('Load dashboard first.','err'); return; }
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Exporting…';
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    const s = CACHE.dash;
+    const year = s.activeYear || '—';
+    const W = 210, margin = 14, col = (W - margin*2) / 2;
+
+    // ── Header ──────────────────────────────────────────────────
+    doc.setFillColor(13,21,37); doc.rect(0,0,210,26,'F');
+    doc.setTextColor(0,245,195); doc.setFontSize(16); doc.setFont('helvetica','bold');
+    doc.text('KLTF Finance Dashboard', margin, 12);
+    doc.setTextColor(74,96,128); doc.setFontSize(9); doc.setFont('helvetica','normal');
+    doc.text('KL Telugu Fellowship  ·  Financial Year '+year+'  ·  Generated '+new Date().toLocaleDateString('en-MY'), margin, 20);
+
+    // ── KPI Cards ────────────────────────────────────────────────
+    const kpis = [
+      ['Total Offerings',   fmt(s.totalOfferings),  [0,245,195]],
+      ['Total Expenses',    fmt(s.totalExpenses),   [255,82,82]],
+      ['Fund Balance',      fmt(s.netBalance),      [77,159,255]],
+      ['DFCM Outstanding',  fmt(s.dfcmOutstanding), [255,184,48]],
+      ['PPF Balance',       fmt(s.ppfBalance),      [176,108,255]],
+      ['Total Members',     String(s.memTotal||0),  [34,211,238]],
+    ];
+    let cx=margin, cy=32;
+    kpis.forEach(([label,val,rgb],i) => {
+      if(i>0&&i%2===0){ cy+=22; cx=margin; }
+      doc.setFillColor(17,30,48); doc.roundedRect(cx,cy,col-2,18,2,2,'F');
+      doc.setDrawColor(...rgb); doc.setLineWidth(0.5); doc.line(cx,cy,cx+col-2,cy);
+      doc.setTextColor(74,96,128); doc.setFontSize(7); doc.setFont('helvetica','normal');
+      doc.text(label.toUpperCase(), cx+4, cy+6);
+      doc.setTextColor(255,255,255); doc.setFontSize(11); doc.setFont('helvetica','bold');
+      doc.text(val, cx+4, cy+14);
+      cx+=col;
+    });
+    cy+=26;
+
+    // ── Summary Table ────────────────────────────────────────────
+    doc.setFillColor(17,30,48); doc.roundedRect(margin,cy,W-margin*2,60,2,2,'F');
+    doc.setTextColor(0,245,195); doc.setFontSize(9); doc.setFont('helvetica','bold');
+    doc.text('Financial Summary — FY '+year, margin+4, cy+8);
+    const rows = [
+      ['Opening Balance', fmt(s.openingBalance), 'Carried forward'],
+      ['Total Offerings', fmt(s.totalOfferings), 'Sunday + Special'],
+      ['Total Expenses',  fmt(s.totalExpenses),  'All categories'],
+      ['DFCM Due ('+s.dfcmPct+'%)', fmt(s.dfcmDue||0), 'Calculated'],
+      ['DFCM Remitted',  fmt(s.dfcmRemitted||0), 'Paid so far'],
+      ['Net Fund Balance',fmt(s.netBalance), 'Opening + Offerings − Expenses'],
+    ];
+    let ry = cy+14;
+    rows.forEach(([k,v,n],i) => {
+      if(i%2===0) { doc.setFillColor(20,35,56); doc.rect(margin,ry-3,W-margin*2,7,'F'); }
+      doc.setTextColor(200,220,255); doc.setFontSize(8); doc.setFont('helvetica','normal');
+      doc.text(k, margin+4, ry+1);
+      doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+      doc.text(v, margin+80, ry+1);
+      doc.setFont('helvetica','normal'); doc.setTextColor(74,96,128);
+      doc.text(n, margin+120, ry+1);
+      ry+=8;
+    });
+    cy+=68;
+
+    // ── Expense Breakdown ────────────────────────────────────────
+    if(s.expByCategory && Object.keys(s.expByCategory).length) {
+      doc.setFillColor(17,30,48); doc.roundedRect(margin,cy,W-margin*2,10+Object.keys(s.expByCategory).length*8,2,2,'F');
+      doc.setTextColor(77,159,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
+      doc.text('Expenses by Category', margin+4, cy+8);
+      let ey=cy+14;
+      Object.entries(s.expByCategory).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>{
+        doc.setTextColor(200,220,255); doc.setFontSize(8); doc.setFont('helvetica','normal');
+        doc.text(k, margin+4, ey);
+        doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+        doc.text(fmt(v), margin+80, ey);
+        ey+=8;
+      });
+    }
+
+    // ── Footer ───────────────────────────────────────────────────
+    doc.setTextColor(74,96,128); doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.text('KLTF Finance — Automated report · '+new Date().toLocaleString('en-MY'), margin, 290);
+
+    doc.save('KLTF_Dashboard_FY'+year+'.pdf');
+    toast('✓ PDF exported.','ok');
+  } catch(e) { toast('PDF export failed: '+e.message,'err'); console.error(e); }
+  finally { btn.disabled=false; btn.innerHTML='📄 Export PDF'; }
+}
+
 window.addEventListener('load',()=>{
   buildRows('o-','o-notes','o-coins','calcOff');
   buildRows('p-','p-notes','p-coins','calcPPF2');
   document.querySelectorAll('input[type=date]').forEach(el=>{if(!el.value)el.value=today();});
   document.getElementById('m-yr').value=new Date().getFullYear();
-  if(API){loadDash();}
+  if(API){loadDash();_loadPastorData();}
   else{
     document.getElementById('fy-pill').textContent=document.getElementById('fy-pill-mob').textContent='Configure API';
     document.getElementById('d-sub').textContent='Go to Settings → add your Apps Script URL to get started.';
