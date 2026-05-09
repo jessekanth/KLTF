@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>KL Telugu Fellowship</title>
+<title>KLTF Finance</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -49,11 +49,12 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
 }
 .sb-icon{
   width:36px;height:36px;border-radius:10px;flex-shrink:0;
-  background:linear-gradient(135deg,var(--g),var(--blue));
+  background:transparent;
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--font2);font-size:13px;font-weight:800;color:#000;
+  overflow:hidden;
   box-shadow:0 4px 12px rgba(0,245,195,.3);
 }
+.sb-icon img{width:100%;height:100%;object-fit:contain;border-radius:10px;}
 .sb-brand{font-family:var(--font2);font-size:15px;font-weight:700;color:#fff;line-height:1.2}
 .sb-brand small{display:block;font-size:10px;font-weight:400;color:var(--muted);font-family:var(--font);margin-top:2px}
 .fy-pill{
@@ -110,13 +111,13 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
 
 /* ── KPI CARDS ── */
 .kc.k-p{--kc:var(--purple);--kc2:var(--purple2)}
-.krow{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:14px;margin-bottom:20px}
+.krow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
 .kc{
   background:var(--card);border:1px solid var(--bdr);
-  border-radius:var(--r2);padding:18px 20px;
+  border-radius:var(--r2);padding:clamp(12px,2vw,20px) clamp(14px,2.5vw,22px);
   position:relative;overflow:hidden;
   transition:transform .2s,box-shadow .2s;
-  cursor:default;
+  cursor:default;min-width:0;
 }
 .kc:hover{transform:translateY(-2px);box-shadow:var(--sh)}
 .kc::after{
@@ -128,10 +129,16 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
   width:100px;height:100px;border-radius:50%;
   background:radial-gradient(circle,var(--kc-glow,rgba(0,245,195,.06)) 0%,transparent 70%);
 }
-.kc-l{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
-.kc-v{font-family:var(--font2);font-size:26px;font-weight:700;color:#fff;line-height:1}
-.kc-s{font-size:11px;color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:5px}
-.kc-ico{font-size:28px;opacity:.15;position:absolute;right:16px;top:50%;transform:translateY(-50%)}
+.kc-l{font-size:clamp(9px,1.2vw,10px);font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kc-v{
+  font-family:var(--font2);
+  font-size:clamp(16px,3.5vw,26px);
+  font-weight:700;color:#fff;line-height:1.1;
+  word-break:break-word;overflow-wrap:anywhere;
+  padding-right:32px; /* keep clear of icon */
+}
+.kc-s{font-size:clamp(9px,1.1vw,11px);color:var(--muted);margin-top:5px;display:flex;align-items:center;flex-wrap:wrap;gap:4px;line-height:1.4}
+.kc-ico{font-size:clamp(22px,3vw,28px);opacity:.15;position:absolute;right:clamp(10px,1.5vw,16px);top:50%;transform:translateY(-50%);pointer-events:none}
 .k-g{--kc-g:linear-gradient(90deg,#00f5c3,#00c0d8);--kc-glow:rgba(0,245,195,.08)}
 .k-r{--kc-g:linear-gradient(90deg,#ff5252,#ff7043);--kc-glow:rgba(255,82,82,.08)}
 .k-b{--kc-g:linear-gradient(90deg,#4d9fff,#7c6cff);--kc-glow:rgba(77,159,255,.08)}
@@ -463,7 +470,6 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
 
 /* ── RESPONSIVE BREAKPOINTS ── */
 @media(max-width:1100px){
-  .krow{grid-template-columns:repeat(3,1fr)}
   .g3{grid-template-columns:1fr 1fr}
 }
 @media(max-width:768px){
@@ -496,8 +502,9 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
   .pg{padding:14px 12px}
   .ph{flex-direction:column;align-items:flex-start;gap:10px}
   .ph-a{width:100%;justify-content:flex-end}
-  .krow{grid-template-columns:1fr 1fr}
-  .kc{padding:14px}
+  .krow{grid-template-columns:repeat(2,1fr);gap:8px}
+  .kc{padding:12px 14px}
+  .kc-v{font-size:clamp(15px,5vw,22px)}
   .c2,.c3,.c4{grid-template-columns:1fr!important}
   .sw{gap:12px}
   .sc{border-radius:14px}
@@ -520,7 +527,7 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
 }
 @media(max-width:380px){
   .krow{grid-template-columns:1fr}
-  .kc{padding:12px}
+  .kc{padding:11px 13px}
 }
 </style>
 </head>
@@ -535,8 +542,8 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="22" height="22"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
   <div style="display:flex;align-items:center;gap:8px">
-    <div class="sb-icon" style="width:28px;height:28px;font-size:10px">KL Telugu Fellowship</div>
-    <span style="font-weight:700;font-size:15px;color:var(--txt)">KLTF Administration</span>
+    <div class="sb-icon" style="width:28px;height:28px"><img src="kltf-logo.png" alt="KLTF" onerror="this.parentElement.textContent='KL';this.parentElement.style.background='linear-gradient(135deg,var(--g),var(--blue))';this.parentElement.style.color='#000';this.parentElement.style.fontWeight='800'"></div>
+    <span style="font-weight:700;font-size:15px;color:var(--txt)">KLTF Finance</span>
   </div>
   <div id="fy-pill-mob" class="fy-pill" style="font-size:10px;padding:3px 10px"></div>
 </div>
@@ -545,8 +552,8 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
 <aside class="sb" id="main-sidebar">
   <div class="sb-top">
     <div class="sb-logo">
-      <div class="sb-icon">KL</div>
-      <div class="sb-brand">KLTF Administration <small>KL Telugu Fellowship</small></div>
+      <div class="sb-icon"><img src="kltf-logo.png" alt="KLTF Logo" onerror="this.parentElement.innerHTML='KL';this.parentElement.style.background='linear-gradient(135deg,var(--g),var(--blue))';this.parentElement.style.fontFamily='var(--font2)';this.parentElement.style.fontSize='13px';this.parentElement.style.fontWeight='800';this.parentElement.style.color='#000'"></div>
+      <div class="sb-brand">KLTF Finance <small>TMC KL Telugu Fellowship</small></div>
     </div>
     <div class="fy-pill" id="fy-pill">Loading…</div>
   </div>
@@ -632,7 +639,7 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
     <div class="sc"><div class="sh2"><h2>📋 TMCKL — Cash Collection</h2><span>Telugu Fellowship</span></div><div class="sb3">
       <div class="fg c3">
         <div class="f"><label>Date of Service</label><input type="date" id="o-date"></div>
-        <div class="f"><label>Offering Type</label><select id="o-type"><option value="">— Select —</option><option value="Sunday Service">Sunday Service</option><option value="Special Offering">Special Offering</option></select></div>
+        <div class="f"><label>Offering Type</label><select id="o-type"><option value="">— Select —</option></select></div>
         <div class="f"><label>Counted By</label><select id="o-ctr"><option value="">— Select Counter —</option></select></div>
       </div>
       <div class="fg c3">
@@ -660,7 +667,7 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
   <div class="ph"><div><div class="ph-t">Record Expense</div><div class="ph-s">Church operational and ministry expenses</div></div></div>
   <div style="max-width:560px">
     <div class="sc"><div class="sh2 blue"><h2>📤 New Expense</h2></div><div class="sb3">
-      <div class="fg c2"><div class="f"><label>Date</label><input type="date" id="e-date"></div><div class="f"><label>Category</label><select id="e-cat"><option value="">— Select —</option><option>Ministry</option><option>Worship</option><option>Administration</option><option>Maintenance</option><option>Outreach</option><option>Fellowship</option><option>DFCM Remittance</option><option>Other</option></select></div></div>
+      <div class="fg c2"><div class="f"><label>Date</label><input type="date" id="e-date"></div><div class="f"><label>Category</label><select id="e-cat"><option value="">— Select —</option></select></div></div>
       <div class="fg"><div class="f"><label>Description</label><input type="text" id="e-desc" placeholder="Brief description of the expense…"></div></div>
       <div class="fg c2"><div class="f"><label>Amount (RM)</label><input type="number" id="e-amt" placeholder="0.00" min="0" step="0.01"></div><div class="f"><label>Receipt / Reference</label><input type="text" id="e-ref" placeholder="e.g. RCP-001"></div></div>
       <div style="margin-top:16px"><button class="btn bb" id="e-btn" onclick="submitExpense()">✓ Submit Expense</button></div>
@@ -708,7 +715,7 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
   <div style="max-width:560px">
     <div class="wb">⚠️ Claims reduce the PPF available balance. This is completely separate from the main church fund and DFCM calculations.</div>
     <div class="sc"><div class="sh2 amber"><h2>❤️ New PPF Claim</h2></div><div class="sb3">
-      <div class="fg c2"><div class="f"><label>Date of Claim</label><input type="date" id="pc-date"></div><div class="f"><label>Purpose</label><select id="pc-pur"><option value="">— Select —</option><option>Medical Assistance</option><option>Food Aid</option><option>Education Support</option><option>Emergency Relief</option><option>Funeral Assistance</option><option>Other</option></select></div></div>
+      <div class="fg c2"><div class="f"><label>Date of Claim</label><input type="date" id="pc-date"></div><div class="f"><label>Purpose</label><select id="pc-pur"><option value="">— Select —</option></select></div></div>
       <div class="fg c2"><div class="f"><label>Beneficiary Name</label><input type="text" id="pc-bene" placeholder="Full name of recipient…"></div><div class="f"><label>Amount (RM)</label><input type="number" id="pc-amt" placeholder="0.00" min="0" step="0.01"></div></div>
       <div class="fg"><div class="f"><label>Description / Notes</label><input type="text" id="pc-desc" placeholder="Brief description of the need…"></div></div>
       <div class="f" style="margin-bottom:16px"><label>Reference / Voucher No.</label><input type="text" id="pc-ref" placeholder="e.g. PPF-2024-001"></div>
@@ -728,10 +735,11 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
 <div id="pg-memdash" class="pg">
   <div class="ph"><div><div class="ph-t">Member Insights</div><div class="ph-s">Fellowship demographics and statistics</div></div><button class="btn bgh" onclick="loadMemDash(true)">↻ Refresh</button></div>
   <div class="krow">
-    <div class="kc k-b"><div class="kc-l">Total Members</div><div class="kc-v" id="mk-tot">—</div><div class="kc-s">Registered</div><div class="kc-ico">👥</div></div>
+    <div class="kc k-b"><div class="kc-l">Total Families</div><div class="kc-v" id="mk-tot">—</div><div class="kc-s">Registered heads</div><div class="kc-ico">👥</div></div>
+    <div class="kc k-g"><div class="kc-l">Active Members</div><div class="kc-v" id="mk-tot-active">—</div><div class="kc-s" id="mk-active-s">Heads + Spouses + Children</div><div class="kc-ico">✅</div></div>
     <div class="kc k-g"><div class="kc-l">Baptized</div><div class="kc-v" id="mk-bap">—</div><div class="kc-s" id="mk-bap-s">—</div><div class="kc-ico">✝</div></div>
-    <div class="kc k-p"><div class="kc-l">Families</div><div class="kc-v" id="mk-fam">—</div><div class="kc-s">With spouse listed</div><div class="kc-ico">🏠</div></div>
-    <div class="kc k-a"><div class="kc-l">Children</div><div class="kc-v" id="mk-kid">—</div><div class="kc-s">Total registered</div><div class="kc-ico">👶</div></div>
+    <div class="kc k-p"><div class="kc-l">Spouses</div><div class="kc-v" id="mk-fam">—</div><div class="kc-s">Active families with spouse</div><div class="kc-ico">🏠</div></div>
+    <div class="kc k-a"><div class="kc-l">Children</div><div class="kc-v" id="mk-kid">—</div><div class="kc-s">Active registered children</div><div class="kc-ico">👶</div></div>
   </div>
   <div class="cg g2">
     <div class="cc"><div class="cc-hdr"><div><h3>Baptism Status</h3><div class="cc-s">Baptized vs unbaptized</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:center"><div style="height:170px"><canvas id="ch-bap"></canvas></div><div id="bap-leg"></div></div></div>
@@ -915,11 +923,7 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
     <div class="fg c2">
       <div class="f"><label>Date</label><input type="date" id="ee-date"></div>
       <div class="f"><label>Category</label>
-        <select id="ee-cat">
-          <option>Ministry</option><option>Worship</option><option>Administration</option>
-          <option>Maintenance</option><option>Outreach</option><option>Fellowship</option>
-          <option>DFCM Remittance</option><option>Other</option>
-        </select>
+        <select id="ee-cat"><option value="">— Select —</option></select>
       </div>
     </div>
     <div class="fg"><div class="f"><label>Description</label><input type="text" id="ee-desc" placeholder="Description…"></div></div>
@@ -957,10 +961,7 @@ tr.edited-flash td{animation:rowFlash 2s ease forwards}
     <div class="fg c2">
       <div class="f"><label>Date</label><input type="date" id="ec-date"></div>
       <div class="f"><label>Purpose</label>
-        <select id="ec-pur">
-          <option>Medical Assistance</option><option>Food Aid</option><option>Education Support</option>
-          <option>Emergency Relief</option><option>Funeral Assistance</option><option>Other</option>
-        </select>
+        <select id="ec-pur"><option value="">— Select —</option></select>
       </div>
     </div>
     <div class="fg c2">
@@ -1093,7 +1094,7 @@ function setBotNav(id) {
 }
 
 // ── CONFIG ──────────────────────────────────────────────────────
-let API = 'https://script.google.com/macros/s/AKfycbyW2tmXr4tHN44o5GsV3aYdROPCfEOaeC552237znL-mUOAvtnab_kJnrM4-6aftwSZMg/exec';
+let API = 'https://script.google.com/macros/s/AKfycbzYKVbDWB5TFfzuqNwRYK_mF3Vu1TV7rkWkgC5uupvFTPzg-kpUq5oOUXrrg3zepi9BEw/exec';
 
 // ── IN-MEMORY CACHE (makes navigation instant after first load) ──
 const CACHE = { dash:null, ppf:null, members:null, records:null, dashTime:0, ppfTime:0, memTime:0, recTime:0 };
@@ -1160,7 +1161,18 @@ function go(name,btn){
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on','on-a','on-b'));
   document.getElementById('pg-'+name).classList.add('on');
   if(btn){const g=btn.dataset.grp;btn.classList.add(g==='a'?'on-a':g==='b'?'on-b':'on');}
-  const map={dashboard:()=>loadDash(),ppf:()=>loadPPF(),records:()=>loadRecords(),settings:()=>{loadSettings();_loadPastorData();},members:()=>loadMembers(),memdash:()=>loadMemDash(),auditlog:()=>loadAuditLog()};
+  const map={
+    dashboard: ()=>loadDash(),
+    offering:  ()=>_loadConfig(),
+    expense:   ()=>_loadConfig(),
+    ppf:       ()=>{loadPPF();_loadConfig();},
+    ppfclaim:  ()=>_loadConfig(),
+    records:   ()=>loadRecords(),
+    settings:  ()=>{loadSettings();_loadConfig(true);}, // force-refresh on settings open
+    members:   ()=>loadMembers(),
+    memdash:   ()=>loadMemDash(),
+    auditlog:  ()=>loadAuditLog(),
+  };
   if(map[name])map[name]();
 }
 
@@ -1316,7 +1328,7 @@ function renderDash(s){
     <div class="kc k-b"><div class="kc-bg"></div><div class="kc-l">Fund Balance</div><div class="kc-v">${fmt(s.netBalance)}</div><div class="kc-s"><span style="color:var(--muted);font-size:10px">Carry Fwd</span> <span style="color:var(--txt);font-weight:600">${fmt(s.openingBalance)}</span> &nbsp;→&nbsp; <span style="color:var(--muted);font-size:10px">Present</span> <span style="${s.netBalance>=0?'color:var(--g)':'color:var(--red)'}">▲ ${fmt(s.netBalance)}</span></div><div class="kc-ico">📊</div></div>
     <div class="kc k-a"><div class="kc-bg"></div><div class="kc-l">DFCM Outstanding</div><div class="kc-v">${fmt(s.dfcmOutstanding)}</div><div class="kc-s">${s.dfcmOutstanding<=0?'<span style="color:var(--g)">✓ Fully paid</span>':'<span style="color:var(--amber)">⚠ Outstanding</span>'}</div><div class="kc-ico">🏛</div></div>
     <div class="kc k-p"><div class="kc-bg"></div><div class="kc-l">PPF Balance</div><div class="kc-v">${fmt(s.ppfBalance)}</div><div class="kc-s"><span style="color:var(--muted);font-size:10px">Carry Fwd</span> <span style="color:var(--txt);font-weight:600">${fmt(s.ppfOpening)}</span> &nbsp;→&nbsp; <span style="color:var(--muted);font-size:10px">Present</span> <span style="${s.ppfBalance>=0?'color:var(--g)':'color:var(--red)'}">▲ ${fmt(s.ppfBalance)}</span></div><div class="kc-ico">❤️</div></div>
-    <div class="kc k-b" style="--kc-g:linear-gradient(90deg,#22d3ee,#4d9fff)"><div class="kc-bg"></div><div class="kc-l">Membership</div><div class="kc-v">${s.memTotal||0}</div><div class="kc-s"><span style="color:var(--g)">${s.memActive||0} active</span>${s.memNew>0?` &nbsp;·&nbsp; <span style="color:var(--amber)">${s.memNew} new this year</span>`:''}</div><div class="kc-ico">👥</div></div>`;
+    <div class="kc k-b" style="--kc-g:linear-gradient(90deg,#22d3ee,#4d9fff)"><div class="kc-bg"></div><div class="kc-l">Active Members</div><div class="kc-v">${s.memActive||0}</div><div class="kc-s"><span style="color:var(--muted)">${s.memTotal||0} families</span>${s.memNew>0?` &nbsp;·&nbsp; <span style="color:var(--amber)">${s.memNew} new</span>`:''}</div><div class="kc-ico">👥</div></div>`;
 
   mkC('ch-mon','bar',MONTHS,[{label:'Offerings',data:s.monthly,backgroundColor:'rgba(0,245,195,.18)',borderColor:'#00f5c3',borderWidth:2,borderRadius:6,borderSkipped:false}],{plugins:{legend:{display:false}},scales:AX});
 
@@ -1346,7 +1358,7 @@ async function loadPPF(force){
   }catch(e){toast(e.message,'err');}
 }
 function renderPPF(s,claims,cols){
-  s=s||{};claims=claims||[];cols=cols||[];
+  s=s||{}; claims=_sortByDate(claims||[]); cols=_sortByDate(cols||[]);
   document.getElementById('p-coll').textContent=fmt(s.totalCollected||0);
   document.getElementById('p-clmd').textContent=fmt(s.totalClaimed||0);
   document.getElementById('p-bal').textContent=fmt(s.balance||0);
@@ -1432,9 +1444,12 @@ async function runRollover(){
   previewRollover(); // legacy — redirect to new preview flow
 }
 function loadSettings(){
-  const saved=localStorage.getItem('kltf_url')||'';
+  // Use localStorage URL if set, otherwise fall back to the hardcoded API variable
+  const saved=localStorage.getItem('kltf_url')||API||'';
   document.getElementById('s-url').value=saved;
   if(!saved)return;
+  // Ensure global API is in sync so api() calls use the correct URL
+  if(saved&&!localStorage.getItem('kltf_url'))API=saved;
   api('getSettings').then(s=>{
     document.getElementById('s-yr').value=s['Active Financial Year']||'';
     document.getElementById('s-dfcm').value=s['DFCM Percentage']||10;
@@ -1467,6 +1482,7 @@ async function loadMembers(force){
   }catch(e){toast(e.message,'err');}
 }
 function renderMem(list){
+  list = _sortByDate(list||[], 'dob', true); // newest DOB first (youngest shown first)
   const g=document.getElementById('mem-grid');
   if(!list.length){g.innerHTML='<div style="color:var(--muted);text-align:center;padding:50px;grid-column:1/-1">No members yet. Click <strong>+ Add Member</strong> to get started.</div>';return;}
   g.innerHTML=list.map(m=>{
@@ -1521,25 +1537,52 @@ async function loadMemDash(force){
   catch(e){toast(e.message,'err');}
 }
 function renderMemDash(members){
-  const total=members.length,bap=members.filter(m=>m.baptism==='Yes').length;
-  const fams=members.filter(m=>m.spouseName).length;
-  const kids=members.reduce((n,m)=>(n+(m.child1?1:0)+(m.child2?1:0)+(m.child3?1:0)),0);
-  document.getElementById('mk-tot').textContent=total;
-  document.getElementById('mk-bap').textContent=bap;
-  document.getElementById('mk-bap-s').textContent=total>0?Math.round(bap/total*100)+'% of members':'—';
-  document.getElementById('mk-fam').textContent=fams;
-  document.getElementById('mk-kid').textContent=kids;
-  mkC('ch-bap','doughnut',['Baptized','Unbaptized'],[{data:[bap,total-bap],backgroundColor:['#00f5c3','#ff5252'],borderWidth:0,hoverOffset:6}],{cutout:'62%',plugins:{legend:{display:false}}});
-  document.getElementById('bap-leg').innerHTML=[['Baptized',bap,'#00f5c3'],['Unbaptized',total-bap,'#ff5252']].map(([l,v,c])=>`<div style="display:flex;align-items:center;gap:7px;margin-bottom:11px"><div style="width:10px;height:10px;border-radius:3px;background:${c};flex-shrink:0"></div><span style="font-size:12px;flex:1;color:var(--txt)">${l}</span><strong style="font-family:'Syne',sans-serif;font-size:15px;color:#fff">${v}</strong></div>`).join('');
-  const jy={};members.forEach(m=>{if(m.joinedYear)jy[m.joinedYear]=(jy[m.joinedYear]||0)+1;});
+  // #15: all charts/KPIs use ACTIVE members only
+  const active = members.filter(m => (m.status||'Active') === 'Active');
+  const total   = members.length;
+  const bap     = active.filter(m => m.baptism==='Yes').length;
+  const spouses = active.filter(m => m.spouseName).length;
+  const kids    = active.reduce((n,m) => n+(m.child1?1:0)+(m.child2?1:0)+(m.child3?1:0), 0);
+  const totalActive = active.length + spouses + kids; // heads + spouses + children
+
+  document.getElementById('mk-tot').textContent         = total;
+  document.getElementById('mk-tot-active').textContent  = totalActive;
+  document.getElementById('mk-active-s').textContent    = active.length+' heads · '+spouses+' spouses · '+kids+' children';
+  document.getElementById('mk-bap').textContent         = bap;
+  document.getElementById('mk-bap-s').textContent       = active.length>0?Math.round(bap/active.length*100)+'% of active':'—';
+  document.getElementById('mk-fam').textContent         = spouses;
+  document.getElementById('mk-kid').textContent         = kids;
+
+  // Charts use active only
+  mkC('ch-bap','doughnut',['Baptized','Unbaptized'],[{data:[bap,active.length-bap],backgroundColor:['#00f5c3','#ff5252'],borderWidth:0,hoverOffset:6}],{cutout:'62%',plugins:{legend:{display:false}}});
+  document.getElementById('bap-leg').innerHTML=[['Baptized',bap,'#00f5c3'],['Unbaptized',active.length-bap,'#ff5252']].map(([l,v,c])=>`<div style="display:flex;align-items:center;gap:7px;margin-bottom:11px"><div style="width:10px;height:10px;border-radius:3px;background:${c};flex-shrink:0"></div><span style="font-size:12px;flex:1;color:var(--txt)">${l}</span><strong style="font-family:'Syne',sans-serif;font-size:15px;color:#fff">${v}</strong></div>`).join('');
+  const jy={}; active.forEach(m=>{if(m.joinedYear)jy[m.joinedYear]=(jy[m.joinedYear]||0)+1;});
   const jk=Object.keys(jy).sort();
-  mkC('ch-join','bar',jk,[{label:'Members',data:jk.map(k=>jy[k]),backgroundColor:'rgba(77,159,255,.25)',borderColor:'#4d9fff',borderWidth:2,borderRadius:5,borderSkipped:false}],{plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a6080',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a6080',font:{size:10},stepSize:1}}}});
-  const sc={};members.forEach(m=>(m.skills||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(s=>{sc[s]=(sc[s]||0)+1;}));
+  mkC('ch-join','bar',jk,[{label:'Active Members',data:jk.map(k=>jy[k]),backgroundColor:'rgba(77,159,255,.25)',borderColor:'#4d9fff',borderWidth:2,borderRadius:5,borderSkipped:false}],{plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a6080',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a6080',font:{size:10},stepSize:1}}}});
+  const sc={}; active.forEach(m=>(m.skills||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(s=>{sc[s]=(sc[s]||0)+1;}));
   const scmax=Math.max(...Object.values(sc),1);
   document.getElementById('skills-cloud').innerHTML=Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,24).map(([s,c])=>`<span style="background:var(--bg3);color:var(--txt);border:1px solid var(--bdr);border-radius:6px;padding:4px 11px;font-size:${11+Math.round(c/scmax*6)}px;font-weight:500;cursor:default;transition:all .2s" onmouseover="this.style.borderColor='var(--g)';this.style.color='var(--g)'" onmouseout="this.style.borderColor='var(--bdr)';this.style.color='var(--txt)'" title="${c} member(s)">${s} <span style="opacity:.5;font-size:9px">${c}</span></span>`).join('');
 }
 
 // ── INIT ─────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// #13 — GLOBAL DATE SORTING UTILITY
+// ══════════════════════════════════════════════════════════════════
+function _parseDate(s) {
+  if(!s) return 0;
+  if(s instanceof Date) return s.getTime();
+  const p = String(s).split('/');
+  if(p.length === 3) return new Date(p[2], p[1]-1, p[0]).getTime();
+  return new Date(s).getTime() || 0;
+}
+// Sort array newest → oldest by a date field (default 'date'). Non-destructive.
+function _sortByDate(arr, key='date', desc=true) {
+  return arr.slice().sort((a,b) => desc
+    ? _parseDate(b[key]) - _parseDate(a[key])
+    : _parseDate(a[key]) - _parseDate(b[key])
+  );
+}
+
 // ══════════════════════════════════════════════════════════════════
 // RECORDS — grouped by GroupRef, shows NEW_UPDATE rows inline
 // ══════════════════════════════════════════════════════════════════
@@ -1553,10 +1596,15 @@ async function loadRecords(force){
 }
 
 function renderRecords(offs,exps){
+  offs = _sortByDate(offs || []);
+  exps = _sortByDate(exps || []);
   function mkGroups(rows){
     const grps={},ord=[];
     rows.forEach(r=>{const k=r.groupRef||r.reference||r.rowNumber;if(!grps[k]){grps[k]=[];ord.push(k);}grps[k].push(r);});
+    // Sort within each group: original row first (lowest rowNumber), updates after
     ord.forEach(k=>grps[k].sort((a,b)=>(a.rowNumber||0)-(b.rowNumber||0)));
+    // Re-sort groups by the representative date (first/original row) newest → oldest
+    ord.sort((a,b)=>_parseDate(grps[b][0].date)-_parseDate(grps[a][0].date));
     return{grps,ord};
   }
 
@@ -1855,16 +1903,61 @@ function renderAudit(entries) {
 }
 
 // ══════════════════════════════════════════════════════════════════
+// #12 — DYNAMIC CONFIG AUTO-SYNC
+// Single API call loads ALL configurable lists and populates every
+// dropdown. Re-called on navigation to settings/ppf/offering pages.
+// ══════════════════════════════════════════════════════════════════
+let _CONFIG = {};
+const CONFIG_TTL = 5 * 60 * 1000; // 5 min cache
+
+async function _loadConfig(force) {
+  if(!API) return;
+  if(!force && _CONFIG._loaded && (Date.now() - _CONFIG._time) < CONFIG_TTL) {
+    _applyConfig(); return;
+  }
+  try {
+    const c = await api('getConfigLists');
+    if(!c || c.ok === false) return;
+    _CONFIG = c; _CONFIG._loaded = true; _CONFIG._time = Date.now();
+    // Keep _pastors/_counters in sync for Settings chip UI
+    if(c.pastors)  { _pastors  = c.pastors;  _renderPastorChips(); }
+    if(c.counters) { _counters = c.counters; _renderCounterChips(); }
+    _applyConfig();
+  } catch(e) { console.warn('Config load failed', e); }
+}
+
+// Alias kept for backward compatibility — calls unified loader
+function _loadPastorData() { return _loadConfig(); }
+
+function _applyConfig() {
+  const c = _CONFIG;
+  // Offering type dropdowns
+  _fillOpts('o-type',    c.offeringTypes   || [], '', true);
+  _fillOpts('eo-type',   c.offeringTypes   || [], '', false);
+  // Expense category dropdowns
+  _fillOpts('e-cat',     c.expenseCategories || [], '', true);
+  _fillOpts('ee-cat',    c.expenseCategories || [], '', true);
+  // PPF purpose dropdowns
+  _fillOpts('pc-pur',    c.ppfPurposes || [], '', true);
+  _fillOpts('ec-pur',    c.ppfPurposes || [], '', true);
+  // Pastor and counter dropdowns (reuse existing helpers)
+  _populatePastorSelects();
+  _populateCounterSelects();
+}
+
+// ══════════════════════════════════════════════════════════════════
 // PASTOR MANAGEMENT
 // ══════════════════════════════════════════════════════════════════
 let _pastors = []; // [{name, type}]
 
-async function _loadPastorData() {
-  if(!API) return;
-  try { _pastors = await api('getPastors'); _renderPastorChips(); _populatePastorSelects(); }
-  catch(e) { console.warn('Pastor load failed', e); }
-  try { _counters = await api('getCounters'); _renderCounterChips(); _populateCounterSelects(); }
-  catch(e) { console.warn('Counter load failed', e); }
+// Reusable option filler — preserves current selection
+function _fillOpts(selectId, values, blankLabel, addBlank) {
+  const sel = document.getElementById(selectId);
+  if(!sel) return;
+  const cur = sel.value;
+  const blank = addBlank ? `<option value="">— ${blankLabel||'Select'} —</option>` : '';
+  sel.innerHTML = blank + values.map(v => `<option value="${v}">${v}</option>`).join('');
+  if(cur) sel.value = cur;
 }
 
 function _renderPastorChips() {
@@ -2162,7 +2255,7 @@ window.addEventListener('load',()=>{
   buildRows('p-','p-notes','p-coins','calcPPF2');
   document.querySelectorAll('input[type=date]').forEach(el=>{if(!el.value)el.value=today();});
   document.getElementById('m-yr').value=new Date().getFullYear();
-  if(API){loadDash();_loadPastorData();}
+  if(API){loadDash();_loadPastorData();loadSettings();}
   else{
     document.getElementById('fy-pill').textContent=document.getElementById('fy-pill-mob').textContent='Configure API';
     document.getElementById('d-sub').textContent='Go to Settings → add your Apps Script URL to get started.';
